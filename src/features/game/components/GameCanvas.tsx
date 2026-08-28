@@ -50,6 +50,7 @@ export function GameCanvas({
       shadows="percentage"
       dpr={[1, 2]}
       gl={{ antialias: true, powerPreference: "high-performance" }}
+      resize={{ offsetSize: true }}
       camera={{
         fov: 72,
         near: 0.1,

@@ -56,6 +56,10 @@ export function DiagramStage({
     <Canvas
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true }}
+      // `offsetSize` mesure la boîte réelle plutôt que son rectangle à
+      // l'écran : sans cela, le canvas créé pendant l'agrandissement adopte la
+      // taille transformée du cadre et reste figé dessus, décalé dans un coin.
+      resize={{ offsetSize: true }}
       camera={{
         fov: DIAGRAM_CAMERA.fov,
         position: DIAGRAM_CAMERA.position,

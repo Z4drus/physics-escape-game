@@ -169,7 +169,7 @@ export function DiagramViewer({
             transition={TRANSITION.micro}
             ref={overlayRef}
             tabIndex={-1}
-            className="scrim fixed inset-0 z-30 flex flex-col items-center justify-center gap-4 p-4 outline-none sm:p-8"
+            className="scrim fixed inset-0 z-30 flex flex-col gap-3 p-4 outline-none sm:p-6"
             role="dialog"
             aria-modal="true"
             aria-label="Schéma agrandi"
@@ -178,12 +178,12 @@ export function DiagramViewer({
               layoutId={FRAME_LAYOUT_ID}
               transition={morph}
               ref={stageRef}
-              className={`${FRAME_CLASSES} aspect-[16/10] max-h-full w-[76rem] max-w-full cursor-grab active:cursor-grabbing`}
+              className={`${FRAME_CLASSES} mx-auto min-h-0 w-full max-w-[110rem] flex-1 cursor-grab active:cursor-grabbing`}
             >
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ ...TRANSITION.base, delay: 0.18 }}
+                transition={{ ...TRANSITION.base, delay: 0.12 }}
                 className="size-full"
               >
                 <DiagramStage
@@ -204,7 +204,7 @@ export function DiagramViewer({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 6 }}
               transition={{ ...TRANSITION.base, delay: 0.12 }}
-              className="flex flex-col items-center gap-2"
+              className="flex shrink-0 flex-col items-center gap-2"
             >
               <DiagramToolbar
                 zoom={zoom}
