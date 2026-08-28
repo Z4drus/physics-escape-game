@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
+/*
+ * Palette unique (thème sombre) : le jeu s'affiche toujours en plein écran
+ * sur une scène 3D sombre, il n'y a donc pas de variante claire.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #07090f;
+  --surface: #0e1320;
+  --surface-raised: #151c2e;
+  --foreground: #e8ecf6;
+  --muted: #8b95ad;
+  --accent: #4ee1c1;
+  --accent-strong: #16b89a;
+  --warning: #f5b544;
+  --danger: #f4736b;
+  --hairline: rgb(255 255 255 / 0.08);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-hairline: var(--hairline);
+  --font-sans: var(--font-body), system-ui, sans-serif;
+  --font-mono: var(--font-code), ui-monospace, monospace;
+  --font-display: var(--font-heading), var(--font-body), system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html,
+  body {
+    height: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body), system-ui, sans-serif;
+    /* La scène 3D occupe le viewport : aucun scroll ne doit apparaître. */
+    overflow: hidden;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading), system-ui, sans-serif;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility panel-shadow {
+  /* Profondeur par superposition d'ombres plutôt que par une bordure franche. */
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.06),
+    0 1px 2px rgb(0 0 0 / 0.35),
+    0 8px 24px -8px rgb(0 0 0 / 0.55),
+    0 24px 64px -24px rgb(0 0 0 / 0.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

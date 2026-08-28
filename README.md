@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Physics Escape
 
-## Getting Started
+Escape game 3D à la première personne : on explore un laboratoire de physique,
+on interagit avec cinq dispositifs, et chaque bonne réponse à une question de
+physique délivre une clé. Les cinq clés déverrouillent la porte de sortie.
 
-First, run the development server:
+Stack : **Next.js 16 (App Router) · React 19 · TypeScript strict · Tailwind CSS 4 ·
+three.js via React Three Fiber · Zustand · Motion**.
+
+## Démarrer
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Scripts : `dev`, `build`, `start`, `lint`, `lint:fix`, `typecheck`, `format`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Commandes en jeu
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Touche                | Action                            |
+| --------------------- | --------------------------------- |
+| ZQSD / WASD / flèches | Se déplacer                       |
+| Souris                | Regarder                          |
+| Maj                   | Courir                            |
+| E                     | Interagir avec le dispositif visé |
+| 1 / 2 / 3             | Répondre à une question           |
+| Échap                 | Libérer la souris (pause)         |
 
-## Learn More
+## Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/                      Route unique : layout, page, error, not-found
+  features/game/
+    components/
+      GameScreen.tsx        Compose la scène, le HUD et les modales
+      GameCanvas.tsx        <Canvas> R3F + PointerLockControls
+      scene/                Salle, porte, joueur, dispositifs 3D
+      ui/                   HUD, réticule, dialogue d'énigme, overlays
+    data/
+      puzzles.ts            Énoncés, réponses, explications, clés
+      room.ts               Dimensions, positions, collisions, joueur
+    hooks/                  Clavier de déplacement, raccourci d'interaction
+    state/useGameStore.ts   Machine d'état de la partie (Zustand)
+  lib/                      Logique pure : collisions, textures, cn()
+  types/game.ts             Types du domaine
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Ajouter une énigme
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Ajouter une entrée dans `src/features/game/data/puzzles.ts`
+   (question, trois réponses, `correctAnswerId`, explication, clé et couleur).
+2. Ajouter le dispositif correspondant dans `INTERACTIVE_OBJECTS`
+   (`src/features/game/data/room.ts`) : position, rotation, empreinte au sol
+   — l'empreinte devient automatiquement un obstacle.
+3. Si le `kind` est nouveau : créer le composant 3D dans
+   `components/scene/props/` et le brancher dans `StationModel`
+   (`components/scene/PuzzleStation.tsx`).
 
-## Deploy on Vercel
+Le nombre de clés requises pour ouvrir la porte suit automatiquement le nombre
+d'énigmes (`TOTAL_KEYS`).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Choix techniques
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Pas de moteur physique** : les collisions sont des boîtes alignées sur les
+  axes résolues axe par axe (`src/lib/collision.ts`), suffisant pour un
+  déplacement à la première personne dans une pièce fermée.
+- **Le store n'est pas lu pendant le rendu de la boucle 3D** : `Player` lit
+  l'état via `useGameStore.getState()` dans `useFrame`, ce qui évite tout
+  re-render à 60 fps. Seuls les composants qui dépendent réellement d'un
+  booléen (dispositif visé, énigme résolue) s'y abonnent.
+- **Verrouillage du pointeur piloté par l'interface** : le lock automatique de
+  drei sur n'importe quel clic est désactivé, seul le bouton de l'overlay
+  déclenche `controls.lock()`.
