@@ -5,7 +5,8 @@ import { useRef } from "react";
 import type { Mesh, MeshStandardMaterial } from "three";
 import { MathUtils } from "three";
 
-import { TOTAL_KEYS } from "@/features/game/data/puzzles";
+import { LAB } from "@/features/game/components/scene/materials";
+import { TOTAL_KEYS } from "@/features/game/data/stations";
 import { DOOR, ROOM, ROOM_HALF_DEPTH } from "@/features/game/data/room";
 
 const PANEL_WIDTH = DOOR.width / 2;
@@ -61,7 +62,7 @@ export function ExitDoor({
       >
         <boxGeometry args={[PANEL_WIDTH, DOOR.height, 0.14]} />
         <meshStandardMaterial
-          color="#4a5570"
+          color={LAB.metalDark}
           roughness={0.42}
           metalness={0.65}
         />
@@ -73,7 +74,7 @@ export function ExitDoor({
       >
         <boxGeometry args={[PANEL_WIDTH, DOOR.height, 0.14]} />
         <meshStandardMaterial
-          color="#4a5570"
+          color={LAB.metalDark}
           roughness={0.42}
           metalness={0.65}
         />
@@ -90,7 +91,7 @@ export function ExitDoor({
         <mesh>
           <boxGeometry args={[0.42, 0.9, 0.08]} />
           <meshStandardMaterial
-            color="#1b2231"
+            color={LAB.frame}
             roughness={0.6}
             metalness={0.4}
           />
@@ -99,8 +100,8 @@ export function ExitDoor({
           <boxGeometry args={[0.3, 0.12, 0.02]} />
           <meshStandardMaterial
             ref={indicator}
-            color={open ? "#5cf0b8" : "#f4736b"}
-            emissive={open ? "#5cf0b8" : "#f4736b"}
+            color={open ? LAB.accentLight : LAB.warning}
+            emissive={open ? LAB.accentLight : LAB.warning}
             emissiveIntensity={1.1}
             toneMapped={false}
           />
@@ -111,8 +112,8 @@ export function ExitDoor({
             <mesh key={index} position={[0, 0.14 - index * 0.12, 0.05]}>
               <boxGeometry args={[0.22, 0.06, 0.02]} />
               <meshStandardMaterial
-                color={lit ? "#4ee1c1" : "#2b3346"}
-                emissive={lit ? "#4ee1c1" : "#000000"}
+                color={lit ? LAB.accentLight : LAB.frame}
+                emissive={lit ? LAB.accentLight : "#000000"}
                 emissiveIntensity={lit ? 1.6 : 0}
                 toneMapped={false}
               />

@@ -6,11 +6,11 @@ import { Vector3 } from "three";
 
 import {
   EXIT_TRIGGER_Z,
-  INTERACTIVE_OBJECTS,
   PLAYER,
   PLAYER_SPAWN,
   buildColliders,
 } from "@/features/game/data/room";
+import { STATIONS } from "@/features/game/data/stations";
 import { useMovementKeys } from "@/features/game/hooks/useMovementKeys";
 import { useGameStore } from "@/features/game/state/useGameStore";
 import { resolveMovement } from "@/lib/collision";
@@ -42,7 +42,7 @@ export function Player({ doorOpen }: { doorOpen: boolean }) {
     // Un onglet en arrière-plan peut produire un delta énorme : on le borne
     // pour ne pas téléporter le joueur au travers d'un mur.
     const delta = Math.min(rawDelta, 0.05);
-    const { status, solvedPuzzleIds, setFocusedObject, escapeRoom } =
+    const { status, solvedStationIds, setFocusedStation, escapeRoom } =
       useGameStore.getState();
 
     if (status !== "playing") {
@@ -91,7 +91,7 @@ export function Player({ doorOpen }: { doorOpen: boolean }) {
 
     camera.position.set(resolved.x, PLAYER.eyeHeight + bob, resolved.z);
 
-    setFocusedObject(findFocusedObject(camera.position, solvedPuzzleIds));
+    setFocusedStation(findFocusedStation(camera.position, solvedStationIds));
 
     if (doorOpen && camera.position.z < EXIT_TRIGGER_Z) {
       escapeRoom();
@@ -102,26 +102,26 @@ export function Player({ doorOpen }: { doorOpen: boolean }) {
 }
 
 /**
- * Retourne le dispositif le mieux aligné avec le regard du joueur, ou `null`.
+ * Retourne la station la mieux alignée avec le regard du joueur, ou `null`.
  * On combine distance et écart angulaire plutôt qu'un raycast : les modèles
  * sont composés de nombreux petits meshes et viser une pièce précise serait
  * frustrant à la souris.
  */
-function findFocusedObject(
+function findFocusedStation(
   position: Vector3,
-  solvedPuzzleIds: readonly string[],
+  solvedStationIds: readonly string[],
 ): string | null {
   let bestId: string | null = null;
   let bestScore = Number.POSITIVE_INFINITY;
 
-  for (const object of INTERACTIVE_OBJECTS) {
-    if (solvedPuzzleIds.includes(object.puzzleId)) continue;
+  for (const station of STATIONS) {
+    if (solvedStationIds.includes(station.id)) continue;
 
-    const dx = object.position[0] - position.x;
-    const dz = object.position[2] - position.z;
+    const dx = station.position[0] - position.x;
+    const dz = station.position[2] - position.z;
     const distance = Math.hypot(dx, dz);
     const footprintRadius =
-      Math.max(object.footprint[0], object.footprint[1]) / 2;
+      Math.max(station.footprint[0], station.footprint[1]) / 2;
 
     if (distance > PLAYER.reach + footprintRadius) continue;
 
@@ -133,7 +133,7 @@ function findFocusedObject(
     const score = angle * 2 + distance * 0.2;
     if (score < bestScore) {
       bestScore = score;
-      bestId = object.id;
+      bestId = station.id;
     }
   }
 

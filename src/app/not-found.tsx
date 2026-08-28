@@ -2,20 +2,18 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <main className="grid min-h-dvh place-items-center p-6">
-      <div className="panel-shadow bg-surface w-full max-w-md rounded-[28px] p-2">
-        <div className="bg-surface-raised rounded-[20px] p-6">
-          <h1 className="text-xl font-semibold">
-            Cette pièce n&apos;existe pas
-          </h1>
-          <p className="text-muted mt-2 text-sm">
+    <main className="flex min-h-dvh justify-center overflow-y-auto p-6">
+      <div className="glass my-auto w-full max-w-md rounded-xl p-2">
+        <div className="bg-background-deep rounded-lg p-6">
+          <h1 className="text-xl">Cette salle n&apos;existe pas</h1>
+          <p className="text-ink-fade mt-3 text-sm">
             Le couloir que vous cherchez ne fait pas partie du bâtiment.
           </p>
           <Link
             href="/"
-            className="bg-accent text-background mt-6 flex h-11 w-full cursor-pointer items-center justify-center rounded-2xl text-sm font-semibold transition-[scale,background-color] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-[var(--accent-strong)] active:scale-[0.96]"
+            className="bg-ink text-background ease-smooth mt-6 flex h-11 w-full cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-opacity duration-[200ms] hover:opacity-90"
           >
-            Retourner à la salle
+            Retourner au laboratoire
           </Link>
         </div>
       </div>

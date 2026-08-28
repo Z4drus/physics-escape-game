@@ -1,58 +1,144 @@
 @import "tailwindcss";
 
 /*
- * Palette unique (thème sombre) : le jeu s'affiche toujours en plein écran
- * sur une scène 3D sombre, il n'y a donc pas de variante claire.
+ * Design system — transposition du versant sombre (« invert ») du système
+ * source : encre bleu-nuit, surfaces de verre, filets à très faible opacité,
+ * dégradé de marque nuit → pétrole → cyan, et éclairage par l'intérieur
+ * (glows internes) plutôt que par des ombres portées.
  */
 :root {
-  --background: #07090f;
-  --surface: #0e1320;
-  --surface-raised: #151c2e;
-  --foreground: #e8ecf6;
-  --muted: #8b95ad;
-  --accent: #4ee1c1;
-  --accent-strong: #16b89a;
-  --warning: #f5b544;
-  --danger: #f4736b;
-  --hairline: rgb(255 255 255 / 0.08);
+  /* Fonds */
+  --background: #000f18;
+  --background-deep: #00070d;
+  --surface: rgb(255 255 255 / 0.03);
+  --surface-raised: rgb(255 255 255 / 0.06);
+  --surface-strong: rgb(255 255 255 / 0.1);
+
+  /* Encre — jamais de blanc pur en dehors du texte principal */
+  --ink: #fdfdfd;
+  --ink-fade: rgb(253 253 253 / 0.73);
+  --ink-mute: rgb(253 253 253 / 0.5);
+
+  /* Filets : 1 px, jamais au-delà de 12 % d'opacité */
+  --line: rgb(255 255 255 / 0.06);
+  --line-strong: rgb(255 255 255 / 0.12);
+
+  /* Marque */
+  --brand-night: #001d35;
+  --brand-deep: #004a65;
+  --brand-cyan: #1695c4;
+  --brand-sky: #9de5ff;
+  --brand-amber: #e68c2b;
+
+  /* Rôles sémantiques */
+  --accent: var(--brand-cyan);
+  --accent-soft: var(--brand-sky);
+  --positive: var(--brand-sky);
+  --negative: var(--brand-amber);
+
+  /* Dégradés signatures */
+  --gradient-main: linear-gradient(
+    180deg,
+    #001d35 0%,
+    #004a65 60%,
+    #1695c4 80%,
+    #9de5ff 89.8%,
+    #fdfdfd 100%
+  );
+  --gradient-glass:
+    linear-gradient(0deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.08)),
+    #000f18;
+
+  /* Ombres : sur fond sombre, la lumière vient de l'intérieur */
+  --shadow-glass:
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    inset 0 -32px 64px -32px rgb(22 149 196 / 0.28);
+  --shadow-raise:
+    0 1px 2px rgb(0 7 13 / 0.4), 0 12px 32px -16px rgb(0 7 13 / 0.65),
+    0 48px 96px -48px rgb(0 29 53 / 0.9);
+
+  /* Rayons — l'imbrication suit toujours : intérieur = extérieur − padding */
+  --radius-pill: 999em;
+  --radius-xl: 1.75rem;
+  --radius-lg: 1.25rem;
+  --radius-md: 1rem;
+  --radius-sm: 0.625rem;
+  --radius-xs: 0.5rem;
+
+  /* Mouvement — un seul easing structurant pour toute l'interface */
+  --ease-smooth: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-xs: 200ms;
+  --duration-sm: 450ms;
+  --duration-md: 600ms;
+  --duration-lg: 800ms;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-deep: var(--background-deep);
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
+  --color-surface-strong: var(--surface-strong);
+  --color-ink: var(--ink);
+  --color-ink-fade: var(--ink-fade);
+  --color-ink-mute: var(--ink-mute);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-night: var(--brand-night);
+  --color-deep: var(--brand-deep);
+  --color-cyan: var(--brand-cyan);
+  --color-sky: var(--brand-sky);
+  --color-amber: var(--brand-amber);
   --color-accent: var(--accent);
-  --color-accent-strong: var(--accent-strong);
-  --color-warning: var(--warning);
-  --color-danger: var(--danger);
-  --color-hairline: var(--hairline);
+  --color-accent-soft: var(--accent-soft);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+
+  --radius-pill: var(--radius-pill);
+  --radius-xl: var(--radius-xl);
+  --radius-lg: var(--radius-lg);
+  --radius-md: var(--radius-md);
+  --radius-sm: var(--radius-sm);
+  --radius-xs: var(--radius-xs);
+
+  --ease-smooth: var(--ease-smooth);
+
   --font-sans: var(--font-body), system-ui, sans-serif;
   --font-mono: var(--font-code), ui-monospace, monospace;
   --font-display: var(--font-heading), var(--font-body), system-ui, sans-serif;
 }
 
 @layer base {
-  html,
-  body {
+  html {
+    /*
+     * Racine fluide : l'interface se contracte proportionnellement au lieu de
+     * se recomposer, comme dans le système source — mais en `clamp()` continu,
+     * sans le saut de taille de l'original à 991 px.
+     */
+    font-size: clamp(13px, 0.6vw + 8.5px, 16px);
     height: 100%;
-    overscroll-behavior: none;
   }
 
   body {
+    height: 100%;
     background: var(--background);
-    color: var(--foreground);
+    color: var(--ink);
     font-family: var(--font-body), system-ui, sans-serif;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
     /* La scène 3D occupe le viewport : aucun scroll ne doit apparaître. */
     overflow: hidden;
+    overscroll-behavior: none;
   }
 
   h1,
   h2,
-  h3 {
+  h3,
+  h4 {
     font-family: var(--font-heading), system-ui, sans-serif;
-    letter-spacing: 0.01em;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
     text-wrap: balance;
   }
 
@@ -61,21 +147,62 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--accent);
+    /* 2 px : en deçà, l'indicateur ne satisfait plus le critère 2.4.11. */
+    outline: 2px solid var(--accent-soft);
     outline-offset: 2px;
   }
 }
 
-@utility panel-shadow {
-  /* Profondeur par superposition d'ombres plutôt que par une bordure franche. */
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.06),
-    0 1px 2px rgb(0 0 0 / 0.35),
-    0 8px 24px -8px rgb(0 0 0 / 0.55),
-    0 24px 64px -24px rgb(0 0 0 / 0.75);
+/* Surface de verre : filet interne + glow, jamais d'ombre portée noire. */
+@utility glass {
+  background: var(--surface);
+  outline: 1px solid var(--line);
+  outline-offset: -1px;
+  box-shadow: var(--shadow-glass);
+  backdrop-filter: blur(8px);
 }
 
+/* Voile plein écran des modales : flou + trame de points à 3 %. */
+@utility scrim {
+  background-color: rgb(0 7 13 / 0.72);
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
+  background-size: 8px 8px;
+  backdrop-filter: blur(8px);
+}
+
+/* Filet horizontal qui se fond sur les bords, signature du système source. */
+/*
+ * Plancher de zone cliquable. Les tailles du système sont en `rem` et la
+ * racine est fluide : sans ce plancher en pixels, un bouton icône descend sous
+ * les 40 px réglementaires dès que la fenêtre se resserre.
+ */
+@utility tap-target {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+@utility hairline-fade {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--line-strong) 15%,
+    var(--line-strong) 85%,
+    transparent
+  );
+}
+
+/*
+ * Les animations pilotées par `motion` ne sont pas couvertes ici : elles le
+ * sont par le `<MotionConfig reducedMotion="user">` de `GameScreen`.
+ */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {

@@ -1,24 +1,36 @@
 import { create } from "zustand";
 
-import { PUZZLES_BY_ID, TOTAL_KEYS } from "@/features/game/data/puzzles";
-import type { GameStatus, RoomKey } from "@/types/game";
+import { PUZZLES_BY_ID, pickPuzzle } from "@/features/game/data/puzzles";
+import { STATIONS_BY_ID, TOTAL_KEYS } from "@/features/game/data/stations";
+import { shuffle } from "@/lib/shuffle";
+import type { GameStatus, Puzzle, PuzzleAnswer, RoomKey } from "@/types/game";
 
 /** Résultat de la dernière réponse envoyée dans la boîte de dialogue. */
 export type AnswerResult = "correct" | "wrong";
 
 interface GameState {
   status: GameStatus;
-  /** Identifiants des énigmes déjà résolues. */
-  solvedPuzzleIds: string[];
+  /** Stations dont la question a été résolue. */
+  solvedStationIds: string[];
   /** Clés récupérées, dans l'ordre d'obtention. */
   keys: RoomKey[];
-  /** Énigme actuellement ouverte, `null` en dehors d'un dialogue. */
-  activePuzzleId: string | null;
+  /**
+   * Question tirée pour chaque station. Mémorisée pour qu'une mauvaise réponse
+   * ne change pas l'énoncé quand le joueur revient sur le même poste.
+   */
+  assignedPuzzleIds: Record<string, string>;
+  /**
+   * Ordre d'affichage des propositions, tiré en même temps que la question :
+   * la bonne réponse ne tombe donc jamais deux fois de suite à la même place.
+   */
+  answerOrders: Record<string, string[]>;
+  /** Station dont la question est ouverte, `null` hors dialogue. */
+  activeStationId: string | null;
   selectedAnswerId: string | null;
   answerResult: AnswerResult | null;
-  /** Dispositif actuellement visé par le joueur. */
-  focusedObjectId: string | null;
-  /** Nombre total de réponses envoyées, toutes énigmes confondues. */
+  /** Station actuellement visée par le joueur. */
+  focusedStationId: string | null;
+  /** Nombre total de réponses envoyées, toutes stations confondues. */
   attempts: number;
   startedAt: number | null;
   finishedAt: number | null;
@@ -27,13 +39,15 @@ interface GameState {
 interface GameActions {
   /** Démarre ou reprend la partie (appelé quand le pointeur est verrouillé). */
   beginSession: () => void;
-  /** Met la partie en pause (pointeur relâché en cours de jeu). */
+  /** Met la partie en pause (pointeur relâché par le joueur). */
   pause: () => void;
-  setFocusedObject: (objectId: string | null) => void;
-  openPuzzle: (puzzleId: string) => void;
+  setFocusedStation: (stationId: string | null) => void;
+  /** Ouvre la question d'une station, en tirant l'énoncé au premier passage. */
+  openStation: (stationId: string) => void;
   selectAnswer: (answerId: string) => void;
   /** Réarme la question après une mauvaise réponse. */
   retryPuzzle: () => void;
+  /** Referme le poste et rend la main au joueur sans passer par la pause. */
   closePuzzle: () => void;
   /** Franchissement de la porte : fin de partie. */
   escapeRoom: () => void;
@@ -42,12 +56,14 @@ interface GameActions {
 
 const INITIAL_STATE: GameState = {
   status: "idle",
-  solvedPuzzleIds: [],
+  solvedStationIds: [],
   keys: [],
-  activePuzzleId: null,
+  assignedPuzzleIds: {},
+  answerOrders: {},
+  activeStationId: null,
   selectedAnswerId: null,
   answerResult: null,
-  focusedObjectId: null,
+  focusedStationId: null,
   attempts: 0,
   startedAt: null,
   finishedAt: null,
@@ -66,45 +82,72 @@ export const useGameStore = create<GameState & GameActions>()((set, get) => ({
     }),
 
   pause: () =>
-    set((state) => (state.status === "playing" ? { status: "paused" } : state)),
-
-  setFocusedObject: (objectId) =>
     set((state) =>
-      state.focusedObjectId === objectId
-        ? state
-        : { focusedObjectId: objectId },
+      state.status === "playing" || state.status === "locking"
+        ? { status: "paused" }
+        : state,
     ),
 
-  openPuzzle: (puzzleId) =>
+  setFocusedStation: (stationId) =>
+    set((state) =>
+      state.focusedStationId === stationId
+        ? state
+        : { focusedStationId: stationId },
+    ),
+
+  openStation: (stationId) =>
     set((state) => {
       if (state.status !== "playing") return state;
-      if (state.solvedPuzzleIds.includes(puzzleId)) return state;
-      if (!PUZZLES_BY_ID.has(puzzleId)) return state;
+      if (state.solvedStationIds.includes(stationId)) return state;
+
+      const station = STATIONS_BY_ID.get(stationId);
+      if (!station) return state;
+
+      const assignedId = state.assignedPuzzleIds[stationId];
+      const puzzle = assignedId
+        ? PUZZLES_BY_ID.get(assignedId)
+        : pickPuzzle(station.topic, Object.values(state.assignedPuzzleIds));
+
+      if (!puzzle) return state;
+
       return {
         status: "puzzle",
-        activePuzzleId: puzzleId,
+        activeStationId: stationId,
+        assignedPuzzleIds: {
+          ...state.assignedPuzzleIds,
+          [stationId]: puzzle.id,
+        },
+        answerOrders: state.answerOrders[puzzle.id]
+          ? state.answerOrders
+          : {
+              ...state.answerOrders,
+              [puzzle.id]: shuffle(puzzle.answers.map((answer) => answer.id)),
+            },
         selectedAnswerId: null,
         answerResult: null,
       };
     }),
 
   selectAnswer: (answerId) => {
-    const { status, activePuzzleId, answerResult } = get();
-    if (status !== "puzzle" || !activePuzzleId || answerResult) return;
+    const state = get();
+    if (state.status !== "puzzle" || state.answerResult) return;
 
-    const puzzle = PUZZLES_BY_ID.get(activePuzzleId);
-    if (!puzzle) return;
+    const station = state.activeStationId
+      ? STATIONS_BY_ID.get(state.activeStationId)
+      : null;
+    const puzzle = selectActivePuzzle(state);
+    if (!station || !puzzle) return;
 
     const isCorrect = puzzle.correctAnswerId === answerId;
 
-    set((state) => ({
+    set((current) => ({
       selectedAnswerId: answerId,
       answerResult: isCorrect ? "correct" : "wrong",
-      attempts: state.attempts + 1,
-      solvedPuzzleIds: isCorrect
-        ? [...state.solvedPuzzleIds, puzzle.id]
-        : state.solvedPuzzleIds,
-      keys: isCorrect ? [...state.keys, puzzle.reward] : state.keys,
+      attempts: current.attempts + 1,
+      solvedStationIds: isCorrect
+        ? [...current.solvedStationIds, station.id]
+        : current.solvedStationIds,
+      keys: isCorrect ? [...current.keys, station.reward] : current.keys,
     }));
   },
 
@@ -119,8 +162,10 @@ export const useGameStore = create<GameState & GameActions>()((set, get) => ({
     set((state) =>
       state.status === "puzzle"
         ? {
-            status: "paused",
-            activePuzzleId: null,
+            // On repart directement vers la salle : c'est l'appelant qui
+            // redemande le verrouillage dans le même geste utilisateur.
+            status: "locking",
+            activeStationId: null,
             selectedAnswerId: null,
             answerResult: null,
           }
@@ -131,18 +176,42 @@ export const useGameStore = create<GameState & GameActions>()((set, get) => ({
     set((state) =>
       state.status === "won"
         ? state
-        : { status: "won", finishedAt: Date.now(), focusedObjectId: null },
+        : { status: "won", finishedAt: Date.now(), focusedStationId: null },
     ),
 
   reset: () => set({ ...INITIAL_STATE }),
 }));
 
-/** La porte s'ouvre lorsque toutes les clés ont été récupérées. */
-export function selectDoorOpen(state: GameState): boolean {
-  return state.solvedPuzzleIds.length >= TOTAL_KEYS;
+/** Question actuellement ouverte, `null` hors dialogue. */
+export function selectActivePuzzle(state: GameState): Puzzle | null {
+  if (!state.activeStationId) return null;
+  const puzzleId = state.assignedPuzzleIds[state.activeStationId];
+  return puzzleId ? (PUZZLES_BY_ID.get(puzzleId) ?? null) : null;
 }
 
-/** Vrai lorsque le joueur peut se déplacer dans la salle. */
-export function selectIsPlaying(state: GameState): boolean {
-  return state.status === "playing";
+/**
+ * Réordonne les propositions d'une question selon l'ordre tiré à l'ouverture
+ * du poste.
+ *
+ * Fonction pure plutôt que sélecteur : elle construit un nouveau tableau, ce
+ * qu'un sélecteur zustand ne peut pas faire sans provoquer un re-render à
+ * chaque notification du store.
+ */
+export function orderAnswers(
+  puzzle: Puzzle | null,
+  answerOrders: Readonly<Record<string, string[]>>,
+): readonly PuzzleAnswer[] {
+  if (!puzzle) return [];
+
+  const order = answerOrders[puzzle.id];
+  if (!order) return puzzle.answers;
+
+  return order
+    .map((id) => puzzle.answers.find((answer) => answer.id === id))
+    .filter((answer): answer is PuzzleAnswer => answer !== undefined);
+}
+
+/** La porte s'ouvre lorsque toutes les clés ont été récupérées. */
+export function selectDoorOpen(state: GameState): boolean {
+  return state.solvedStationIds.length >= TOTAL_KEYS;
 }

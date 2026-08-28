@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useTexture } from "@react-three/drei";
+import {
+  MirroredRepeatWrapping,
+  RepeatWrapping,
+  SRGBColorSpace,
+  type Texture,
+} from "three";
 
 import {
   CORRIDOR_DEPTH,
@@ -10,28 +16,32 @@ import {
   ROOM_HALF_DEPTH,
   ROOM_HALF_WIDTH,
 } from "@/features/game/data/room";
-import { createCheckerTexture } from "@/lib/textures";
-
-const WALL_COLOR = "#232c40";
-const WALL_ACCENT = "#2e3a55";
+import { LAB } from "@/features/game/components/scene/materials";
 
 /**
  * Coque de la salle : sol, plafond, murs et couloir de sortie.
  * Le mur nord est découpé en deux tronçons pour laisser l'embrasure libre.
  */
 export function Room() {
-  const floorTexture = useMemo(
-    () =>
-      createCheckerTexture({
-        colorA: "#1b2233",
-        colorB: "#141a29",
-        cells: 4,
-        repeat: 7,
-      }),
-    [],
-  );
+  const [floorMap, wallMap] = useTexture(
+    ["/textures/floor-tiles.webp", "/textures/wall-panels.webp"],
+    ([floor, wall]) => {
+      // Le carrelage se répète à l'identique ; les panneaux muraux sont mis en
+      // miroir pour que le raccord reste invisible malgré leur éclairage
+      // légèrement centré.
+      floor.colorSpace = SRGBColorSpace;
+      floor.wrapS = RepeatWrapping;
+      floor.wrapT = RepeatWrapping;
+      floor.repeat.set(7, 7);
+      floor.anisotropy = 8;
 
-  useEffect(() => () => floorTexture.dispose(), [floorTexture]);
+      wall.colorSpace = SRGBColorSpace;
+      wall.wrapS = MirroredRepeatWrapping;
+      wall.wrapT = MirroredRepeatWrapping;
+      wall.repeat.set(4, 1);
+      wall.anisotropy = 4;
+    },
+  );
 
   const sideWallWidth = (ROOM.width - DOOR.width) / 2;
   const sideWallOffset = DOOR.width / 2 + sideWallWidth / 2;
@@ -42,15 +52,15 @@ export function Room() {
       <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[ROOM.width, ROOM.depth]} />
         <meshStandardMaterial
-          map={floorTexture}
-          roughness={0.82}
-          metalness={0.05}
+          map={floorMap}
+          roughness={0.78}
+          metalness={0.08}
         />
       </mesh>
 
       <mesh position={[0, ROOM.height, 0]} rotation-x={Math.PI / 2}>
         <planeGeometry args={[ROOM.width, ROOM.depth]} />
-        <meshStandardMaterial color="#171e2d" roughness={0.95} />
+        <meshStandardMaterial color={LAB.ceiling} roughness={0.95} />
       </mesh>
 
       {/* Mur sud */}
@@ -65,6 +75,7 @@ export function Room() {
           ROOM.height,
           ROOM.wallThickness,
         ]}
+        map={wallMap}
       />
       {/* Murs est et ouest */}
       <Wall
@@ -78,6 +89,7 @@ export function Room() {
           ROOM.height,
           ROOM.depth + ROOM.wallThickness * 2,
         ]}
+        map={wallMap}
       />
       <Wall
         position={[
@@ -90,6 +102,7 @@ export function Room() {
           ROOM.height,
           ROOM.depth + ROOM.wallThickness * 2,
         ]}
+        map={wallMap}
       />
 
       {/* Mur nord : deux tronçons encadrant la porte, plus le linteau */}
@@ -100,6 +113,7 @@ export function Room() {
           -ROOM_HALF_DEPTH - ROOM.wallThickness / 2,
         ]}
         size={[sideWallWidth, ROOM.height, ROOM.wallThickness]}
+        map={wallMap}
       />
       <Wall
         position={[
@@ -108,6 +122,7 @@ export function Room() {
           -ROOM_HALF_DEPTH - ROOM.wallThickness / 2,
         ]}
         size={[sideWallWidth, ROOM.height, ROOM.wallThickness]}
+        map={wallMap}
       />
       <Wall
         position={[
@@ -116,6 +131,7 @@ export function Room() {
           -ROOM_HALF_DEPTH - ROOM.wallThickness / 2,
         ]}
         size={[DOOR.width, lintelHeight, ROOM.wallThickness]}
+        map={wallMap}
       />
 
       <Baseboards />
@@ -127,17 +143,20 @@ export function Room() {
 function Wall({
   position,
   size,
+  map,
 }: {
   position: [number, number, number];
   size: [number, number, number];
+  map: Texture;
 }) {
   return (
     <mesh position={position} castShadow receiveShadow>
       <boxGeometry args={size} />
       <meshStandardMaterial
-        color={WALL_COLOR}
-        roughness={0.9}
-        metalness={0.04}
+        map={map}
+        color={LAB.wall}
+        roughness={0.88}
+        metalness={0.06}
       />
     </mesh>
   );
@@ -169,9 +188,9 @@ function Baseboards() {
         <mesh key={index} position={strip.position}>
           <boxGeometry args={strip.size} />
           <meshStandardMaterial
-            color={WALL_ACCENT}
-            emissive="#2b6fb0"
-            emissiveIntensity={0.55}
+            color={LAB.panel}
+            emissive={LAB.accent}
+            emissiveIntensity={0.7}
           />
         </mesh>
       ))}
@@ -188,7 +207,7 @@ function Baseboards() {
           receiveShadow
         >
           <boxGeometry args={crate.size} />
-          <meshStandardMaterial color="#3d3222" roughness={0.85} />
+          <meshStandardMaterial color={LAB.crate} roughness={0.85} />
         </mesh>
       ))}
     </>
@@ -205,14 +224,14 @@ function Corridor() {
     <group>
       <mesh position={[DOOR.centerX, 0.001, centerZ]} rotation-x={-Math.PI / 2}>
         <planeGeometry args={[DOOR.width, CORRIDOR_DEPTH]} />
-        <meshStandardMaterial color="#10151f" roughness={0.9} />
+        <meshStandardMaterial color={LAB.corridorFloor} roughness={0.9} />
       </mesh>
       <mesh
         position={[DOOR.centerX, DOOR.height, centerZ]}
         rotation-x={Math.PI / 2}
       >
         <planeGeometry args={[DOOR.width, CORRIDOR_DEPTH]} />
-        <meshStandardMaterial color="#0d121b" roughness={0.95} />
+        <meshStandardMaterial color={LAB.ceiling} roughness={0.95} />
       </mesh>
       <mesh
         position={[
@@ -222,7 +241,7 @@ function Corridor() {
         ]}
       >
         <boxGeometry args={[ROOM.wallThickness, DOOR.height, CORRIDOR_DEPTH]} />
-        <meshStandardMaterial color="#1b2231" roughness={0.9} />
+        <meshStandardMaterial color={LAB.frame} roughness={0.9} />
       </mesh>
       <mesh
         position={[
@@ -232,14 +251,14 @@ function Corridor() {
         ]}
       >
         <boxGeometry args={[ROOM.wallThickness, DOOR.height, CORRIDOR_DEPTH]} />
-        <meshStandardMaterial color="#1b2231" roughness={0.9} />
+        <meshStandardMaterial color={LAB.frame} roughness={0.9} />
       </mesh>
       {/* Lueur de sortie au fond du couloir */}
       <mesh
         position={[DOOR.centerX, DOOR.height / 2, centerZ - CORRIDOR_DEPTH / 2]}
       >
         <planeGeometry args={[DOOR.width, DOOR.height]} />
-        <meshBasicMaterial color="#5cf0b8" toneMapped={false} />
+        <meshBasicMaterial color={LAB.accentLight} toneMapped={false} />
       </mesh>
     </group>
   );

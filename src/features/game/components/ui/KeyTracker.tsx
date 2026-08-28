@@ -2,29 +2,38 @@
 
 import { AnimatePresence, motion } from "motion/react";
 
-import { PUZZLES } from "@/features/game/data/puzzles";
+import { STATIONS } from "@/features/game/data/stations";
+import { TRANSITION } from "@/lib/motion";
 import type { RoomKey } from "@/types/game";
 
 /**
- * Trousseau du joueur : une pastille par énigme, allumée une fois la clé
- * obtenue. Le rayon des pastilles suit le rayon du conteneur moins son
- * padding (concentricité).
+ * Trousseau du joueur : une pastille par poste, allumée une fois la clé
+ * obtenue. Le rayon des pastilles suit celui du conteneur moins son padding.
  */
 export function KeyTracker({ keys }: { keys: readonly RoomKey[] }) {
   const collected = new Map(keys.map((key) => [key.id, key]));
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-1.5 rounded-2xl bg-white/5 p-1.5">
-        {PUZZLES.map((puzzle) => {
-          const key = collected.get(puzzle.reward.id);
+    <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-1">
+        {STATIONS.map((station) => {
+          const key = collected.get(station.reward.id);
           return (
             <div
-              key={puzzle.reward.id}
+              key={station.reward.id}
+              role="img"
+              aria-label={
+                key
+                  ? `${key.label} récupérée`
+                  : `${station.label} : clé à découvrir`
+              }
               title={key ? key.label : "Clé à découvrir"}
-              className="relative grid size-7 place-items-center rounded-[10px] bg-white/5"
+              className="bg-surface-raised rounded-pill relative grid size-6 place-items-center"
             >
-              <span className="absolute size-3 rounded-full bg-white/12" />
+              <span
+                aria-hidden
+                className="bg-line-strong rounded-pill absolute size-2"
+              />
               <AnimatePresence initial={false}>
                 {key ? (
                   <motion.span
@@ -32,11 +41,11 @@ export function KeyTracker({ keys }: { keys: readonly RoomKey[] }) {
                     initial={{ scale: 0.25, opacity: 0, filter: "blur(4px)" }}
                     animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
                     exit={{ scale: 0.25, opacity: 0, filter: "blur(4px)" }}
-                    transition={{ type: "spring", duration: 0.4, bounce: 0 }}
-                    className="relative size-3 rounded-full"
+                    transition={TRANSITION.base}
+                    className="rounded-pill relative size-2.5"
                     style={{
                       backgroundColor: key.color,
-                      boxShadow: `0 0 12px ${key.color}`,
+                      boxShadow: `0 0 10px ${key.color}`,
                     }}
                   />
                 ) : null}
@@ -45,8 +54,9 @@ export function KeyTracker({ keys }: { keys: readonly RoomKey[] }) {
           );
         })}
       </div>
-      <span className="text-muted font-mono text-xs tabular-nums">
-        {keys.length}/{PUZZLES.length}
+
+      <span className="text-ink-fade font-mono text-xs tabular-nums">
+        {keys.length}/{STATIONS.length}
       </span>
     </div>
   );

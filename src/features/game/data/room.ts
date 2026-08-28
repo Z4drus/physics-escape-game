@@ -1,5 +1,6 @@
+import { STATIONS } from "@/features/game/data/stations";
 import { boxFromCenter, type Box2 } from "@/lib/collision";
-import type { InteractiveObject, Vec3 } from "@/types/game";
+import type { Vec3 } from "@/types/game";
 
 /** Dimensions intérieures de la salle, en mètres. */
 export const ROOM = {
@@ -41,55 +42,6 @@ export const PLAYER = {
   /** Écart angulaire maximal (radians) entre le regard et l'objet visé. */
   aimTolerance: 0.7,
 } as const;
-
-/** Dispositifs interactifs, un par énigme. */
-export const INTERACTIVE_OBJECTS: readonly InteractiveObject[] = [
-  {
-    id: "pendulum",
-    puzzleId: "pendulum",
-    kind: "pendulum",
-    label: "Pendule simple",
-    position: [-4.6, 0, -4.2],
-    rotationY: 0.32,
-    footprint: [1.5, 1.5],
-  },
-  {
-    id: "incline",
-    puzzleId: "incline",
-    kind: "incline",
-    label: "Plan incliné",
-    position: [4.5, 0, -4.3],
-    rotationY: -0.45,
-    footprint: [2.2, 1.6],
-  },
-  {
-    id: "circuit",
-    puzzleId: "circuit",
-    kind: "circuit",
-    label: "Banc d'électricité",
-    position: [-5.1, 0, 2.7],
-    rotationY: 1.15,
-    footprint: [1.8, 1.3],
-  },
-  {
-    id: "spring",
-    puzzleId: "spring",
-    kind: "spring",
-    label: "Ressort et masse",
-    position: [5.2, 0, 2.6],
-    rotationY: -1.05,
-    footprint: [1.4, 1.4],
-  },
-  {
-    id: "lever",
-    puzzleId: "lever",
-    kind: "lever",
-    label: "Balance à levier",
-    position: [0, 0, 0.4],
-    rotationY: Math.PI / 2,
-    footprint: [1.4, 2.6],
-  },
-];
 
 /** Caisses de décor : elles habillent la salle et servent d'obstacles. */
 export const CRATES: readonly {
@@ -143,10 +95,10 @@ export function buildColliders(doorOpen: boolean): Box2[] {
     colliders.push(boxFromCenter(0, -halfD - t / 2, ROOM.width + t * 2, t));
   }
 
-  for (const object of INTERACTIVE_OBJECTS) {
-    const [width, depth] = object.footprint;
+  for (const station of STATIONS) {
+    const [width, depth] = station.footprint;
     colliders.push(
-      boxFromCenter(object.position[0], object.position[2], width, depth),
+      boxFromCenter(station.position[0], station.position[2], width, depth),
     );
   }
 

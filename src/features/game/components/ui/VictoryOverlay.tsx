@@ -2,7 +2,10 @@
 
 import { motion } from "motion/react";
 
-import { TOTAL_KEYS } from "@/features/game/data/puzzles";
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Panel";
+import { STATIONS } from "@/features/game/data/stations";
+import { TRANSITION, revealAt } from "@/lib/motion";
 
 /** Écran de fin affiché lorsque le joueur franchit la porte. */
 export function VictoryOverlay({
@@ -18,63 +21,69 @@ export function VictoryOverlay({
   const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
   const seconds = String(totalSeconds % 60).padStart(2, "0");
   const accuracy =
-    attempts > 0 ? Math.round((TOTAL_KEYS / attempts) * 100) : 100;
+    attempts > 0 ? Math.round((STATIONS.length / attempts) * 100) : 100;
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-20 grid place-items-center bg-black/75 p-4 backdrop-blur-md"
+      transition={TRANSITION.micro}
+      className="scrim fixed inset-0 z-20 flex justify-center overflow-y-auto overscroll-contain p-4"
     >
       <motion.div
-        initial={{ opacity: 0, y: 16, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
-        transition={{ type: "spring", duration: 0.5, bounce: 0 }}
-        className="panel-shadow bg-surface w-full max-w-md rounded-[28px] p-2"
+        transition={TRANSITION.base}
+        className="glass my-auto w-full max-w-md rounded-xl p-2"
       >
-        <div className="bg-surface-raised rounded-[20px] p-7 text-center">
-          <motion.p
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.08 }}
-            className="text-accent font-display text-[11px] tracking-[0.24em] uppercase"
-          >
-            Sortie réussie
-          </motion.p>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.16 }}
-            className="mt-3 text-2xl font-bold"
-          >
-            Vous êtes libre
-          </motion.h1>
+        <div className="bg-background-deep overflow-hidden rounded-lg">
+          <header className="relative overflow-hidden px-6 py-7 text-center">
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-[linear-gradient(180deg,var(--brand-night),var(--brand-deep)_55%,var(--brand-sky))] opacity-70"
+            />
+            <div className="relative">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={revealAt(0)}
+              >
+                <Eyebrow>Sortie réussie</Eyebrow>
+              </motion.div>
+              <motion.h1
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={revealAt(1)}
+                className="mt-3 text-3xl"
+              >
+                Vous êtes libre
+              </motion.h1>
+            </div>
+          </header>
 
           <motion.dl
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.24 }}
-            className="mt-6 grid grid-cols-3 gap-2"
+            transition={revealAt(2)}
+            className="border-line grid grid-cols-3 border-t"
           >
             <Stat label="Temps" value={`${minutes}:${seconds}`} />
             <Stat label="Réponses" value={String(attempts)} />
-            <Stat label="Précision" value={`${accuracy}%`} />
+            <Stat label="Précision" value={`${accuracy} %`} />
           </motion.dl>
 
-          <motion.button
-            type="button"
-            onClick={onRestart}
-            initial={{ opacity: 0, y: 12 }}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.32 }}
-            className="bg-accent text-background mt-7 h-12 w-full cursor-pointer rounded-2xl text-sm font-semibold transition-[scale,background-color] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-[var(--accent-strong)] active:scale-[0.96]"
+            transition={revealAt(3)}
+            className="border-line border-t px-6 py-5"
           >
-            Rejouer
-          </motion.button>
+            <Button onClick={onRestart} withArrow className="w-full">
+              Rejouer
+            </Button>
+          </motion.div>
         </div>
       </motion.div>
     </motion.div>
@@ -83,11 +92,9 @@ export function VictoryOverlay({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-white/[0.04] px-3 py-4">
-      <dt className="text-muted font-display text-[10px] tracking-[0.16em] uppercase">
-        {label}
-      </dt>
-      <dd className="mt-1 font-mono text-lg tabular-nums">{value}</dd>
+    <div className="border-line px-4 py-4 text-center not-first:border-l">
+      <dt className="text-ink-mute text-xs font-medium uppercase">{label}</dt>
+      <dd className="mt-1.5 font-mono text-lg tabular-nums">{value}</dd>
     </div>
   );
 }

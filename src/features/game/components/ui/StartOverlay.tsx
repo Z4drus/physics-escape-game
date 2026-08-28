@@ -2,11 +2,16 @@
 
 import { motion } from "motion/react";
 
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Panel";
+import { STATIONS } from "@/features/game/data/stations";
+import { TRANSITION, revealAt } from "@/lib/motion";
+
 const STEPS: readonly string[] = [
-  "Explorez la salle et repérez les cinq dispositifs de physique.",
-  "Approchez-vous et appuyez sur E pour analyser un dispositif.",
-  "Répondez correctement pour récupérer la clé associée.",
-  "Une fois les cinq clés réunies, la porte s'ouvre : sortez.",
+  `Explorez le laboratoire et repérez les ${STATIONS.length} postes de mesure.`,
+  "Approchez-vous d'un poste et appuyez sur E pour l'analyser.",
+  "Un schéma animé illustre la situation : répondez juste pour obtenir la clé.",
+  "Les clés réunies, la porte se déverrouille. Sortez.",
 ];
 
 /**
@@ -17,9 +22,12 @@ const STEPS: readonly string[] = [
 export function StartOverlay({
   variant,
   onEnter,
+  ready,
 }: {
   variant: "idle" | "paused";
   onEnter: () => void;
+  /** `false` pendant le délai de garde imposé après une sortie de Pointer Lock. */
+  ready: boolean;
 }) {
   const isPaused = variant === "paused";
 
@@ -28,82 +36,107 @@ export function StartOverlay({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-20 grid place-items-center bg-black/70 p-4 backdrop-blur-md"
+      transition={TRANSITION.micro}
+      className="scrim fixed inset-0 z-20 flex justify-center overflow-y-auto overscroll-contain p-4"
     >
       <motion.div
-        initial={{ opacity: 0, y: 16, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
-        transition={{ type: "spring", duration: 0.5, bounce: 0 }}
-        className="panel-shadow bg-surface w-full max-w-lg rounded-[28px] p-2"
+        transition={TRANSITION.base}
+        className="glass my-auto w-full max-w-xl rounded-xl p-2"
       >
-        <div className="bg-surface-raised rounded-[20px] p-7">
-          <motion.p
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.08 }}
-            className="text-accent font-display text-[11px] tracking-[0.24em] uppercase"
-          >
-            {isPaused ? "Partie en pause" : "Escape game · Laboratoire B-204"}
-          </motion.p>
+        <div className="bg-background-deep overflow-hidden rounded-lg">
+          <header className="relative overflow-hidden px-6 py-7">
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-[linear-gradient(180deg,var(--brand-night),var(--brand-deep)_58%,var(--brand-cyan))] opacity-70"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-[linear-gradient(rgb(255_255_255/0.05)_1px,transparent_1px),linear-gradient(90deg,rgb(255_255_255/0.05)_1px,transparent_1px)] bg-[length:8px_8px]"
+            />
 
-          <motion.h1
+            <div className="relative">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={revealAt(0)}
+              >
+                <Eyebrow>
+                  {isPaused
+                    ? "Partie en pause"
+                    : "Escape game · Laboratoire B-204"}
+                </Eyebrow>
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={revealAt(1)}
+                className="mt-3 text-3xl sm:text-4xl"
+              >
+                {isPaused ? "Reprendre l'expérience" : "Physics Escape"}
+              </motion.h1>
+            </div>
+          </header>
+
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.16 }}
-            className="mt-3 text-2xl leading-tight font-bold sm:text-3xl"
+            transition={revealAt(2)}
+            className="border-line border-t px-6 py-5"
           >
-            {isPaused ? "Reprendre l'expérience" : "Physics Escape"}
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.24 }}
-            className="text-muted mt-3 text-sm"
-          >
-            {isPaused
-              ? "Votre progression est conservée. Reprenez le contrôle pour continuer à explorer la salle."
-              : "Vous êtes enfermé dans un laboratoire de physique. Cinq dispositifs, cinq questions, cinq clés : c'est le prix de la sortie."}
-          </motion.p>
+            <p className="text-ink-fade text-sm">
+              {isPaused
+                ? "Votre progression est conservée. Reprenez le contrôle pour continuer l'exploration."
+                : "Vous êtes enfermé dans un laboratoire de physique. Six postes de mesure, six questions, six clés : c'est le prix de la sortie."}
+            </p>
+          </motion.div>
 
           {!isPaused ? (
             <motion.ol
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.32 }}
-              className="mt-6 flex flex-col gap-2"
+              transition={revealAt(3)}
+              className="border-line flex flex-col border-t"
             >
               {STEPS.map((step, index) => (
                 <li
                   key={step}
-                  className="flex items-start gap-3 rounded-2xl bg-white/[0.04] px-4 py-3"
+                  className="border-line flex items-start gap-3 border-t px-6 py-3 first:border-t-0"
                 >
-                  <span className="bg-accent/15 text-accent grid size-6 shrink-0 place-items-center rounded-xl font-mono text-xs">
+                  <span className="text-accent-soft bg-surface-raised rounded-pill grid size-6 shrink-0 place-items-center font-mono text-xs">
                     {index + 1}
                   </span>
-                  <span className="text-muted text-sm">{step}</span>
+                  <span className="text-ink-fade text-sm">{step}</span>
                 </li>
               ))}
             </motion.ol>
           ) : null}
 
-          <motion.button
-            type="button"
-            onClick={onEnter}
-            initial={{ opacity: 0, y: 12 }}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.4 }}
-            className="bg-accent text-background mt-7 h-12 w-full cursor-pointer rounded-2xl text-sm font-semibold transition-[scale,background-color] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-[var(--accent-strong)] active:scale-[0.96]"
+            transition={revealAt(4)}
+            className="border-line border-t px-6 py-5"
           >
-            {isPaused ? "Reprendre la partie" : "Entrer dans la salle"}
-          </motion.button>
-
-          <p className="text-muted mt-3 text-center text-xs">
-            La souris sera capturée par le jeu. Appuyez sur Échap pour la
-            libérer.
-          </p>
+            <Button
+              onClick={onEnter}
+              disabled={!ready}
+              withArrow
+              className="w-full"
+            >
+              {!ready
+                ? "Un instant…"
+                : isPaused
+                  ? "Reprendre la partie"
+                  : "Entrer dans le laboratoire"}
+            </Button>
+            <p className="text-ink-mute mt-3 text-center text-xs">
+              La souris sera capturée par le jeu. Échap pour la libérer.
+            </p>
+          </motion.div>
         </div>
       </motion.div>
     </motion.div>

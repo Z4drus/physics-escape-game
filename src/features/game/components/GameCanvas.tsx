@@ -2,19 +2,16 @@
 
 import { PointerLockControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import type { ComponentRef, RefObject } from "react";
+import { Suspense, type ComponentRef, type RefObject } from "react";
 import { ACESFilmicToneMapping } from "three";
 
 import { ExitDoor } from "@/features/game/components/scene/ExitDoor";
 import { Lights } from "@/features/game/components/scene/Lights";
 import { Player } from "@/features/game/components/scene/Player";
-import { PuzzleStation } from "@/features/game/components/scene/PuzzleStation";
+import { StationProp } from "@/features/game/components/scene/StationProp";
 import { Room } from "@/features/game/components/scene/Room";
-import {
-  INTERACTIVE_OBJECTS,
-  PLAYER,
-  PLAYER_SPAWN,
-} from "@/features/game/data/room";
+import { PLAYER, PLAYER_SPAWN } from "@/features/game/data/room";
+import { STATIONS } from "@/features/game/data/stations";
 import {
   selectDoorOpen,
   useGameStore,
@@ -41,10 +38,16 @@ export function GameCanvas({
 }) {
   const doorOpen = useGameStore(selectDoorOpen);
   const collectedKeys = useGameStore((state) => state.keys.length);
+  const status = useGameStore((state) => state.status);
+
+  // Une modale occupe l'écran : la salle reste visible derrière le voile mais
+  // n'a plus besoin d'être redessinée, et le schéma récupère le GPU.
+  const isModalOpen = status === "puzzle" || status === "won";
 
   return (
     <Canvas
-      shadows="soft"
+      frameloop={isModalOpen ? "demand" : "always"}
+      shadows="percentage"
       dpr={[1, 2]}
       gl={{ antialias: true, powerPreference: "high-performance" }}
       camera={{
@@ -58,15 +61,17 @@ export function GameCanvas({
         gl.toneMappingExposure = 1.05;
       }}
     >
-      <color attach="background" args={["#070b14"]} />
-      <fogExp2 attach="fog" args={["#070b14", 0.026]} />
+      <color attach="background" args={["#00070d"]} />
+      <fogExp2 attach="fog" args={["#000f18", 0.024]} />
 
       <Lights doorOpen={doorOpen} />
-      <Room />
+      <Suspense fallback={null}>
+        <Room />
+      </Suspense>
       <ExitDoor open={doorOpen} collectedKeys={collectedKeys} />
 
-      {INTERACTIVE_OBJECTS.map((object) => (
-        <PuzzleStation key={object.id} object={object} />
+      {STATIONS.map((station) => (
+        <StationProp key={station.id} station={station} />
       ))}
 
       <Player doorOpen={doorOpen} />
