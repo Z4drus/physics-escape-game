@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
-import { Eyebrow } from "@/components/ui/Panel";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { AnswerList } from "@/features/game/components/ui/AnswerList";
 import { PuzzleVerdict } from "@/features/game/components/ui/PuzzleVerdict";
 import { DiagramViewer } from "@/features/game/components/diagrams/DiagramViewer";

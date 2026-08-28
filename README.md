@@ -75,8 +75,8 @@ cyan, et éclairage par l'intérieur (glows) plutôt que par des ombres portées
 
 - **Tokens** : `src/app/globals.css` (couleurs, rayons, easing, durées) et
   utilitaires `glass`, `scrim`, `hairline-fade`.
-- **Mouvement** : un seul easing `cubic-bezier(0.32, 0.72, 0, 1)`, trois durées
-  (200 / 450 / 800 ms), stagger 75 ms — voir `src/lib/motion.ts`.
+- **Mouvement** : un seul easing `cubic-bezier(0.32, 0.72, 0, 1)`, deux durées
+  (200 et 450 ms), stagger 75 ms, voir `src/lib/motion.ts`.
 - **Boutons** : `src/components/ui/Button.tsx` réunit les trois
   micro-interactions du système (fond qui se rétracte, libellé qui roule,
   flèche à relais).
@@ -92,7 +92,7 @@ padding`.
 ```
 src/
   app/                        Route unique : layout, page, error, not-found
-  components/ui/              Primitives du design system (Button, Panel…)
+  components/ui/              Primitives du design system (Button, Eyebrow)
   features/game/
     components/
       GameScreen.tsx          Compose la scène, le HUD et les modales

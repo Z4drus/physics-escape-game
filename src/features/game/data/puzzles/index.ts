@@ -29,7 +29,7 @@ export const PUZZLES_BY_TOPIC: Readonly<
 };
 
 /** Toutes les questions, tous thèmes confondus. */
-export const PUZZLES: readonly Puzzle[] =
+const PUZZLES: readonly Puzzle[] =
   Object.values(PUZZLES_BY_TOPIC).flat();
 
 /** Accès direct à une question par son identifiant. */

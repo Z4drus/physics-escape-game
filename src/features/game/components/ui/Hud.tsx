@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 
-import { Eyebrow } from "@/components/ui/Panel";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { KeyTracker } from "@/features/game/components/ui/KeyTracker";
 import { SessionTimer } from "@/features/game/components/ui/SessionTimer";
 import { STATIONS } from "@/features/game/data/stations";

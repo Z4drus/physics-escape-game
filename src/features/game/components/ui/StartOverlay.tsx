@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 
 import { Button } from "@/components/ui/Button";
-import { Eyebrow } from "@/components/ui/Panel";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { STATIONS } from "@/features/game/data/stations";
 import { TRANSITION, revealAt } from "@/lib/motion";
 
