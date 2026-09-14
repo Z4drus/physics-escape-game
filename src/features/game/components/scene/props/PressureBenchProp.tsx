@@ -5,7 +5,7 @@ import { useRef } from "react";
 import { DoubleSide } from "three";
 import type { Group, Mesh, MeshStandardMaterial } from "three";
 
-import { LAB } from "@/features/game/components/scene/materials";
+import { MUSEUM } from "@/features/game/components/scene/materials";
 
 /** Face supérieure du plateau de la paillasse (origine = dessus du socle). */
 const BENCH_TOP = 0.88;
@@ -73,7 +73,7 @@ function smoothing(k: number, delta: number): number {
  * selon X. Encombrement 1,90 × 1,15 × 1,73 (X × Z × hauteur).
  */
 export function PressureBenchProp({ solved }: { solved: boolean }) {
-  const accent = solved ? LAB.solved : LAB.accent;
+  const accent = solved ? MUSEUM.solved : MUSEUM.accent;
   const calm = solved ? SOLVED_CALM : 1;
 
   return (
@@ -94,7 +94,7 @@ function Bench({ accent }: { accent: string }) {
       <mesh position={[0, 0.85, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.9, 0.06, 1.15]} />
         <meshStandardMaterial
-          color={LAB.panel}
+          color={MUSEUM.panel}
           roughness={0.7}
           metalness={0.2}
         />
@@ -104,7 +104,7 @@ function Bench({ accent }: { accent: string }) {
       <mesh position={[-0.86, 0.41, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.06, 0.82, 1.05]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.75}
           metalness={0.15}
         />
@@ -112,7 +112,7 @@ function Bench({ accent }: { accent: string }) {
       <mesh position={[0.86, 0.41, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.06, 0.82, 1.05]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.75}
           metalness={0.15}
         />
@@ -121,7 +121,7 @@ function Bench({ accent }: { accent: string }) {
       <mesh position={[0, 0.28, 0]} receiveShadow>
         <boxGeometry args={[1.72, 0.04, 0.95]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.8}
           metalness={0.1}
         />
@@ -179,7 +179,7 @@ function WaterColumn({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0, 0.905, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[0.11, 0.12, 0.05, 24]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.45}
           metalness={0.7}
         />
@@ -189,7 +189,7 @@ function WaterColumn({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0, COLUMN_BASE + COLUMN_HEIGHT / 2, 0]}>
         <cylinderGeometry args={[0.055, 0.055, COLUMN_HEIGHT, 24, 1, true]} />
         <meshPhysicalMaterial
-          color={LAB.glass}
+          color={MUSEUM.glass}
           transparent
           opacity={0.2}
           roughness={0.06}
@@ -207,7 +207,7 @@ function WaterColumn({ accent, calm }: { accent: string; calm: number }) {
       >
         <cylinderGeometry args={[0.048, 0.048, 1, 20]} />
         <meshStandardMaterial
-          color={LAB.fluid}
+          color={MUSEUM.fluid}
           transparent
           opacity={0.72}
           roughness={0.25}
@@ -231,7 +231,7 @@ function WaterColumn({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0, 1.1, 0]} rotation-x={Math.PI / 2}>
         <torusGeometry args={[0.058, 0.005, 8, 20]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.4}
           metalness={0.6}
         />
@@ -239,7 +239,7 @@ function WaterColumn({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0, 1.42, 0]} rotation-x={Math.PI / 2}>
         <torusGeometry args={[0.058, 0.005, 8, 20]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.4}
           metalness={0.6}
         />
@@ -249,7 +249,7 @@ function WaterColumn({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0, 1.7, 0]} rotation-x={Math.PI / 2}>
         <torusGeometry args={[0.058, 0.011, 8, 20]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.4}
           metalness={0.7}
         />
@@ -282,7 +282,7 @@ function Manometer({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0, (BENCH_TOP + DIAL_Y) / 2, 0]}>
         <cylinderGeometry args={[0.018, 0.024, DIAL_Y - BENCH_TOP, 12]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.35}
           metalness={0.8}
         />
@@ -292,7 +292,7 @@ function Manometer({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0, DIAL_Y, 0]} rotation-x={Math.PI / 2} castShadow>
         <cylinderGeometry args={[0.15, 0.15, 0.06, 28]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.4}
           metalness={0.75}
         />
@@ -302,7 +302,7 @@ function Manometer({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0, DIAL_Y, 0.034]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.135, 0.135, 0.008, 28]} />
         <meshStandardMaterial
-          color={LAB.panel}
+          color={MUSEUM.panel}
           roughness={0.6}
           metalness={0.1}
         />
@@ -325,7 +325,7 @@ function Manometer({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0, DIAL_Y, 0.032]}>
         <torusGeometry args={[0.15, 0.012, 8, 32]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.3}
           metalness={0.85}
         />
@@ -336,8 +336,8 @@ function Manometer({ accent, calm }: { accent: string; calm: number }) {
         <mesh position={[0, 0.056, 0]}>
           <boxGeometry args={[0.012, 0.112, 0.008]} />
           <meshStandardMaterial
-            color={LAB.warning}
-            emissive={LAB.warning}
+            color={MUSEUM.warning}
+            emissive={MUSEUM.warning}
             emissiveIntensity={1.4}
             toneMapped={false}
           />
@@ -378,7 +378,7 @@ function HydraulicPress({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0.515, 0.905, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.86, 0.05, 0.44]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.6}
           metalness={0.35}
         />
@@ -388,8 +388,8 @@ function HydraulicPress({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0.515, 0.975, 0]} rotation-z={Math.PI / 2}>
         <cylinderGeometry args={[0.028, 0.028, 0.53, 16]} />
         <meshStandardMaterial
-          color={LAB.fluid}
-          emissive={LAB.fluid}
+          color={MUSEUM.fluid}
+          emissive={MUSEUM.fluid}
           emissiveIntensity={0.35}
           roughness={0.3}
           metalness={0.2}
@@ -402,7 +402,7 @@ function HydraulicPress({ accent, calm }: { accent: string; calm: number }) {
           args={[SMALL_PISTON_RADIUS, SMALL_PISTON_RADIUS, 0.34, 20, 1, true]}
         />
         <meshPhysicalMaterial
-          color={LAB.glass}
+          color={MUSEUM.glass}
           transparent
           opacity={0.2}
           roughness={0.06}
@@ -419,7 +419,7 @@ function HydraulicPress({ accent, calm }: { accent: string; calm: number }) {
           args={[LARGE_PISTON_RADIUS, LARGE_PISTON_RADIUS, 0.24, 24, 1, true]}
         />
         <meshPhysicalMaterial
-          color={LAB.glass}
+          color={MUSEUM.glass}
           transparent
           opacity={0.2}
           roughness={0.06}
@@ -434,7 +434,7 @@ function HydraulicPress({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[SMALL_PISTON_X, 0.9725, 0]}>
         <cylinderGeometry args={[0.045, 0.045, 0.045, 20]} />
         <meshStandardMaterial
-          color={LAB.fluid}
+          color={MUSEUM.fluid}
           transparent
           opacity={0.85}
           roughness={0.25}
@@ -444,7 +444,7 @@ function HydraulicPress({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[LARGE_PISTON_X, 0.9725, 0]}>
         <cylinderGeometry args={[0.1, 0.1, 0.045, 24]} />
         <meshStandardMaterial
-          color={LAB.fluid}
+          color={MUSEUM.fluid}
           transparent
           opacity={0.85}
           roughness={0.25}
@@ -452,12 +452,16 @@ function HydraulicPress({ accent, calm }: { accent: string; calm: number }) {
         />
       </mesh>
 
+      {/*
+       * Pistons toujours en mouvement : ils ne portent pas d'ombre, qui
+       * forcerait le recalcul permanent de la carte (voir ShadowRefresh).
+       */}
       {/* Petit piston : grande course */}
       <group ref={smallPiston}>
         <mesh position={[SMALL_PISTON_X, 1.14, 0]}>
           <cylinderGeometry args={[0.044, 0.044, 0.045, 20]} />
           <meshStandardMaterial
-            color={LAB.metal}
+            color={MUSEUM.metal}
             roughness={0.35}
             metalness={0.8}
           />
@@ -465,12 +469,12 @@ function HydraulicPress({ accent, calm }: { accent: string; calm: number }) {
         <mesh position={[SMALL_PISTON_X, 1.3125, 0]}>
           <cylinderGeometry args={[0.014, 0.014, 0.3, 12]} />
           <meshStandardMaterial
-            color={LAB.metal}
+            color={MUSEUM.metal}
             roughness={0.3}
             metalness={0.85}
           />
         </mesh>
-        <mesh position={[SMALL_PISTON_X, 1.4725, 0]} castShadow>
+        <mesh position={[SMALL_PISTON_X, 1.4725, 0]}>
           <cylinderGeometry args={[0.075, 0.075, 0.02, 20]} />
           <meshStandardMaterial
             color={accent}
@@ -487,7 +491,7 @@ function HydraulicPress({ accent, calm }: { accent: string; calm: number }) {
         <mesh position={[LARGE_PISTON_X, 1.07, 0]}>
           <cylinderGeometry args={[0.104, 0.104, 0.04, 24]} />
           <meshStandardMaterial
-            color={LAB.metal}
+            color={MUSEUM.metal}
             roughness={0.35}
             metalness={0.8}
           />
@@ -495,12 +499,12 @@ function HydraulicPress({ accent, calm }: { accent: string; calm: number }) {
         <mesh position={[LARGE_PISTON_X, 1.17, 0]}>
           <cylinderGeometry args={[0.02, 0.02, 0.16, 12]} />
           <meshStandardMaterial
-            color={LAB.metal}
+            color={MUSEUM.metal}
             roughness={0.3}
             metalness={0.85}
           />
         </mesh>
-        <mesh position={[LARGE_PISTON_X, 1.261, 0]} castShadow>
+        <mesh position={[LARGE_PISTON_X, 1.261, 0]}>
           <cylinderGeometry args={[0.155, 0.155, 0.022, 24]} />
           <meshStandardMaterial
             color={accent}
@@ -511,10 +515,10 @@ function HydraulicPress({ accent, calm }: { accent: string; calm: number }) {
           />
         </mesh>
         {/* Masse soulevée par le grand piston */}
-        <mesh position={[LARGE_PISTON_X, 1.332, 0]} castShadow>
+        <mesh position={[LARGE_PISTON_X, 1.332, 0]}>
           <boxGeometry args={[0.16, 0.12, 0.16]} />
           <meshStandardMaterial
-            color={LAB.warning}
+            color={MUSEUM.warning}
             roughness={0.7}
             metalness={0.2}
           />
@@ -549,7 +553,7 @@ function VacuumBell({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0, 0.895, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[0.14, 0.145, 0.03, 24]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.45}
           metalness={0.7}
         />
@@ -559,7 +563,7 @@ function VacuumBell({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[0, 0.99, 0]}>
         <cylinderGeometry args={[0.115, 0.115, 0.16, 24, 1, true]} />
         <meshPhysicalMaterial
-          color={LAB.glass}
+          color={MUSEUM.glass}
           transparent
           opacity={0.18}
           roughness={0.06}
@@ -574,7 +578,7 @@ function VacuumBell({ accent, calm }: { accent: string; calm: number }) {
           args={[0.115, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2]}
         />
         <meshPhysicalMaterial
-          color={LAB.glass}
+          color={MUSEUM.glass}
           transparent
           opacity={0.18}
           roughness={0.06}
@@ -601,7 +605,7 @@ function VacuumBell({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[-0.32, 0.935, 0.04]} castShadow receiveShadow>
         <boxGeometry args={[0.19, 0.11, 0.14]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.65}
           metalness={0.3}
         />
@@ -609,7 +613,7 @@ function VacuumBell({ accent, calm }: { accent: string; calm: number }) {
       <mesh position={[-0.14, 0.9, 0.01]} rotation-z={Math.PI / 2}>
         <cylinderGeometry args={[0.014, 0.014, 0.24, 10]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.7}
           metalness={0.35}
         />

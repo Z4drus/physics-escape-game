@@ -10,7 +10,7 @@ import {
   type DiagramControlsHandle,
 } from "@/features/game/components/diagrams/DiagramStage";
 import { useWheelZoom } from "@/features/game/components/diagrams/useWheelZoom";
-import { useFocusTrap } from "@/features/game/hooks/useFocusTrap";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { TRANSITION } from "@/lib/motion";
 import type { DiagramSpec } from "@/types/game";
 
@@ -125,7 +125,7 @@ export function DiagramViewer({
 
   return (
     <>
-      <div className="relative aspect-[16/10] w-full">
+      <div className="relative min-h-[18rem] w-full flex-1">
         {expanded ? (
           <div className="border-line text-ink-mute grid size-full place-items-center rounded-lg border border-dashed text-xs">
             Schéma ouvert en grand

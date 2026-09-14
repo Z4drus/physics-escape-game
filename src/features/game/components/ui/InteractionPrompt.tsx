@@ -4,14 +4,18 @@ import { AnimatePresence, motion } from "motion/react";
 
 import { TRANSITION } from "@/lib/motion";
 
-/** Invite affichée sous le réticule quand un poste est à portée. */
-export function InteractionPrompt({ label }: { label: string | null }) {
+/** Invite affichée sous le réticule quand un objet est à portée. */
+export function InteractionPrompt({
+  prompt,
+}: {
+  prompt: { verb: string; label: string } | null;
+}) {
   return (
     <div className="pointer-events-none fixed inset-x-0 top-[calc(50%+2.25rem)] flex justify-center">
       <AnimatePresence initial={false} mode="wait">
-        {label ? (
+        {prompt ? (
           <motion.div
-            key={label}
+            key={`${prompt.verb}:${prompt.label}`}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
@@ -22,7 +26,7 @@ export function InteractionPrompt({ label }: { label: string | null }) {
               E
             </kbd>
             <span className="text-sm">
-              Analyser <span className="font-medium">{label}</span>
+              {prompt.verb} <span className="font-medium">{prompt.label}</span>
             </span>
           </motion.div>
         ) : null}

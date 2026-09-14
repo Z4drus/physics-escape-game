@@ -8,11 +8,11 @@ import { AnswerList } from "@/features/game/components/ui/AnswerList";
 import { PuzzleVerdict } from "@/features/game/components/ui/PuzzleVerdict";
 import { DiagramViewer } from "@/features/game/components/diagrams/DiagramViewer";
 import { TOPIC_LABELS } from "@/features/game/data/puzzles";
-import { useFocusTrap } from "@/features/game/hooks/useFocusTrap";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import type { AnswerResult } from "@/features/game/state/useGameStore";
 import { cn } from "@/lib/cn";
 import { TRANSITION, revealAt } from "@/lib/motion";
-import type { Puzzle, PuzzleAnswer, RoomKey } from "@/types/game";
+import type { Puzzle, PuzzleAnswer, Seal } from "@/types/game";
 
 /**
  * Boîte de dialogue d'un poste : le schéma 3D animé de la situation à gauche,
@@ -34,7 +34,7 @@ export function PuzzleDialog({
   /** Propositions dans leur ordre d'affichage, tiré à l'ouverture du poste. */
   answers: readonly PuzzleAnswer[];
   stationLabel: string;
-  reward: RoomKey;
+  reward: Seal;
   selectedAnswerId: string | null;
   answerResult: AnswerResult | null;
   onAnswer: (answerId: string) => void;
@@ -106,7 +106,7 @@ export function PuzzleDialog({
         transition={TRANSITION.base}
         className="glass w-full max-w-6xl rounded-xl p-2 outline-none"
       >
-        <div className="bg-background-deep max-h-[88dvh] overflow-hidden rounded-lg">
+        <div className="bg-background-deep flex h-[min(88dvh,60rem)] flex-col overflow-hidden rounded-lg">
           <header className="border-line flex items-center justify-between gap-4 border-b px-5 py-3.5">
             <div className="flex items-center gap-3">
               <Eyebrow>{TOPIC_LABELS[puzzle.topic]}</Eyebrow>
@@ -139,14 +139,14 @@ export function PuzzleDialog({
             </div>
           </header>
 
-          <div className="grid max-h-[calc(88dvh-3.5rem)] overflow-y-auto overscroll-contain lg:grid-cols-[1.3fr_1fr]">
+          <div className="grid min-h-0 flex-1 overflow-y-auto overscroll-contain lg:grid-cols-[1.3fr_1fr] lg:overflow-hidden">
             <motion.section
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={revealAt(0, 0.05)}
-              className="border-line border-b p-5 lg:border-r lg:border-b-0"
+              className="border-line flex min-h-0 flex-col border-b p-5 lg:border-r lg:border-b-0"
             >
-              <p className="text-ink-fade mb-4 text-sm">{puzzle.scenario}</p>
+              <p className="text-ink-fade mb-4 text-base">{puzzle.scenario}</p>
               <DiagramViewer
                 spec={puzzle.diagram}
                 caption={puzzle.scenario}
@@ -155,14 +155,14 @@ export function PuzzleDialog({
               />
             </motion.section>
 
-            <section className="flex flex-col">
+            <section className="flex min-h-0 flex-col lg:overflow-y-auto">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={revealAt(1, 0.05)}
-                className="border-line border-b p-5"
+                className="border-line border-b p-6"
               >
-                <h2 id="puzzle-question" className="text-xl">
+                <h2 id="puzzle-question" className="text-2xl">
                   {puzzle.question}
                 </h2>
               </motion.div>
@@ -215,7 +215,7 @@ export function PuzzleDialog({
          */}
         <p className="sr-only" aria-live="polite">
           {answerResult === "correct"
-            ? `Bonne réponse. ${reward.label} récupérée.`
+            ? `Bonne réponse. ${reward.label} obtenu.`
             : answerResult === "wrong"
               ? "Réponse incorrecte. Vous pouvez retenter sans pénalité."
               : ""}

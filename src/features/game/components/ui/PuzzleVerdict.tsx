@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { TRANSITION } from "@/lib/motion";
 import type { AnswerResult } from "@/features/game/state/useGameStore";
-import type { Puzzle, RoomKey } from "@/types/game";
+import type { Puzzle, Seal } from "@/types/game";
 
 /**
  * Correction affichée après une réponse : la relation mise en jeu, le
@@ -20,7 +20,7 @@ export function PuzzleVerdict({
 }: {
   puzzle: Puzzle;
   result: AnswerResult;
-  reward: RoomKey;
+  reward: Seal;
   onRetry: () => void;
   onClose: () => void | Promise<void>;
 }) {
@@ -45,8 +45,8 @@ export function PuzzleVerdict({
                 boxShadow: `0 0 12px ${reward.color}`,
               }}
             />
-            <p className="text-sky text-sm font-medium">
-              Bonne réponse. {reward.label} récupérée.
+            <p className="text-positive text-sm font-medium">
+              Bonne réponse. {reward.label} obtenu.
             </p>
           </div>
 
@@ -57,7 +57,7 @@ export function PuzzleVerdict({
         </>
       ) : (
         <>
-          <p className="text-amber text-sm font-medium">
+          <p className="text-negative text-sm font-medium">
             Ce n&apos;est pas la bonne réponse.
           </p>
           <p className="text-ink-fade mt-2 text-sm">

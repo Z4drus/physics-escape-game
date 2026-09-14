@@ -14,41 +14,32 @@ relations entre modules, et non une hiérarchie objet.
 
 ```mermaid
 classDiagram
-    class Vec3 {
-        <<type>>
-        +x : number
-        +y : number
-        +z : number
+    class RoomId {
+        <<enumeration>>
+        gallery
+        cabinet
+        hologram
     }
 
     class GameStatus {
         <<enumeration>>
         idle
+        intro
         playing
         paused
-        puzzle
+        modal
         locking
+        finale
         won
     }
 
-    class PhysicsTopic {
-        <<enumeration>>
-        pression
-        chaleur
-        energie
-        electricite
-        forces
-        cinematique
-    }
-
-    class StationKind {
-        <<enumeration>>
-        pressure-bench
-        calorimeter
-        energy-track
-        circuit-bench
-        force-table
-        air-rail
+    class Modal {
+        <<union>>
+        puzzle(stationId)
+        inspect(objectId)
+        codeLock
+        safe
+        fuseBox
     }
 
     class Station {
@@ -56,16 +47,49 @@ classDiagram
         +topic : PhysicsTopic
         +kind : StationKind
         +label : string
+        +roomId : RoomId
         +position : Vec3
         +rotationY : number
-        +footprint : number[] largeur puis profondeur
-        +reward : RoomKey
+        +footprint : number[]
+        +reward : Seal
+        +gate : power ou energy-case, optionnel
     }
 
-    class RoomKey {
+    class Seal {
         +id : string
         +label : string
         +color : string
+    }
+
+    class Interactable {
+        +id : string
+        +kind : InteractableKind
+        +roomId : RoomId
+        +label : string
+        +verb : string
+        +position : Vec3
+        +radius : number
+    }
+
+    class InteractableKind {
+        <<enumeration>>
+        station
+        inspect
+        pickup
+        cabinet-door
+        final-door
+        safe
+        fuse-box
+        uv-wall
+    }
+
+    class InspectContent {
+        +id : string
+        +title : string
+        +caption : string
+        +image : string
+        +body : string
+        +codeIndex : 0 à 3, optionnel
     }
 
     class Puzzle {
@@ -81,200 +105,136 @@ classDiagram
         +difficulty : 1, 2 ou 3
     }
 
-    class PuzzleAnswer {
-        +id : string
-        +label : string
-    }
-
-    class DiagramSpec {
-        +kind : DiagramKind
-        +params : table de number ou string, optionnelle
-    }
-
-    class DiagramKind {
-        <<type>>
-        alias de string
-    }
-
-    class StationCatalog {
+    class World {
         <<module>>
-        +STATIONS : Station[]
-        +STATIONS_BY_ID : Map de string vers Station
-        +TOTAL_KEYS : number
+        +ROOMS : RoomSpec par RoomId
+        +WALLS : WallSpec[] avec ouvertures
+        +WINDOWS : WindowSpec[]
+        +OBSTACLES : boîtes de décor
+        +PLAYER, PLAYER_SPAWN, HOLOGRAM_DAIS
+        +roomAt(x, z) RoomId
     }
 
-    class PuzzleCatalog {
+    class Colliders {
         <<module>>
-        +PUZZLES_BY_TOPIC : Puzzle[] par thème
-        +PUZZLES_BY_ID : Map de string vers Puzzle
-        +TOPIC_LABELS : libellé par thème
-        +pickPuzzle(topic, excludedIds) Puzzle
+        +buildColliders(openDoors) Box2[]
     }
 
     class GameState {
         +status : GameStatus
-        +solvedStationIds : string[]
-        +keys : RoomKey[]
-        +assignedPuzzleIds : table stationId vers puzzleId
-        +answerOrders : table puzzleId vers answerId[]
-        +activeStationId : string ou null
-        +selectedAnswerId : string ou null
-        +answerResult : correct, wrong ou null
-        +focusedStationId : string ou null
-        +attempts : number
-        +startedAt : number ou null
-        +finishedAt : number ou null
+        +modal : Modal ou null
+        +focusedId, currentRoomId
+        +solvedStationIds, seals
+        +assignedPuzzleIds, answerOrders
+        +inventory : InventoryItemId[]
+        +discoveredClueIds : string[]
+        +cabinetUnlocked, safeOpen, powerRestored, uvRevealed, energyCaseUnlocked
+        +codeDigits, safeRiddle, breakers, armedBreakerIds
+        +attempts, errors, startedAt, finishedAt
+        +toasts, carnetOpen, hologramStep
     }
 
     class GameActions {
-        +beginSession() void
-        +pause() void
-        +setFocusedStation(stationId) void
-        +openStation(stationId) void
-        +selectAnswer(answerId) void
-        +retryPuzzle() void
-        +closePuzzle() void
-        +escapeRoom() void
-        +reset() void
+        +startIntro() nextIntroStep()
+        +beginSession() pause()
+        +setFocused() setCurrentRoom()
+        +interact(id)
+        +selectAnswer() retryPuzzle() closeModal()
+        +submitCode() submitSafe() armBreaker()
+        +enterFinale() advanceHologram() finish()
+        +notify() dismissToast() toggleCarnet() reset()
     }
 
-    class Selectors {
-        <<module>>
-        +selectActivePuzzle(state) Puzzle
-        +orderAnswers(puzzle, answerOrders) PuzzleAnswer[]
-        +selectDoorOpen(state) boolean
-    }
-
-    Station "1" --> "1" PhysicsTopic : topic
-    Station "1" --> "1" StationKind : kind
-    Station "1" --> "1" Vec3 : position
-    Station "1" *-- "1" RoomKey : reward
-    Puzzle "1" --> "1" PhysicsTopic : topic
-    Puzzle "1" *-- "3" PuzzleAnswer : answers
-    Puzzle "1" *-- "1" DiagramSpec : diagram
-    DiagramSpec "1" --> "1" DiagramKind : kind
-    PhysicsTopic "1" ..> "3" Puzzle : banque du thème
-    StationCatalog "1" o-- "6" Station : STATIONS
-    PuzzleCatalog "1" o-- "18" Puzzle : PUZZLES_BY_TOPIC
+    Station "1" *-- "1" Seal : reward
+    Interactable "1" --> "1" InteractableKind : kind
+    Interactable "1" --> "1" RoomId : roomId
+    Station ..> Interactable : dérive une entrée station
+    InspectContent ..> Interactable : même identifiant pour kind inspect
+    Puzzle ..> Station : tirée par topic
+    World "1" o-- "3" RoomId : ROOMS
+    Colliders ..> World : murs, obstacles
+    Colliders ..> Station : footprint
+    Colliders ..> Interactable : FURNITURE_COLLIDERS
     GameState "1" --> "1" GameStatus : status
-    GameState "1" o-- "0..6" RoomKey : keys
-    GameState ..> Station : focusedStationId, activeStationId, solvedStationIds
-    GameState ..> Puzzle : assignedPuzzleIds
+    GameState "1" --> "0..1" Modal : modal
+    GameState "1" o-- "0..6" Seal : seals
     GameActions ..> GameState : set et get
-    GameActions ..> StationCatalog : STATIONS_BY_ID
-    GameActions ..> PuzzleCatalog : pickPuzzle
-    Selectors ..> GameState : lecture
-    Selectors ..> Puzzle : résolution
+    GameActions ..> Interactable : interact aiguille par kind
 ```
-
-`StationCatalog` correspond à `src/features/game/data/stations.ts`,
-`PuzzleCatalog` à `src/features/game/data/puzzles/index.ts`, `GameState`,
-`GameActions` et `Selectors` à `src/features/game/state/useGameStore.ts`. Les
-deux champs notés « table » sont des `Record<string, string>` et
-`Record<string, string[]>`, et `footprint` est le tuple
-`[width: number, depth: number]`.
 
 ### Invariants qui ne se lisent pas dans le graphe
 
-- **Une station par thème.** `STATIONS` contient six entrées couvrant les six
-  valeurs de `PhysicsTopic`, et chaque thème compte trois questions de
-  difficultés 1, 2 et 3, soit dix-huit questions au total. Aucun type n'impose
-  cette bijection : c'est la donnée qui la garantit.
-- **La question est tirée à l'ouverture du poste**, pas au démarrage de la
-  partie. `openStation` appelle `pickPuzzle(station.topic, ...)` puis mémorise
-  le résultat dans `assignedPuzzleIds` : une mauvaise réponse ne change donc
-  jamais l'énoncé quand le joueur revient sur le même poste. Le tirage restant
-  côté client, il ne peut pas provoquer de divergence d'hydratation.
-- **L'ordre des propositions est tiré au même instant** et rangé dans
-  `answerOrders`, indexé par identifiant de question et non par identifiant de
-  station. `orderAnswers` est une fonction pure et non un sélecteur Zustand :
-  elle construit un tableau neuf, ce qui déclencherait un rendu à chaque
-  notification du store si elle était abonnée.
-- **La clé est attachée à la station, jamais à la question.**
-  `Station.reward` est fixe : quel que soit le tirage, un poste délivre
-  toujours la même `RoomKey`, de la même couleur, celle du socle et de la
-  pastille du HUD.
-- **Le nombre de clés suit le nombre de stations.**
-  `TOTAL_KEYS = STATIONS.length`, et `selectDoorOpen` compare
-  `solvedStationIds.length` à cette constante : ajouter un poste renforce
-  automatiquement la condition de sortie.
-- **`Puzzle.topic` duplique `Station.topic`.** La cohérence tient au seul fait
-  que `pickPuzzle` reçoit `station.topic` en argument ; le typage ne la vérifie
-  pas.
-- **`DiagramKind` est un simple alias de `string`** et le registre
-  `DIAGRAM_SCENES` est un `Record<string, ...>` : rien à la compilation ne
-  garantit qu'un `diagram.kind` corresponde à une scène enregistrée.
-  `DiagramStage` retombe sur un message « Schéma indisponible ».
-- **`footprint` est exprimée en repère monde**, jamais tournée par
-  `rotationY` : elle alimente les collisions alignées sur les axes, tandis que
-  `rotationY` n'oriente que le modèle 3D.
-- **`keys` et `solvedStationIds` progressent ensemble** : `selectAnswer` les
-  met à jour dans le même `set`, ils ont donc toujours la même longueur.
+- **Six postes, six sceaux, trois espaces.** Quatre postes dans la galerie,
+  deux dans le cabinet. `TOTAL_SEALS = STATIONS.length` et la porte finale
+  s'ouvre quand `seals.length >= TOTAL_SEALS`.
+- **Deux postes sont conditionnés** par `Station.gate` : `power` (le banc
+  d'Ampère attend `powerRestored`), `energy-case` (la piste de Joule attend la
+  clé de la vitrine, qui la déverrouille au premier passage).
+- **Les secrets de la partie** (`codeDigits`, `safeRiddle`, `breakers`) sont
+  tirés dans `startIntro`, après un geste utilisateur : ils ne sont donc
+  jamais rendus côté serveur et ne peuvent pas diverger à l'hydratation.
+- **`codeDigits` est ordonné chronologiquement** (Archimède, Galilée, Newton,
+  Curie) ; `InspectContent.codeIndex` désigne le rang du savant, et le carnet
+  affiche les chiffres dans l'ordre de découverte, pas dans l'ordre du code.
+- **Une seule fenêtre à la fois.** `status === "modal"` implique
+  `modal !== null`, et `closeModal` remet les deux à zéro ensemble.
+- **La question est tirée à l'ouverture du poste** et mémorisée dans
+  `assignedPuzzleIds` ; l'ordre des propositions dans `answerOrders`.
+- **`errors` compte toutes les fautes** : mauvaise réponse, code faux,
+  combinaison fausse, disjoncteur mal réarmé. `attempts` ne compte que les
+  réponses aux postes et sert à la précision de l'écran de fin.
+- **`footprint` et les boîtes de collision sont en repère monde**, jamais
+  tournées par `rotationY`.
+- **Un objet n'est visé que s'il a encore quelque chose à offrir** :
+  `isInteractableAvailable` écarte un poste résolu, une porte ouverte, un
+  coffre vide, un tableau électrique déjà réarmé, et n'expose le mur UV qu'au
+  porteur de la lampe.
 
 ---
 
 ## 2. Machine d'état de la partie
 
-Chaque transition porte l'action du store qui la produit et l'événement qui
-l'appelle. Le verrouillage du pointeur est piloté par l'interface : c'est
-l'événement `onLock` de `PointerLockControls` qui appelle `beginSession`, et
-l'événement `onUnlock` qui décide, ou non, d'appeler `pause`.
-
 ```mermaid
 stateDiagram-v2
     [*] --> idle
 
-    idle --> playing : beginSession, sur onLock après le bouton Entrer dans la salle
-    playing --> paused : pause, sur onUnlock non provoqué par le jeu, touche Échap
-    paused --> playing : beginSession, sur onLock après un requestLock accepté
-    playing --> puzzle : openStation, touche E sur un poste visé et non résolu
-    puzzle --> locking : closePuzzle, touche Échap ou bouton Fermer le poste
+    idle --> intro : startIntro, bouton Commencer, tirage des secrets
+    intro --> intro : nextIntroStep
+    intro --> playing : beginSession, sur onLock après Entrer dans la galerie
+    playing --> paused : pause, sur onUnlock non provoqué par le jeu
+    paused --> playing : beginSession, sur onLock après Reprendre
+    playing --> modal : interact, touche E sur un objet visé
+    modal --> modal : selectAnswer, retryPuzzle, submitCode, submitSafe, armBreaker
+    modal --> locking : closeModal
     locking --> playing : beginSession, sur onLock repris dans le même geste
     locking --> paused : pause, requestLock refusé par le navigateur
-    playing --> won : escapeRoom, franchissement de EXIT_TRIGGER_Z porte ouverte
-    won --> idle : reset, bouton de rejeu de VictoryOverlay
+    playing --> finale : enterFinale, le joueur monte sur l'estrade
+    finale --> finale : advanceHologram
+    finale --> won : finish, bouton Voir le classement
+    won --> idle : reset, bouton Rejouer
 
-    playing --> playing : setFocusedStation, poste visé par le joueur
-    puzzle --> puzzle : selectAnswer puis retryPuzzle après une erreur
+    playing --> playing : setFocused, setCurrentRoom, toggleCarnet
 ```
 
 Gardes vérifiées dans `useGameStore.ts` :
 
-- `beginSession` est ignorée depuis `won` et `puzzle`, et fixe `startedAt` au
-  premier passage seulement : la pause ne remet pas le chronomètre à zéro.
-- `pause` n'agit que depuis `playing` ou `locking`. Un `onUnlock` provoqué par
-  le jeu lui-même est filtré en amont par `usePointerLock.handleUnlockEvent`,
-  qui renvoie `true` dans ce cas : c'est ce qui empêche l'écran de pause
-  d'apparaître à l'ouverture d'une question ou de l'écran de victoire.
-- `openStation` exige `status === "playing"`, une station connue de
-  `STATIONS_BY_ID`, non présente dans `solvedStationIds`, et une question
-  trouvée.
-- `selectAnswer` et `retryPuzzle` ne modifient jamais `status` : la boîte de
-  dialogue reste dans `puzzle`. `selectAnswer` est refusée si un
-  `answerResult` est déjà posé, `retryPuzzle` n'agit que sur un résultat
-  `wrong`.
-- `closePuzzle` n'agit que depuis `puzzle` et passe par `locking` plutôt que
-  par `paused` : `GameScreen.handleClosePuzzle` enchaîne immédiatement sur
-  `requestLock` dans le geste utilisateur qui a fermé le poste, et ne bascule
-  en `paused` que si le navigateur refuse.
-- `escapeRoom` est appelée depuis la boucle de rendu de `Player`, qui sort tôt
-  si `status !== "playing"` : la transition ne peut donc venir que de
-  `playing`. Elle est idempotente et remet `focusedStationId` à `null`.
-- `reset` n'a aucune garde et repart de l'état initial, mais elle n'est câblée
-  que sur l'écran de victoire.
-- L'état `locking` n'affiche aucune surcouche et fige le déplacement, puisque
-  `Player` n'avance que dans `playing` : il ne dure que le temps de la reprise
-  du pointeur.
+- `beginSession` n'agit que depuis `intro`, `paused` ou `locking`, et fixe
+  `startedAt` au premier passage.
+- `interact` exige `playing`, un objet connu et disponible, puis aiguille selon
+  `kind` : un poste ouvre sa question (ou refuse avec une notification si sa
+  condition n'est pas remplie), un objet ouvre sa fiche et note l'indice, le
+  bureau donne la lampe UV, la porte ouvre le cadenas, le coffre et le tableau
+  électrique ouvrent leur fenêtre (le tableau exige le fusible), le mur UV
+  révèle et ouvre le message.
+- `submitCode`, `submitSafe` et `armBreaker` comptent une erreur en cas
+  d'échec ; `armBreaker` remet aussi les disjoncteurs à zéro.
+- `enterFinale` n'agit que depuis `playing` et fixe `finishedAt`.
+- `reset` repart de l'état initial ; les secrets sont retirés au prochain
+  `startIntro`.
 
 ---
 
 ## 3. Architecture des composants
-
-`app/page.tsx` est un composant serveur qui ne fait que composer `GameScreen`,
-premier composant client de l'arbre. `GameScreen` importe `GameCanvas` par
-`next/dynamic` avec `ssr: false`, le rendu WebGL ne pouvant pas être prérendu.
-Deux frontières `<Canvas>` coexistent : celle de la salle et celle, montée à la
-demande, du schéma de la question.
 
 ```mermaid
 flowchart TD
@@ -283,229 +243,172 @@ flowchart TD
         page["app/page.tsx"]
     end
 
-    subgraph L2["Interface DOM, composants client"]
+    subgraph L2["Interface DOM"]
         screen["GameScreen.tsx"]
-        hud["ui/Hud, KeyTracker, SessionTimer"]
-        aim["ui/Crosshair, ui/InteractionPrompt"]
-        start["ui/StartOverlay"]
-        victory["ui/VictoryOverlay"]
-        dialog["ui/PuzzleDialog"]
-        answers["ui/AnswerList, ui/PuzzleVerdict"]
-        viewer["diagrams/DiagramViewer, DiagramToolbar"]
+        hud["ui/Hud, SealTracker"]
+        aim["ui/Crosshair, InteractionPrompt, Toasts, Carnet"]
+        overlays["ui/TitleOverlay, IntroOverlay, PauseOverlay, VictoryOverlay"]
+        dialogs["ui/PuzzleDialog, InspectDialog, CodeLockDialog, SafeDialog, FuseBoxDialog, HologramDialog"]
+        shell["components/ui/ModalShell, Dial, Button"]
     end
 
-    subgraph L3["Scène 3D, Canvas de la salle"]
-        canvas["GameCanvas.tsx, Canvas et PointerLockControls"]
-        lights["scene/Lights"]
-        room["scene/Room, sol, murs, couloir"]
-        door["scene/ExitDoor"]
-        stationprop["scene/StationProp puis scene/props, 6 modèles"]
+    subgraph L3["Scène 3D"]
+        canvas["GameCanvas.tsx"]
+        world["scene/World, coque"]
+        doors["scene/Doors"]
+        lights["scene/Lights, Effects"]
+        rooms["scene/rooms, décor par espace"]
+        decor["scene/decor, tableaux, vitrines, meubles, hologramme"]
+        stations["scene/StationProp et props/"]
         player["scene/Player, useFrame"]
     end
 
-    subgraph L4["Second Canvas, schéma de la question"]
-        stage["diagrams/DiagramStage, OrbitControls et ZoomRig"]
-        ctx["DiagramDisplayContext monté dans le Canvas"]
-        registry["diagrams/registry, 18 scènes indexées par kind"]
-        prim["diagrams/primitives, DiagramLabel et VectorArrow"]
+    subgraph L4["Hooks"]
+        hlock["usePointerLock"]
+        hkeys["useGameHotkeys"]
+        haudio["useGameAudio"]
+        hmove["useMovementKeys"]
     end
 
-    subgraph L5["Hooks client"]
-        hlock["hooks/usePointerLock"]
-        hkey["hooks/useInteractionHotkey"]
-        hmove["hooks/useMovementKeys"]
-        htrap["hooks/useFocusTrap"]
-    end
-
-    subgraph L6["État"]
-        store["state/useGameStore, Zustand"]
-    end
-
-    subgraph L7["Données, logique pure et design system"]
-        dstations["data/stations.ts"]
-        droom["data/room.ts"]
-        dpuzzles["data/puzzles"]
-        lib["lib, collision, shuffle, motion, cn"]
-        ds["components/ui, Button et Eyebrow"]
+    subgraph L5["État et données"]
+        store["state/useGameStore"]
+        data["data/world, stations, interactables, clues, colliders, puzzles"]
+        logic["logic/escape, objective, renderQuality"]
+        lib["lib/collision, leaderboard, audio, motion"]
     end
 
     layout --> page
-    page -->|"frontière client, directive use client"| screen
+    page --> screen
     screen -->|"next/dynamic, ssr false"| canvas
     screen --> hud
     screen --> aim
-    screen --> start
-    screen --> victory
-    screen --> dialog
+    screen --> overlays
+    screen --> dialogs
+    dialogs --> shell
     screen --> hlock
-    screen --> hkey
-    hlock -->|"requestLock, releaseLock"| canvas
+    screen --> hkeys
+    screen --> haudio
 
-    dialog --> answers
-    dialog --> viewer
-    dialog --> htrap
-    viewer --> htrap
-    viewer -->|"frontière WebGL du schéma"| stage
-    stage --> ctx
-    ctx --> registry
-    registry --> prim
-
+    canvas --> world
+    canvas --> doors
     canvas --> lights
-    canvas --> room
-    canvas --> door
-    canvas --> stationprop
+    canvas --> rooms
+    rooms --> decor
+    canvas --> stations
     canvas --> player
+    canvas --> logic
     player --> hmove
 
     screen --> store
     canvas --> store
-    stationprop --> store
-    hkey --> store
-    player -.->|"getState dans useFrame, aucun rendu React"| store
+    rooms --> store
+    stations --> store
+    hkeys --> store
+    haudio --> store
+    player -.->|"getState dans useFrame"| store
 
-    store --> dstations
-    store --> dpuzzles
+    store --> data
+    store --> logic
+    player --> data
+    world --> data
+    screen --> logic
+    haudio --> lib
     store --> lib
-    player --> droom
-    player --> lib
-    room --> droom
-    canvas --> dstations
-    hud --> dstations
-    dialog --> dpuzzles
-    hud --> ds
-    start --> ds
-    victory --> ds
-    answers --> ds
-
-    classDef route fill:#dbeafe,stroke:#2563eb,color:#0b1e3a
-    classDef dom fill:#ede9fe,stroke:#7c3aed,color:#221046
-    classDef three fill:#dcfce7,stroke:#16a34a,color:#08351c
-    classDef etat fill:#fee2e2,stroke:#dc2626,color:#3f0d0d
-    classDef donnees fill:#fef3c7,stroke:#b45309,color:#3a2606
-    classDef hooks fill:#e0f2fe,stroke:#0284c7,color:#062338
-
-    class layout,page route
-    class screen,hud,aim,start,victory,dialog,answers,viewer dom
-    class canvas,lights,room,door,stationprop,player,stage,ctx,registry,prim three
-    class hlock,hkey,hmove,htrap hooks
-    class store etat
-    class dstations,droom,dpuzzles,lib,ds donnees
 ```
 
 Points de lecture :
 
-- La salle et le schéma sont deux `<Canvas>` distincts. Quand une modale est
-  ouverte, `GameCanvas` passe en `frameloop="demand"` et rend le GPU au
-  schéma.
-- Les contextes React ne franchissent pas la frontière du moteur de rendu
-  three.js : `DiagramDisplayProvider` est donc monté **à l'intérieur** du
-  `<Canvas>` du schéma, ce qui permet à `DiagramLabel` de s'effacer seul sans
-  que les dix-huit scènes aient à gérer l'affichage des légendes.
-- `Player` ne s'abonne pas au store : il le lit par `useGameStore.getState()`
-  dans `useFrame`, ce qui évite tout rendu React à soixante images par
-  seconde. Seuls `StationProp`, `GameCanvas` et les composants DOM s'abonnent,
-  et uniquement aux booléens qui les concernent.
-- `DiagramViewer` monte deux fois `DiagramStage` selon l'état d'agrandissement,
-  les deux cadres partageant le même `layoutId` : le cadre grandit d'un seul
-  mouvement.
+- La salle et le schéma d'une question sont deux `<Canvas>` distincts. Dès
+  qu'un écran recouvre la salle (titre, introduction, pause, fenêtre,
+  victoire), `GameCanvas` passe en `frameloop="demand"`.
+- Le cabinet et la salle de l'hologramme sortent du rendu et de la passe
+  d'ombre tant que leur porte est close. `<Preload all />` compile pourtant
+  leurs shaders et envoie leurs textures dès le chargement : l'ouverture d'une
+  porte ne provoque pas d'à-coup.
+- `PerformanceMonitor` mesure la cadence réelle et, via
+  `logic/renderQuality`, abaisse la densité de pixels puis l'anticrénelage du
+  post-traitement sur les machines modestes.
+- `Player` ne s'abonne pas au store : il le lit par `getState()` dans
+  `useFrame`, calcule la pièce courante, l'objet visé (distance au sol et angle
+  en trois dimensions) et le déclenchement de la finale sur l'estrade.
+- Le décor de chaque espace est un composant de `scene/rooms` qui s'abonne aux
+  seuls booléens qui le concernent (courant, coffre, message UV).
+- Les textes gravés en 3D (cartels, enseignes, message UV) sont des
+  `CanvasTexture` produites par `useTextTexture`, avec les polices du site.
+- `debug.ts` expose le store, la caméra et la scène sur `window` en
+  développement, pour les parcours automatisés.
 
 ---
 
-## 4. Flux de données d'une question
+## 4. Flux d'une interaction
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Joueur
     participant Player as Player dans useFrame
-    participant Hotkey as useInteractionHotkey
+    participant Keys as useGameHotkeys
     participant Store as useGameStore
     participant Screen as GameScreen
     participant Lock as usePointerLock
-    participant Dialog as PuzzleDialog
-    participant Stage as DiagramStage
+    participant Dialog as Fenêtre ouverte
 
-    Player->>Player: findFocusedStation, distance et écart angulaire au regard
-    Player->>Store: setFocusedStation(stationId)
-    Store-->>Screen: focusedStationId
-    Screen->>Screen: Crosshair s'ouvre et InteractionPrompt affiche le poste
+    Player->>Player: pièce courante, objet le mieux aligné et disponible
+    Player->>Store: setFocused(id)
+    Store-->>Screen: focusedId
+    Screen->>Screen: réticule ouvert, invite verbe + libellé
 
-    Joueur->>Hotkey: touche E
-    Hotkey->>Store: openStation(stationId)
-    Store->>Store: pickPuzzle(topic, questions déjà tirées)
-    Store->>Store: shuffle des identifiants de réponses
-    Store-->>Screen: status puzzle, activeStationId, assignedPuzzleIds
+    Joueur->>Keys: touche E
+    Keys->>Store: interact(id)
+    Store->>Store: aiguillage selon kind, gardes, tirages
+    Store-->>Screen: status modal et modal.kind
 
-    Screen->>Lock: releaseLock, le jeu rend la souris
-    Lock-->>Screen: unlock marqué comme venant du jeu, aucune pause
-    Screen->>Store: selectActivePuzzle puis orderAnswers
-    Screen->>Dialog: puzzle, réponses ordonnées, libellé du poste, reward
-    Dialog->>Stage: DiagramViewer monte le second Canvas
-    Stage->>Stage: le registre associe diagram.kind à la scène, alimentée par params
+    Screen->>Lock: releaseLock
+    Screen->>Dialog: props issues du store
 
-    Joueur->>Dialog: clic sur une réponse ou touche 1, 2 ou 3
-    Dialog->>Store: selectAnswer(answerId)
-    Store->>Store: comparaison à correctAnswerId et attempts augmenté de 1
-    Store->>Store: si correct, station.id rejoint solvedStationIds et station.reward rejoint keys
-    Store-->>Dialog: answerResult correct ou wrong
-    Dialog->>Dialog: PuzzleVerdict affiche la formule, la correction et la clé
+    Joueur->>Dialog: réponse, code, combinaison, disjoncteur
+    Dialog->>Store: selectAnswer / submitCode / submitSafe / armBreaker
+    Store-->>Dialog: résultat, erreurs, notifications
 
-    Joueur->>Dialog: touche Échap ou bouton Fermer le poste
+    Joueur->>Dialog: Échap ou bouton de fermeture
     Dialog->>Screen: onClose
-    Screen->>Store: closePuzzle, status locking
-    Screen->>Lock: requestLock dans le même geste utilisateur
-
+    Screen->>Store: closeModal, status locking
+    Screen->>Lock: requestLock dans le même geste
     alt verrouillage obtenu
-        Lock-->>Screen: requestLock résolu puis onLock de PointerLockControls
+        Lock-->>Screen: onLock
         Screen->>Store: beginSession, status playing
-        Store-->>Player: le déplacement reprend
-    else verrouillage refusé
-        Lock-->>Screen: échec, délai de garde réarmé
-        Screen->>Store: pause, status paused
+    else refusé
+        Screen->>Store: pause
     end
-
-    Store-->>Screen: selectDoorOpen passe à vrai une fois les six clés réunies
 ```
-
-Après une mauvaise réponse, `retryPuzzle` efface `selectedAnswerId` et
-`answerResult` sans quitter `puzzle` ni pénaliser le joueur, mais le compteur
-`attempts` a déjà été incrémenté : c'est lui qui alimente le taux de réussite
-de l'écran de victoire.
 
 ---
 
 ## 5. Tableau des modules
 
-| Dossier | Rôle | Dépendances autorisées | Interdits |
-| --- | --- | --- | --- |
-| `src/app` | Route unique : `layout`, `page`, `error`, `not-found`. Polices, metadata et viewport. | `features/game/components/GameScreen` | Le store, les données, three.js |
-| `src/components/ui` | Primitives du design system partagées : `Button`, `Eyebrow`. | `lib/cn` | Le domaine, le store, three.js |
-| `src/features/game/components` | Composition de l'écran : `GameScreen` assemble scène, HUD et modales, `GameCanvas` ouvre le `<Canvas>`. | `state`, `data`, `hooks`, les trois sous-dossiers de composants, `lib` | - |
-| `src/features/game/components/scene` | Salle, porte, éclairage, joueur, postes et leurs six modèles dans `props/`. Matériaux dans `materials.ts`. | `data`, `state`, `hooks`, `lib/collision`, `types` | `components/ui`, `components/diagrams` |
-| `src/features/game/components/diagrams` | Schémas 3D des questions : `DiagramViewer`, `DiagramStage`, le registre `registry.ts`, les scènes de `scenes/`, les primitives et la palette. | `types`, `lib`, `hooks/useFocusTrap`, `registry`, `palette` | Le store, `data`, `components/scene` |
-| `src/features/game/components/ui` | Interface DOM : HUD, réticule, invite, dialogue de poste, correction, overlays. | `components/ui`, `data` pour les libellés, le type `AnswerResult` du store, `lib`, `diagrams/DiagramViewer` | `components/scene`, three.js |
-| `src/features/game/data` | Contenu : les six postes et leurs clés, la géométrie de la salle et ses collisions, la banque de questions par thème. | `types`, `lib/collision` | Les composants, le store, React |
-| `src/features/game/hooks` | Clavier de déplacement, raccourci d'interaction, Pointer Lock, piège à focus. | `state`, React | Les composants, `data` |
-| `src/features/game/state` | Store Zustand : état, actions et fonctions de sélection. | `data`, `lib/shuffle`, `types` | Les composants, three.js, React |
-| `src/lib` | Logique pure et sans effet de bord : collisions, mélange, vocabulaire de mouvement, `cn`. | `clsx`, `tailwind-merge` uniquement | Tout le domaine |
-| `src/types` | Modèle de domaine partagé. | Aucun import | Tout le reste |
+| Dossier                                 | Rôle                                                              | Dépendances autorisées                                                     | Interdits                              |
+| --------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------- |
+| `src/app`                               | Route unique : `layout`, `page`, `error`, `not-found`.            | `features/game/components/GameScreen`                                      | Le store, les données, three.js        |
+| `src/components/ui`                     | Primitives partagées : `Button`, `Eyebrow`, `ModalShell`, `Dial`. | `lib`, `hooks`                                                             | Le domaine, le store, three.js         |
+| `src/hooks`                             | Hooks génériques : piège à focus, classement.                     | `lib`, React                                                               | Le domaine                             |
+| `src/features/game/components`          | `GameScreen` compose, `GameCanvas` ouvre le `<Canvas>`.           | `state`, `data`, `logic`, `hooks`, sous-dossiers, `lib`                    | -                                      |
+| `src/features/game/components/scene`    | Coque, portes, lumières, joueur, postes, décor.                   | `data`, `state`, `hooks`, `lib`, `types`, `debug`                          | `components/ui`, `components/diagrams` |
+| `src/features/game/components/diagrams` | Schémas 3D des questions.                                         | `types`, `lib`, `hooks/useFocusTrap`                                       | Le store, `data`, `components/scene`   |
+| `src/features/game/components/ui`       | HUD, carnet, notifications, overlays, fenêtres.                   | `components/ui`, `data`, `logic`, `hooks`, `lib`, `diagrams/DiagramViewer` | `components/scene`, three.js           |
+| `src/features/game/data`                | Monde, postes, interactables, textes, collisions, questions.      | `types`, `lib/collision`                                                   | Les composants, le store, React        |
+| `src/features/game/logic`               | Tirages des énigmes, objectif, formatage.                         | `types`, `lib/shuffle`, `data/stations`                                    | Les composants, le store               |
+| `src/features/game/hooks`               | Clavier, interaction, Pointer Lock, son.                          | `state`, `lib`, React, drei (type)                                         | Les composants, `data`                 |
+| `src/features/game/state`               | Store Zustand : état, actions, sélecteurs.                        | `data`, `logic`, `lib`, `types`                                            | Les composants, three.js, React        |
+| `src/lib`                               | Logique pure : collisions, classement, audio, mouvement, `cn`.    | `clsx`, `tailwind-merge`, `types`                                          | Tout le domaine                        |
+| `src/types`                             | Modèle de domaine partagé.                                        | Aucun import                                                               | Tout le reste                          |
 
-### Écarts constatés
+### Écarts connus
 
-Le code mort relevé lors de la rédaction de ce document a été retiré depuis :
-`TRANSITION.reveal`, les primitives `Panel` et `Hairline`, et l'export de
-`PUZZLES`. Restent deux points ouverts.
-
-- `hooks/usePointerLock.ts` importe le type `PointerLockControlsHandle` depuis
-  `components/GameCanvas.tsx` : une dépendance de `hooks` vers `components`,
-  contraire au sens des couches. Elle est limitée à un `import type`, mais elle
-  gagnerait à vivre dans `types/` ou dans un module dédié.
-- `DiagramKind` reste un alias de `string` et `DIAGRAM_SCENES` un
-  `Record` à clés libres : rien à la compilation ne garantit qu'un
-  `diagram.kind` corresponde à une scène enregistrée, d'où la garde
-  d'exécution « Schéma indisponible » de `DiagramStage`. Une union dérivée du
-  registre supprimerait ce risque.
-- `pickPuzzle` exclut `Object.values(assignedPuzzleIds)`, c'est-à-dire les
-  questions tirées **tous thèmes confondus**, alors que le tirage se fait dans
-  un seul thème. Le résultat est correct puisque les identifiants sont uniques,
-  mais l'intention se lirait mieux avec une exclusion restreinte au thème.
+- `DiagramKind` reste un alias de `string` et `DIAGRAM_SCENES` un `Record` à
+  clés libres : rien à la compilation ne garantit qu'un `diagram.kind`
+  corresponde à une scène enregistrée, d'où la garde « Schéma indisponible ».
+- `pickPuzzle` exclut les questions déjà tirées tous thèmes confondus ; le
+  résultat est correct puisque les identifiants sont uniques.
+- Les positions du décor (`scene/rooms`) et celles des interactables
+  (`data/interactables.ts`) sont déclarées à deux endroits : un objet déplacé
+  doit l'être dans les deux.

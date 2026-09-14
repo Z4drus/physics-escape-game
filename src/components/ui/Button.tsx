@@ -32,7 +32,7 @@ export function Button({
       type="button"
       className={cn(
         "group relative isolate inline-flex cursor-pointer items-center justify-center",
-        "ease-smooth font-medium whitespace-nowrap transition-[opacity] duration-[200ms]",
+        "ease-smooth font-medium whitespace-nowrap transition-[opacity,scale] duration-[200ms] active:scale-[0.96]",
         "disabled:pointer-events-none disabled:opacity-45",
         size === "md" && "h-11 rounded-md px-[18px] text-base",
         size === "sm" && "h-8 rounded-sm px-3 text-sm",

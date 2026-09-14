@@ -6,7 +6,7 @@ import { useMemo, useRef } from "react";
 import type { Group, Mesh, MeshStandardMaterial, PointLight } from "three";
 import { CatmullRomCurve3, MathUtils, Vector3 } from "three";
 
-import { LAB } from "@/features/game/components/scene/materials";
+import { MUSEUM } from "@/features/game/components/scene/materials";
 
 /** Hauteur de la face supérieure du plateau, dans le repère local du poste. */
 const TOP = 0.9;
@@ -65,10 +65,10 @@ const WIRE_PATHS: readonly (readonly ControlPoint[])[] = [
  * orange, la dérivation en bleu, les retours en gaine sombre.
  */
 const WIRE_COLORS: readonly string[] = [
-  LAB.warning,
-  LAB.accent,
-  LAB.panel,
-  LAB.metalDark,
+  MUSEUM.warning,
+  MUSEUM.accent,
+  MUSEUM.panel,
+  MUSEUM.metalDark,
 ];
 
 /** Points lumineux matérialisant le courant : fil parcouru et décalage initial. */
@@ -101,7 +101,14 @@ const wirePoint = new Vector3();
  *
  * Repère local : (0, 0, 0) au centre du dessus du socle, poste allongé sur X.
  */
-export function CircuitBenchProp({ solved }: { solved: boolean }) {
+export function CircuitBenchProp({
+  solved,
+  powered = true,
+}: {
+  solved: boolean;
+  /** Hors tension, le banc reste éteint : lampe, écran et courant figés. */
+  powered?: boolean;
+}) {
   const bulb = useRef<Mesh>(null);
   const bulbMaterial = useRef<MeshStandardMaterial>(null);
   const bulbLight = useRef<PointLight>(null);
@@ -109,8 +116,8 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
   const supplyScreen = useRef<MeshStandardMaterial>(null);
   const dots = useRef<(Mesh | null)[]>([]);
 
-  const accent = solved ? LAB.solved : LAB.accent;
-  const glow = solved ? LAB.solved : LAB.warning;
+  const accent = solved ? MUSEUM.solved : MUSEUM.accent;
+  const glow = solved ? MUSEUM.solved : MUSEUM.warning;
 
   // Les courbes ne dépendent d'aucun état : elles survivent aux rendus.
   const wires = useMemo(
@@ -134,7 +141,7 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
     const pulse = (Math.sin(elapsed * 2.4) + 1) / 2;
 
     if (bulbMaterial.current) {
-      const target = solved ? 2.6 : 0.7 + pulse * 1.9;
+      const target = !powered ? 0.05 : solved ? 2.6 : 0.7 + pulse * 1.9;
       bulbMaterial.current.emissiveIntensity = MathUtils.lerp(
         bulbMaterial.current.emissiveIntensity,
         target,
@@ -149,7 +156,7 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
       );
     }
     if (bulbLight.current) {
-      const target = solved ? 3.4 : 0.8 + pulse * 2.4;
+      const target = !powered ? 0 : solved ? 3.4 : 0.8 + pulse * 2.4;
       bulbLight.current.intensity = MathUtils.lerp(
         bulbLight.current.intensity,
         target,
@@ -158,11 +165,13 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
     }
     if (needle.current) {
       // Deux harmoniques : une lente pour la mesure, une rapide pour la nervosité.
-      const target = solved
-        ? 0.4
-        : 0.12 +
-          Math.sin(elapsed * 2.2) * 0.32 +
-          Math.sin(elapsed * 6.1) * 0.05;
+      const target = !powered
+        ? -0.35
+        : solved
+          ? 0.4
+          : 0.12 +
+            Math.sin(elapsed * 2.2) * 0.32 +
+            Math.sin(elapsed * 6.1) * 0.05;
       needle.current.rotation.z = MathUtils.lerp(
         needle.current.rotation.z,
         target,
@@ -170,7 +179,7 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
       );
     }
     if (supplyScreen.current) {
-      const target = solved ? 2.2 : 1.1 + pulse * 0.9;
+      const target = !powered ? 0.08 : solved ? 2.2 : 1.1 + pulse * 0.9;
       supplyScreen.current.emissiveIntensity = MathUtils.lerp(
         supplyScreen.current.emissiveIntensity,
         target,
@@ -178,7 +187,7 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
       );
     }
 
-    const flowSpeed = solved ? 0.1 : 0.26;
+    const flowSpeed = !powered ? 0 : solved ? 0.1 : 0.26;
     for (let index = 0; index < CURRENT_DOTS.length; index += 1) {
       const dot = dots.current[index];
       if (!dot) continue;
@@ -203,7 +212,7 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
       <mesh position={[0.5, TOP + 0.07, -0.02]} castShadow>
         <cylinderGeometry args={[0.052, 0.058, 0.14, 16]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.4}
           metalness={0.75}
         />
@@ -211,7 +220,7 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
       <mesh position={[0.5, TOP + 0.14, -0.02]} rotation-x={Math.PI / 2}>
         <torusGeometry args={[0.052, 0.012, 8, 20]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.3}
           metalness={0.85}
         />
@@ -220,7 +229,7 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
         <sphereGeometry args={[0.085, 20, 16]} />
         <meshStandardMaterial
           ref={bulbMaterial}
-          color={LAB.glass}
+          color={MUSEUM.glass}
           emissive={glow}
           emissiveIntensity={1.2}
           roughness={0.15}
@@ -242,14 +251,14 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
       <mesh position={[0.76, TOP + 0.095, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.3, 0.19, 0.26]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.55}
           metalness={0.35}
         />
       </mesh>
       <mesh position={[0.76, TOP + 0.085, 0.137]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.062, 0.062, 0.014, 24]} />
-        <meshStandardMaterial color={LAB.panel} roughness={0.5} />
+        <meshStandardMaterial color={MUSEUM.panel} roughness={0.5} />
       </mesh>
       <group ref={needle} position={[0.76, TOP + 0.045, 0.148]}>
         <mesh position={[0, 0.045, 0]}>
@@ -265,7 +274,7 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
       <mesh position={[0.76, TOP + 0.155, 0.132]}>
         <boxGeometry args={[0.2, 0.048, 0.012]} />
         <meshStandardMaterial
-          color={LAB.panel}
+          color={MUSEUM.panel}
           emissive={accent}
           emissiveIntensity={1.5}
           toneMapped={false}
@@ -274,7 +283,7 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
       <mesh position={[0.665, TOP + 0.04, 0.145]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.016, 0.016, 0.04, 10]} />
         <meshStandardMaterial
-          color={LAB.warning}
+          color={MUSEUM.warning}
           roughness={0.4}
           metalness={0.6}
         />
@@ -282,7 +291,7 @@ export function CircuitBenchProp({ solved }: { solved: boolean }) {
       <mesh position={[0.855, TOP + 0.04, 0.145]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.016, 0.016, 0.04, 10]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.4}
           metalness={0.6}
         />
@@ -328,20 +337,20 @@ function BenchFrame() {
       <mesh position={[0, TOP - 0.03, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.9, 0.06, 1.15]} />
         <meshStandardMaterial
-          color={LAB.panel}
+          color={MUSEUM.panel}
           roughness={0.6}
           metalness={0.25}
         />
       </mesh>
       <mesh position={[0, 0.26, 0]} receiveShadow>
         <boxGeometry args={[1.72, 0.04, 0.95]} />
-        <meshStandardMaterial color={LAB.frame} roughness={0.75} />
+        <meshStandardMaterial color={MUSEUM.frame} roughness={0.75} />
       </mesh>
       {LEG_POSITIONS.map(([x, z]) => (
         <mesh key={`leg-${x}:${z}`} position={[x, 0.44, z]} castShadow>
           <cylinderGeometry args={[0.03, 0.03, 0.88, 10]} />
           <meshStandardMaterial
-            color={LAB.metalDark}
+            color={MUSEUM.metalDark}
             roughness={0.35}
             metalness={0.8}
           />
@@ -351,7 +360,7 @@ function BenchFrame() {
       <mesh position={[0, TOP + 0.07, -0.55]}>
         <boxGeometry args={[1.9, 0.14, 0.045]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.7}
           metalness={0.2}
         />
@@ -376,7 +385,7 @@ function PowerSupply({
       <mesh position={[-0.62, TOP + 0.17, -0.3]} castShadow receiveShadow>
         <boxGeometry args={[0.52, 0.34, 0.34]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.55}
           metalness={0.4}
         />
@@ -385,7 +394,7 @@ function PowerSupply({
         <boxGeometry args={[0.26, 0.1, 0.012]} />
         <meshStandardMaterial
           ref={accentRef}
-          color={LAB.panel}
+          color={MUSEUM.panel}
           emissive={accent}
           emissiveIntensity={1.4}
           toneMapped={false}
@@ -394,7 +403,7 @@ function PowerSupply({
       <mesh position={[-0.76, TOP + 0.11, -0.113]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.042, 0.042, 0.035, 16]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.35}
           metalness={0.7}
         />
@@ -402,7 +411,7 @@ function PowerSupply({
       <mesh position={[-0.64, TOP + 0.11, -0.113]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.042, 0.042, 0.035, 16]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.35}
           metalness={0.7}
         />
@@ -411,7 +420,7 @@ function PowerSupply({
       <mesh position={[-0.47, TOP + 0.16, -0.1]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.019, 0.019, 0.06, 10]} />
         <meshStandardMaterial
-          color={LAB.warning}
+          color={MUSEUM.warning}
           roughness={0.4}
           metalness={0.6}
         />
@@ -419,7 +428,7 @@ function PowerSupply({
       <mesh position={[-0.47, TOP + 0.07, -0.1]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.019, 0.019, 0.06, 10]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.4}
           metalness={0.6}
         />
@@ -435,7 +444,7 @@ function ResistorBoard() {
       <mesh position={[0.1, TOP + 0.014, 0.02]} receiveShadow>
         <boxGeometry args={[0.66, 0.028, 0.4]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.65}
           metalness={0.15}
         />
@@ -455,15 +464,15 @@ function BandedResistor({ position }: { position: [number, number, number] }) {
     <group position={position} rotation-z={Math.PI / 2}>
       <mesh>
         <cylinderGeometry args={[0.026, 0.026, 0.15, 12]} />
-        <meshStandardMaterial color={LAB.warning} roughness={0.6} />
+        <meshStandardMaterial color={MUSEUM.warning} roughness={0.6} />
       </mesh>
       <mesh position={[0, 0.038, 0]}>
         <cylinderGeometry args={[0.029, 0.029, 0.014, 12]} />
-        <meshStandardMaterial color={LAB.frame} roughness={0.5} />
+        <meshStandardMaterial color={MUSEUM.frame} roughness={0.5} />
       </mesh>
       <mesh position={[0, -0.012, 0]}>
         <cylinderGeometry args={[0.029, 0.029, 0.014, 12]} />
-        <meshStandardMaterial color={LAB.accent} roughness={0.5} />
+        <meshStandardMaterial color={MUSEUM.accent} roughness={0.5} />
       </mesh>
     </group>
   );
@@ -476,7 +485,7 @@ function ToggleSwitch() {
       <mesh position={[0, 0.03, 0]}>
         <boxGeometry args={[0.16, 0.06, 0.12]} />
         <meshStandardMaterial
-          color={LAB.panel}
+          color={MUSEUM.panel}
           roughness={0.6}
           metalness={0.3}
         />
@@ -484,7 +493,7 @@ function ToggleSwitch() {
       <mesh position={[0, 0.075, 0.018]} rotation-x={-0.55}>
         <boxGeometry args={[0.055, 0.05, 0.032]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.3}
           metalness={0.8}
         />

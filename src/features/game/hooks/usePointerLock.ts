@@ -1,14 +1,19 @@
 "use client";
 
+import type { PointerLockControls } from "@react-three/drei";
 import {
   useCallback,
   useEffect,
   useRef,
   useState,
+  type ComponentRef,
   type RefObject,
 } from "react";
 
-import type { PointerLockControlsHandle } from "@/features/game/components/GameCanvas";
+/** Poignée des contrôles de drei, exposée par `GameCanvas`. */
+export type PointerLockControlsHandle = ComponentRef<
+  typeof PointerLockControls
+>;
 
 /**
  * Délai imposé par les navigateurs entre une sortie de Pointer Lock **décidée
@@ -25,7 +30,7 @@ const RELOCK_COOLDOWN_MS = 1400;
  * dès que le navigateur refuse la demande. On pilote donc l'API nous-mêmes.
  *
  * Le délai de garde ne s'applique qu'aux sorties déclenchées par le joueur :
- * quand c'est le jeu qui relâche le pointeur pour ouvrir une modale, le
+ * quand c'est le jeu qui relâche le pointeur pour ouvrir une fenêtre, le
  * verrouillage peut être repris immédiatement au clic suivant.
  */
 export function usePointerLock(
@@ -48,7 +53,7 @@ export function usePointerLock(
     [],
   );
 
-  /** Relâche le pointeur à l'initiative du jeu (ouverture d'une modale). */
+  /** Relâche le pointeur à l'initiative du jeu (ouverture d'une fenêtre). */
   const releaseLock = useCallback(() => {
     releasedByGame.current = true;
     controlsRef.current?.unlock();

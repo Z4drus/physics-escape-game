@@ -6,7 +6,7 @@ import type { RefObject } from "react";
 import { CatmullRomCurve3, TubeGeometry, Vector3 } from "three";
 import type { Group, Mesh, MeshStandardMaterial } from "three";
 
-import { LAB } from "@/features/game/components/scene/materials";
+import { MUSEUM } from "@/features/game/components/scene/materials";
 
 /** Altitude de la face supérieure du plateau de la paillasse. */
 const WORKTOP_Y = 0.78;
@@ -84,7 +84,7 @@ const trackPoint = new Vector3();
  * transvasent à somme constante.
  */
 export function EnergyTrackProp({ solved }: { solved: boolean }) {
-  const accent = solved ? LAB.solved : LAB.accent;
+  const accent = solved ? MUSEUM.solved : MUSEUM.accent;
 
   const ball = useRef<Mesh>(null);
   const pendulum = useRef<Group>(null);
@@ -225,7 +225,7 @@ export function EnergyTrackProp({ solved }: { solved: boolean }) {
       >
         <boxGeometry args={[2.32, WORKTOP_THICKNESS, 1.26]} />
         <meshStandardMaterial
-          color={LAB.panel}
+          color={MUSEUM.panel}
           roughness={0.6}
           metalness={0.2}
         />
@@ -239,7 +239,7 @@ export function EnergyTrackProp({ solved }: { solved: boolean }) {
         >
           <boxGeometry args={[0.07, WORKTOP_Y - WORKTOP_THICKNESS, 0.07]} />
           <meshStandardMaterial
-            color={LAB.frame}
+            color={MUSEUM.frame}
             roughness={0.7}
             metalness={0.3}
           />
@@ -248,7 +248,7 @@ export function EnergyTrackProp({ solved }: { solved: boolean }) {
 
       <mesh position={[0, 0.16, 0]} receiveShadow>
         <boxGeometry args={[2, 0.04, 1]} />
-        <meshStandardMaterial color={LAB.frame} roughness={0.8} />
+        <meshStandardMaterial color={MUSEUM.frame} roughness={0.8} />
       </mesh>
 
       <mesh position={[0, 0.75, 0.632]}>
@@ -265,14 +265,14 @@ export function EnergyTrackProp({ solved }: { solved: boolean }) {
       {/* Piste : deux rails jumeaux issus d'une même géométrie tubulaire */}
       <mesh geometry={track.geometry} position={[0, 0, RAIL_GAP]} castShadow>
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.25}
           metalness={0.85}
         />
       </mesh>
       <mesh geometry={track.geometry} position={[0, 0, -RAIL_GAP]} castShadow>
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.25}
           metalness={0.85}
         />
@@ -285,17 +285,18 @@ export function EnergyTrackProp({ solved }: { solved: boolean }) {
         >
           <cylinderGeometry args={[0.014, 0.014, support.height, 8]} />
           <meshStandardMaterial
-            color={LAB.metalDark}
+            color={MUSEUM.metalDark}
             roughness={0.5}
             metalness={0.6}
           />
         </mesh>
       ))}
 
-      <mesh ref={ball} position={[-0.88, 1.41, 0.2]} castShadow>
+      {/* Bille toujours en mouvement : sans ombre portée (voir ShadowRefresh) */}
+      <mesh ref={ball} position={[-0.88, 1.41, 0.2]}>
         <sphereGeometry args={[BALL_RADIUS, 20, 14]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.12}
           metalness={1}
           emissive={accent}
@@ -309,7 +310,7 @@ export function EnergyTrackProp({ solved }: { solved: boolean }) {
       <mesh position={[-0.6, 0.85, -0.44]} castShadow>
         <boxGeometry args={[0.36, 0.14, 0.26]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.55}
           metalness={0.35}
         />
@@ -317,7 +318,7 @@ export function EnergyTrackProp({ solved }: { solved: boolean }) {
       <mesh position={[-0.6, 0.87, -0.312]}>
         <boxGeometry args={[0.28, 0.07, 0.012]} />
         <meshStandardMaterial
-          color={LAB.glass}
+          color={MUSEUM.glass}
           emissive={accent}
           emissiveIntensity={0.9}
           toneMapped={false}
@@ -328,7 +329,7 @@ export function EnergyTrackProp({ solved }: { solved: boolean }) {
       <mesh position={[-0.1, 1.03, -0.46]}>
         <cylinderGeometry args={[0.016, 0.016, 0.5, 10]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.35}
           metalness={0.8}
         />
@@ -336,7 +337,7 @@ export function EnergyTrackProp({ solved }: { solved: boolean }) {
       <mesh position={[0.04, 1.27, -0.46]}>
         <boxGeometry args={[0.3, 0.024, 0.024]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.35}
           metalness={0.8}
         />
@@ -344,12 +345,12 @@ export function EnergyTrackProp({ solved }: { solved: boolean }) {
       <group ref={pendulum} position={[0.18, 1.26, -0.46]}>
         <mesh position={[0, -0.15, 0]}>
           <cylinderGeometry args={[0.004, 0.004, 0.3, 6]} />
-          <meshStandardMaterial color={LAB.metalDark} roughness={0.7} />
+          <meshStandardMaterial color={MUSEUM.metalDark} roughness={0.7} />
         </mesh>
         <mesh position={[0, -0.32, 0]}>
           <sphereGeometry args={[0.042, 16, 12]} />
           <meshStandardMaterial
-            color={LAB.metalDark}
+            color={MUSEUM.metalDark}
             roughness={0.3}
             metalness={0.9}
           />
@@ -383,7 +384,7 @@ function ReleaseGantry({
       <mesh position={[0, 0.8, 0]} castShadow>
         <cylinderGeometry args={[0.09, 0.1, 0.04, 16]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.6}
           metalness={0.35}
         />
@@ -391,7 +392,7 @@ function ReleaseGantry({
       <mesh position={[0, 1.21, 0]} castShadow>
         <cylinderGeometry args={[0.022, 0.022, 0.86, 12]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.3}
           metalness={0.85}
         />
@@ -400,7 +401,7 @@ function ReleaseGantry({
       <mesh position={[0, 1.2, 0.024]}>
         <boxGeometry args={[0.02, 0.68, 0.008]} />
         <meshStandardMaterial
-          color={LAB.accentLight}
+          color={MUSEUM.accentLight}
           emissive={accent}
           emissiveIntensity={0.7}
           toneMapped={false}
@@ -409,7 +410,7 @@ function ReleaseGantry({
       <mesh position={[0, 1.5, 0]}>
         <cylinderGeometry args={[0.04, 0.04, 0.07, 12]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.45}
           metalness={0.7}
         />
@@ -417,7 +418,7 @@ function ReleaseGantry({
       <mesh position={[-0.05, 1.5, 0]} rotation-y={Math.PI / 2}>
         <torusGeometry args={[0.02, 0.008, 8, 12]} />
         <meshStandardMaterial
-          color={LAB.warning}
+          color={MUSEUM.warning}
           roughness={0.5}
           metalness={0.4}
         />
@@ -425,7 +426,7 @@ function ReleaseGantry({
       <mesh position={[0.095, 1.5, 0]}>
         <boxGeometry args={[0.19, 0.028, 0.04]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.35}
           metalness={0.8}
         />
@@ -434,7 +435,7 @@ function ReleaseGantry({
         <cylinderGeometry args={[0.03, 0.03, 0.05, 12]} />
         <meshStandardMaterial
           ref={magnetMaterial}
-          color={LAB.accentLight}
+          color={MUSEUM.accentLight}
           emissive={accent}
           emissiveIntensity={0.9}
           toneMapped={false}
@@ -466,7 +467,7 @@ function EnergyGauges({
       <mesh position={[0.96, 0.84, GAUGE_Z]} castShadow>
         <boxGeometry args={[0.3, 0.12, 0.26]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.55}
           metalness={0.35}
         />
@@ -475,7 +476,7 @@ function EnergyGauges({
       <mesh position={[GAUGE_KINETIC_X, 1.13, GAUGE_Z]}>
         <cylinderGeometry args={[0.05, 0.05, GAUGE_HEIGHT, 14]} />
         <meshStandardMaterial
-          color={LAB.glass}
+          color={MUSEUM.glass}
           roughness={0.1}
           metalness={0.1}
           transparent
@@ -485,7 +486,7 @@ function EnergyGauges({
       <mesh position={[GAUGE_POTENTIAL_X, 1.13, GAUGE_Z]}>
         <cylinderGeometry args={[0.05, 0.05, GAUGE_HEIGHT, 14]} />
         <meshStandardMaterial
-          color={LAB.glass}
+          color={MUSEUM.glass}
           roughness={0.1}
           metalness={0.1}
           transparent
@@ -514,8 +515,8 @@ function EnergyGauges({
         <cylinderGeometry args={[0.036, 0.036, 1, 12]} />
         <meshStandardMaterial
           ref={potentialMaterial}
-          color={LAB.warning}
-          emissive={LAB.warning}
+          color={MUSEUM.warning}
+          emissive={MUSEUM.warning}
           emissiveIntensity={1.4}
           toneMapped={false}
         />
@@ -524,7 +525,7 @@ function EnergyGauges({
       <mesh position={[0.96, 1.375, GAUGE_Z]}>
         <boxGeometry args={[0.3, 0.035, 0.26]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.55}
           metalness={0.35}
         />
@@ -543,8 +544,8 @@ function EnergyGauges({
       <mesh position={[GAUGE_POTENTIAL_X, 0.855, GAUGE_Z + 0.134]}>
         <boxGeometry args={[0.06, 0.02, 0.012]} />
         <meshStandardMaterial
-          color={LAB.warning}
-          emissive={LAB.warning}
+          color={MUSEUM.warning}
+          emissive={MUSEUM.warning}
           emissiveIntensity={1.2}
           toneMapped={false}
         />

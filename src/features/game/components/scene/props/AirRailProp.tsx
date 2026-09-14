@@ -6,7 +6,7 @@ import { useRef } from "react";
 import type { Group, Mesh, MeshStandardMaterial } from "three";
 import { CatmullRomCurve3, Vector3 } from "three";
 
-import { LAB } from "@/features/game/components/scene/materials";
+import { MUSEUM } from "@/features/game/components/scene/materials";
 
 /** Longueur du rail et hauteur de son arête supérieure. */
 const RAIL_LENGTH = 2.6;
@@ -113,7 +113,7 @@ export function AirRailProp({ solved }: { solved: boolean }) {
   const fan = useRef<Mesh>(null);
   const cycle = useRef(0);
 
-  const accent = solved ? LAB.solved : LAB.accentLight;
+  const accent = solved ? MUSEUM.solved : MUSEUM.accentLight;
 
   useFrame((_, delta) => {
     // Une seule commande de « calme » : le cycle et la turbine ralentissent.
@@ -158,7 +158,7 @@ export function AirRailProp({ solved }: { solved: boolean }) {
       <mesh position={[0, 0.55, 0]} castShadow receiveShadow>
         <boxGeometry args={[RAIL_LENGTH, 0.1, 0.16]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.45}
           metalness={0.7}
         />
@@ -166,7 +166,7 @@ export function AirRailProp({ solved }: { solved: boolean }) {
       <mesh position={[0, 0.6, 0]} rotation-x={Math.PI / 4} castShadow>
         <boxGeometry args={[RAIL_LENGTH, 0.11, 0.11]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.28}
           metalness={0.85}
         />
@@ -180,7 +180,7 @@ export function AirRailProp({ solved }: { solved: boolean }) {
         return (
           <mesh key={index} position={[x, 0.595 - height / 2, 0.085]}>
             <boxGeometry args={[0.012, height, 0.01]} />
-            <meshStandardMaterial color={LAB.glass} roughness={0.5} />
+            <meshStandardMaterial color={MUSEUM.glass} roughness={0.5} />
           </mesh>
         );
       })}
@@ -188,24 +188,27 @@ export function AirRailProp({ solved }: { solved: boolean }) {
       <RailFoot x={-0.98} />
       <RailFoot x={0.98} />
 
-      {/* Chariot / aéroglisseur : corps, écran occulteur et ergot de choc */}
+      {/*
+       * Chariot / aéroglisseur : corps, écran occulteur et ergot de choc. Il
+       * bouge sans cesse, il ne porte donc pas d'ombre (voir ShadowRefresh).
+       */}
       <group ref={cart} position={[CART_START_X, CART_Y, 0]}>
-        <mesh castShadow>
+        <mesh>
           <boxGeometry args={[0.26, 0.09, 0.3]} />
           <meshStandardMaterial
-            color={LAB.metal}
+            color={MUSEUM.metal}
             roughness={0.3}
             metalness={0.8}
           />
         </mesh>
         <mesh position={[0, 0.1, 0]}>
           <boxGeometry args={[0.018, 0.11, 0.09]} />
-          <meshStandardMaterial color={LAB.warning} roughness={0.6} />
+          <meshStandardMaterial color={MUSEUM.warning} roughness={0.6} />
         </mesh>
         <mesh position={[0.19, 0, 0]} rotation-z={Math.PI / 2}>
           <cylinderGeometry args={[0.014, 0.014, 0.12, 10]} />
           <meshStandardMaterial
-            color={LAB.metalDark}
+            color={MUSEUM.metalDark}
             roughness={0.4}
             metalness={0.8}
           />
@@ -219,7 +222,7 @@ export function AirRailProp({ solved }: { solved: boolean }) {
       <mesh position={[1.24, 0.38, -0.145]} castShadow>
         <boxGeometry args={[0.05, 0.76, 0.05]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.5}
           metalness={0.6}
         />
@@ -227,21 +230,21 @@ export function AirRailProp({ solved }: { solved: boolean }) {
       <mesh position={[1.24, 0.38, 0.145]} castShadow>
         <boxGeometry args={[0.05, 0.76, 0.05]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.5}
           metalness={0.6}
         />
       </mesh>
       <mesh position={[1.24, 0.72, 0]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.017, 0.017, 0.29, 10]} />
-        <meshStandardMaterial color={LAB.warning} roughness={0.75} />
+        <meshStandardMaterial color={MUSEUM.warning} roughness={0.75} />
       </mesh>
 
       {/* Soufflerie : caisson, turbine et embout de sortie */}
       <mesh position={[-1.02, 0.13, 0.3]} castShadow receiveShadow>
         <boxGeometry args={[0.32, 0.26, 0.3]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.65}
           metalness={0.3}
         />
@@ -249,7 +252,7 @@ export function AirRailProp({ solved }: { solved: boolean }) {
       <mesh ref={fan} position={[-1.02, 0.15, 0.152]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.09, 0.09, 0.02, 6]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.45}
           metalness={0.7}
         />
@@ -257,7 +260,7 @@ export function AirRailProp({ solved }: { solved: boolean }) {
       <mesh position={[-1.19, 0.19, 0.3]} rotation-z={Math.PI / 2}>
         <cylinderGeometry args={[0.032, 0.032, 0.08, 10]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.35}
           metalness={0.8}
         />
@@ -267,7 +270,7 @@ export function AirRailProp({ solved }: { solved: boolean }) {
       <mesh>
         <tubeGeometry args={[HOSE_CURVE, 40, 0.03, 8, false]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.85}
           metalness={0.1}
         />
@@ -277,7 +280,7 @@ export function AirRailProp({ solved }: { solved: boolean }) {
       <mesh position={[0.62, 0.065, -0.34]} castShadow>
         <boxGeometry args={[0.26, 0.13, 0.2]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.65}
           metalness={0.3}
         />
@@ -303,7 +306,7 @@ function RailFoot({ x }: { x: number }) {
       <mesh position={[0, 0.018, 0]}>
         <cylinderGeometry args={[0.11, 0.13, 0.035, 16]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.55}
           metalness={0.6}
         />
@@ -311,7 +314,7 @@ function RailFoot({ x }: { x: number }) {
       <mesh position={[0, 0.268, 0]} castShadow>
         <cylinderGeometry args={[0.042, 0.042, 0.465, 12]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.35}
           metalness={0.8}
         />
@@ -319,7 +322,7 @@ function RailFoot({ x }: { x: number }) {
       <mesh position={[0, 0.13, 0]} rotation-x={Math.PI / 2}>
         <torusGeometry args={[0.062, 0.016, 8, 20]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.4}
           metalness={0.75}
         />
@@ -346,7 +349,7 @@ function PhotoGate({
       <mesh position={[0, 0.47, -0.26]} castShadow>
         <boxGeometry args={[0.05, 0.94, 0.05]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.6}
           metalness={0.35}
         />
@@ -354,7 +357,7 @@ function PhotoGate({
       <mesh position={[0, 0.47, 0.26]} castShadow>
         <boxGeometry args={[0.05, 0.94, 0.05]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.6}
           metalness={0.35}
         />
@@ -362,7 +365,7 @@ function PhotoGate({
       <mesh position={[0, 0.97, 0]} castShadow>
         <boxGeometry args={[0.06, 0.06, 0.6]} />
         <meshStandardMaterial
-          color={LAB.panel}
+          color={MUSEUM.panel}
           roughness={0.6}
           metalness={0.35}
         />

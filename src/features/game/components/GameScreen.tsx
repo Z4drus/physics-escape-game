@@ -4,20 +4,34 @@ import { AnimatePresence, MotionConfig } from "motion/react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
-import type { PointerLockControlsHandle } from "@/features/game/components/GameCanvas";
+import { Carnet } from "@/features/game/components/ui/Carnet";
+import { CodeLockDialog } from "@/features/game/components/ui/CodeLockDialog";
 import { Crosshair } from "@/features/game/components/ui/Crosshair";
+import { FuseBoxDialog } from "@/features/game/components/ui/FuseBoxDialog";
+import { HologramDialog } from "@/features/game/components/ui/HologramDialog";
 import { Hud } from "@/features/game/components/ui/Hud";
+import { InspectDialog } from "@/features/game/components/ui/InspectDialog";
 import { InteractionPrompt } from "@/features/game/components/ui/InteractionPrompt";
+import { IntroOverlay } from "@/features/game/components/ui/IntroOverlay";
+import { PauseOverlay } from "@/features/game/components/ui/PauseOverlay";
 import { PuzzleDialog } from "@/features/game/components/ui/PuzzleDialog";
-import { StartOverlay } from "@/features/game/components/ui/StartOverlay";
+import { SafeDialog } from "@/features/game/components/ui/SafeDialog";
+import { TitleOverlay } from "@/features/game/components/ui/TitleOverlay";
+import { Toasts } from "@/features/game/components/ui/Toasts";
 import { VictoryOverlay } from "@/features/game/components/ui/VictoryOverlay";
-import { STATIONS_BY_ID } from "@/features/game/data/stations";
-import { useInteractionHotkey } from "@/features/game/hooks/useInteractionHotkey";
-import { usePointerLock } from "@/features/game/hooks/usePointerLock";
+import { INSPECT_CONTENTS_BY_ID } from "@/features/game/data/clues";
+import { INTERACTABLES_BY_ID } from "@/features/game/data/interactables";
+import { useGameAudio } from "@/features/game/hooks/useGameAudio";
+import { useGameHotkeys } from "@/features/game/hooks/useGameHotkeys";
+import {
+  usePointerLock,
+  type PointerLockControlsHandle,
+} from "@/features/game/hooks/usePointerLock";
+import { describeObjective } from "@/features/game/logic/objective";
 import {
   orderAnswers,
   selectActivePuzzle,
-  selectDoorOpen,
+  selectActiveStation,
   useGameStore,
 } from "@/features/game/state/useGameStore";
 
@@ -31,30 +45,55 @@ const GameCanvas = dynamic(
 );
 
 /**
- * Écran de jeu : assemble la scène 3D, le HUD et les fenêtres modales, et
- * synchronise le verrouillage du pointeur avec l'état de la partie.
+ * Écran de jeu : assemble la scène 3D, le HUD, le carnet, les notifications et
+ * les fenêtres, et synchronise le verrouillage du pointeur avec l'état de la
+ * partie.
  */
 export function GameScreen() {
   const controlsRef = useRef<PointerLockControlsHandle | null>(null);
 
   const status = useGameStore((state) => state.status);
-  const keys = useGameStore((state) => state.keys);
+  const introStep = useGameStore((state) => state.introStep);
+  const modal = useGameStore((state) => state.modal);
+  const focusedId = useGameStore((state) => state.focusedId);
+  const currentRoomId = useGameStore((state) => state.currentRoomId);
+  const seals = useGameStore((state) => state.seals);
+  const errors = useGameStore((state) => state.errors);
+  const attempts = useGameStore((state) => state.attempts);
   const startedAt = useGameStore((state) => state.startedAt);
   const finishedAt = useGameStore((state) => state.finishedAt);
-  const attempts = useGameStore((state) => state.attempts);
-  const focusedStationId = useGameStore((state) => state.focusedStationId);
-  const activeStationId = useGameStore((state) => state.activeStationId);
+  const toasts = useGameStore((state) => state.toasts);
+  const carnetOpen = useGameStore((state) => state.carnetOpen);
+  const hologramStep = useGameStore((state) => state.hologramStep);
+  const inventory = useGameStore((state) => state.inventory);
+  const discoveredClueIds = useGameStore((state) => state.discoveredClueIds);
+  const codeDigits = useGameStore((state) => state.codeDigits);
+  const safeRiddle = useGameStore((state) => state.safeRiddle);
+  const breakers = useGameStore((state) => state.breakers);
+  const armedBreakerIds = useGameStore((state) => state.armedBreakerIds);
+  const cabinetUnlocked = useGameStore((state) => state.cabinetUnlocked);
+  const safeOpen = useGameStore((state) => state.safeOpen);
+  const powerRestored = useGameStore((state) => state.powerRestored);
+  const uvRevealed = useGameStore((state) => state.uvRevealed);
   const activePuzzle = useGameStore(selectActivePuzzle);
+  const activeStation = useGameStore(selectActiveStation);
   const answerOrders = useGameStore((state) => state.answerOrders);
   const selectedAnswerId = useGameStore((state) => state.selectedAnswerId);
   const answerResult = useGameStore((state) => state.answerResult);
-  const doorOpen = useGameStore(selectDoorOpen);
 
+  const startIntro = useGameStore((state) => state.startIntro);
+  const nextIntroStep = useGameStore((state) => state.nextIntroStep);
   const beginSession = useGameStore((state) => state.beginSession);
   const pause = useGameStore((state) => state.pause);
   const selectAnswer = useGameStore((state) => state.selectAnswer);
   const retryPuzzle = useGameStore((state) => state.retryPuzzle);
-  const closePuzzle = useGameStore((state) => state.closePuzzle);
+  const closeModal = useGameStore((state) => state.closeModal);
+  const submitCode = useGameStore((state) => state.submitCode);
+  const submitSafe = useGameStore((state) => state.submitSafe);
+  const armBreaker = useGameStore((state) => state.armBreaker);
+  const dismissToast = useGameStore((state) => state.dismissToast);
+  const advanceHologram = useGameStore((state) => state.advanceHologram);
+  const finish = useGameStore((state) => state.finish);
   const reset = useGameStore((state) => state.reset);
 
   const {
@@ -64,11 +103,12 @@ export function GameScreen() {
     ready: lockReady,
   } = usePointerLock(controlsRef);
 
-  useInteractionHotkey();
+  useGameHotkeys();
+  useGameAudio();
 
-  // Une modale est ouverte : on rend la souris au joueur.
+  // Une fenêtre est ouverte : on rend la souris au joueur.
   useEffect(() => {
-    if (status === "puzzle" || status === "won") {
+    if (status === "modal" || status === "finale" || status === "won") {
       releaseLock();
     }
   }, [status, releaseLock]);
@@ -79,33 +119,44 @@ export function GameScreen() {
   }, [handleUnlockEvent, pause]);
 
   /**
-   * Fermeture d'un poste : on enchaîne directement sur le verrouillage, dans
-   * le geste utilisateur qui a déclenché la fermeture, pour éviter un détour
-   * inutile par l'écran de pause.
+   * Fermeture d'une fenêtre : on enchaîne directement sur le verrouillage,
+   * dans le geste utilisateur qui a déclenché la fermeture, pour éviter un
+   * détour inutile par l'écran de pause.
    */
-  const handleClosePuzzle = useCallback(async () => {
-    closePuzzle();
+  const handleCloseModal = useCallback(async () => {
+    closeModal();
     const locked = await requestLock();
     if (!locked) pause();
-  }, [closePuzzle, pause, requestLock]);
-
-  const handleRestart = useCallback(() => {
-    reset();
-  }, [reset]);
-
-  const activeStation = activeStationId
-    ? STATIONS_BY_ID.get(activeStationId)
-    : null;
+  }, [closeModal, pause, requestLock]);
 
   const activeAnswers = useMemo(
     () => orderAnswers(activePuzzle, answerOrders),
     [activePuzzle, answerOrders],
   );
 
-  const focusedLabel =
-    status === "playing" && focusedStationId
-      ? (STATIONS_BY_ID.get(focusedStationId)?.label ?? null)
+  const objective = useMemo(
+    () =>
+      describeObjective({
+        seals,
+        inventory,
+        cabinetUnlocked,
+        uvRevealed,
+        safeOpen,
+        powerRestored,
+      }),
+    [seals, inventory, cabinetUnlocked, uvRevealed, safeOpen, powerRestored],
+  );
+
+  const focused =
+    status === "playing" && focusedId
+      ? INTERACTABLES_BY_ID.get(focusedId)
       : null;
+  const prompt = focused ? { verb: focused.verb, label: focused.label } : null;
+  const inspected =
+    modal?.kind === "inspect"
+      ? INSPECT_CONTENTS_BY_ID.get(modal.objectId)
+      : null;
+  const showHud = status !== "idle" && status !== "intro";
 
   return (
     /*
@@ -121,26 +172,61 @@ export function GameScreen() {
           onUnlock={handleUnlock}
         />
 
-        <Hud
-          keys={keys}
-          startedAt={startedAt}
-          finishedAt={finishedAt}
-          doorOpen={doorOpen}
-        />
-        <Crosshair active={Boolean(focusedLabel)} />
-        <InteractionPrompt label={focusedLabel} />
+        {showHud ? (
+          <Hud
+            roomId={currentRoomId}
+            seals={seals}
+            errors={errors}
+            objective={objective}
+            startedAt={startedAt}
+            finishedAt={finishedAt}
+          />
+        ) : null}
+        <Crosshair active={Boolean(prompt)} />
+        <InteractionPrompt prompt={prompt} />
+        <Toasts toasts={toasts} onDismiss={dismissToast} />
+
+        <AnimatePresence initial={false}>
+          {carnetOpen && status === "playing" ? (
+            <Carnet
+              key="carnet"
+              seals={seals}
+              discoveredClueIds={discoveredClueIds}
+              codeDigits={codeDigits}
+              safeRiddle={safeRiddle}
+              uvRevealed={uvRevealed}
+              inventory={inventory}
+            />
+          ) : null}
+        </AnimatePresence>
 
         <AnimatePresence mode="wait">
-          {status === "idle" || status === "paused" ? (
-            <StartOverlay
-              key="start"
-              variant={status === "idle" ? "idle" : "paused"}
+          {status === "idle" ? (
+            <TitleOverlay key="title" onStart={startIntro} />
+          ) : null}
+
+          {status === "intro" ? (
+            <IntroOverlay
+              key="intro"
+              step={introStep}
+              onNext={nextIntroStep}
               onEnter={requestLock}
               ready={lockReady}
             />
           ) : null}
 
-          {status === "puzzle" && activePuzzle && activeStation ? (
+          {status === "paused" ? (
+            <PauseOverlay
+              key="pause"
+              onResume={requestLock}
+              ready={lockReady}
+            />
+          ) : null}
+
+          {status === "modal" &&
+          modal?.kind === "puzzle" &&
+          activePuzzle &&
+          activeStation ? (
             <PuzzleDialog
               key="puzzle"
               puzzle={activePuzzle}
@@ -151,7 +237,58 @@ export function GameScreen() {
               answerResult={answerResult}
               onAnswer={selectAnswer}
               onRetry={retryPuzzle}
-              onClose={handleClosePuzzle}
+              onClose={handleCloseModal}
+            />
+          ) : null}
+
+          {status === "modal" && inspected ? (
+            <InspectDialog
+              key={`inspect-${inspected.id}`}
+              content={inspected}
+              digit={
+                inspected.codeIndex !== undefined
+                  ? codeDigits[inspected.codeIndex]
+                  : null
+              }
+              safeRiddle={safeRiddle}
+              onClose={handleCloseModal}
+            />
+          ) : null}
+
+          {status === "modal" && modal?.kind === "codeLock" ? (
+            <CodeLockDialog
+              key="code-lock"
+              onSubmit={submitCode}
+              onClose={handleCloseModal}
+            />
+          ) : null}
+
+          {status === "modal" && modal?.kind === "safe" ? (
+            <SafeDialog
+              key="safe"
+              hintRevealed={uvRevealed}
+              onSubmit={submitSafe}
+              onClose={handleCloseModal}
+            />
+          ) : null}
+
+          {status === "modal" && modal?.kind === "fuseBox" ? (
+            <FuseBoxDialog
+              key="fuse-box"
+              breakers={breakers}
+              armedIds={armedBreakerIds}
+              powered={powerRestored}
+              onArm={armBreaker}
+              onClose={handleCloseModal}
+            />
+          ) : null}
+
+          {status === "finale" ? (
+            <HologramDialog
+              key="hologram"
+              step={hologramStep}
+              onNext={advanceHologram}
+              onFinish={finish}
             />
           ) : null}
 
@@ -159,8 +296,9 @@ export function GameScreen() {
             <VictoryOverlay
               key="victory"
               durationMs={startedAt && finishedAt ? finishedAt - startedAt : 0}
+              errors={errors}
               attempts={attempts}
-              onRestart={handleRestart}
+              onRestart={reset}
             />
           ) : null}
         </AnimatePresence>
@@ -173,9 +311,7 @@ export function GameScreen() {
 function CanvasFallback() {
   return (
     <div className="bg-background absolute inset-0 grid place-items-center">
-      <p className="text-ink-mute font-display text-xs font-medium uppercase">
-        Initialisation du laboratoire…
-      </p>
+      <p className="text-ink-mute font-display text-sm">Ouverture du musée…</p>
     </div>
   );
 }

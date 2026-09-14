@@ -5,14 +5,14 @@ import { useRef } from "react";
 import { Color } from "three";
 import type { Group, Mesh, MeshStandardMaterial } from "three";
 
-import { LAB } from "@/features/game/components/scene/materials";
+import { MUSEUM } from "@/features/game/components/scene/materials";
 
 /** Hauteur du plateau de la paillasse : tout le matériel repose dessus. */
 const BENCH_TOP = 0.56;
 
 /** Teintes bornant la couleur du liquide chauffé (froid → chaud). */
-const COLD_LIQUID = new Color(LAB.fluid);
-const HOT_LIQUID = new Color(LAB.warning);
+const COLD_LIQUID = new Color(MUSEUM.fluid);
+const HOT_LIQUID = new Color(MUSEUM.warning);
 /** Couleur de travail réutilisée à chaque image : zéro allocation dans `useFrame`. */
 const WORKING_LIQUID = new Color();
 
@@ -81,7 +81,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
   /** Apaisement progressif de l'animation une fois la station résolue. */
   const calm = useRef(0);
 
-  const accent = solved ? LAB.solved : LAB.warning;
+  const accent = solved ? MUSEUM.solved : MUSEUM.warning;
 
   useFrame(({ clock }, delta) => {
     const time = clock.elapsedTime;
@@ -147,7 +147,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
       <mesh position={[-0.42, BENCH_TOP + 0.14, 0.06]} castShadow receiveShadow>
         <cylinderGeometry args={[0.2, 0.2, 0.28, 24]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.32}
           metalness={0.85}
         />
@@ -158,7 +158,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
       >
         <torusGeometry args={[0.2, 0.014, 6, 32]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.4}
           metalness={0.7}
         />
@@ -167,7 +167,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
       <mesh position={[-0.42, BENCH_TOP + 0.15, 0.06]}>
         <cylinderGeometry args={[0.152, 0.152, 0.3, 20]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.45}
           metalness={0.6}
         />
@@ -177,7 +177,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
       <mesh position={[-0.42, 0.873, 0.06]}>
         <cylinderGeometry args={[0.168, 0.168, 0.026, 24]} />
         <meshStandardMaterial
-          color={LAB.panel}
+          color={MUSEUM.panel}
           roughness={0.6}
           metalness={0.3}
         />
@@ -185,7 +185,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
       <mesh position={[-0.36, 0.888, 0.1]} rotation-x={-Math.PI / 2}>
         <torusGeometry args={[0.02, 0.006, 6, 16]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.5}
           metalness={0.6}
         />
@@ -193,7 +193,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
       <mesh position={[-0.48, 0.888, 0.02]} rotation-x={-Math.PI / 2}>
         <torusGeometry args={[0.02, 0.006, 6, 16]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.5}
           metalness={0.6}
         />
@@ -204,7 +204,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
         <mesh position={[0, 0.14, 0]}>
           <cylinderGeometry args={[0.011, 0.011, 0.44, 12]} />
           <meshStandardMaterial
-            color={LAB.glass}
+            color={MUSEUM.glass}
             transparent
             opacity={0.3}
             roughness={0.1}
@@ -235,7 +235,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
         <mesh position={[0, 0.365, 0]}>
           <cylinderGeometry args={[0.015, 0.015, 0.03, 10]} />
           <meshStandardMaterial
-            color={LAB.metalDark}
+            color={MUSEUM.metalDark}
             roughness={0.5}
             metalness={0.6}
           />
@@ -247,7 +247,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
         <mesh position={[0, 0.14, 0]}>
           <cylinderGeometry args={[0.008, 0.008, 0.38, 10]} />
           <meshStandardMaterial
-            color={LAB.metal}
+            color={MUSEUM.metal}
             roughness={0.3}
             metalness={0.85}
           />
@@ -255,7 +255,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
         <mesh position={[0, -0.04, 0]} rotation-x={-Math.PI / 2}>
           <torusGeometry args={[0.05, 0.007, 6, 20]} />
           <meshStandardMaterial
-            color={LAB.metal}
+            color={MUSEUM.metal}
             roughness={0.3}
             metalness={0.85}
           />
@@ -263,7 +263,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
         <mesh position={[0, 0.335, 0]}>
           <torusGeometry args={[0.032, 0.007, 6, 18]} />
           <meshStandardMaterial
-            color={LAB.metal}
+            color={MUSEUM.metal}
             roughness={0.3}
             metalness={0.85}
           />
@@ -274,7 +274,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
       <mesh position={[0.34, BENCH_TOP + 0.05, 0.02]} castShadow receiveShadow>
         <boxGeometry args={[0.42, 0.1, 0.36]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.6}
           metalness={0.35}
         />
@@ -283,7 +283,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
         <cylinderGeometry args={[0.15, 0.15, 0.02, 28]} />
         <meshStandardMaterial
           ref={plateMaterial}
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           emissive={accent}
           emissiveIntensity={0.12}
           roughness={0.4}
@@ -293,7 +293,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
       <mesh position={[0.47, 0.605, 0.205]} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[0.035, 0.035, 0.03, 16]} />
         <meshStandardMaterial
-          color={LAB.metal}
+          color={MUSEUM.metal}
           roughness={0.35}
           metalness={0.8}
         />
@@ -313,7 +313,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
       <mesh position={[0.34, 0.78, 0.02]}>
         <cylinderGeometry args={[0.11, 0.1, 0.2, 24]} />
         <meshStandardMaterial
-          color={LAB.glass}
+          color={MUSEUM.glass}
           transparent
           opacity={0.2}
           roughness={0.08}
@@ -324,7 +324,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
         <cylinderGeometry args={[0.093, 0.088, 0.13, 20]} />
         <meshStandardMaterial
           ref={liquidMaterial}
-          color={LAB.fluid}
+          color={MUSEUM.fluid}
           emissive={accent}
           emissiveIntensity={0.18}
           transparent
@@ -335,7 +335,7 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
       <mesh position={[0.34, 0.88, 0.02]} rotation-x={-Math.PI / 2}>
         <torusGeometry args={[0.11, 0.006, 6, 28]} />
         <meshStandardMaterial
-          color={LAB.accentLight}
+          color={MUSEUM.accentLight}
           transparent
           opacity={0.5}
           roughness={0.1}
@@ -344,16 +344,16 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
       <mesh position={[0.34, 0.755, 0.02]} rotation-x={-Math.PI / 2}>
         <torusGeometry args={[0.105, 0.0035, 6, 24]} />
         <meshStandardMaterial
-          color={LAB.accentLight}
-          emissive={LAB.accent}
+          color={MUSEUM.accentLight}
+          emissive={MUSEUM.accent}
           emissiveIntensity={0.3}
         />
       </mesh>
       <mesh position={[0.34, 0.815, 0.02]} rotation-x={-Math.PI / 2}>
         <torusGeometry args={[0.108, 0.0035, 6, 24]} />
         <meshStandardMaterial
-          color={LAB.accentLight}
-          emissive={LAB.accent}
+          color={MUSEUM.accentLight}
+          emissive={MUSEUM.accent}
           emissiveIntensity={0.3}
         />
       </mesh>
@@ -372,8 +372,8 @@ export function CalorimeterProp({ solved }: { solved: boolean }) {
             ref={(material) => {
               steamMaterials.current[index] = material;
             }}
-            color={LAB.accentLight}
-            emissive={LAB.accentLight}
+            color={MUSEUM.accentLight}
+            emissive={MUSEUM.accentLight}
             emissiveIntensity={0.35}
             transparent
             opacity={0}
@@ -394,7 +394,7 @@ function LabBench() {
       <mesh position={[0, BENCH_TOP - 0.03, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.5, 0.06, 1]} />
         <meshStandardMaterial
-          color={LAB.panel}
+          color={MUSEUM.panel}
           roughness={0.65}
           metalness={0.2}
         />
@@ -402,7 +402,7 @@ function LabBench() {
       <mesh position={[0, 0.16, 0]} receiveShadow>
         <boxGeometry args={[1.36, 0.03, 0.84]} />
         <meshStandardMaterial
-          color={LAB.frame}
+          color={MUSEUM.frame}
           roughness={0.8}
           metalness={0.15}
         />
@@ -411,7 +411,7 @@ function LabBench() {
         <mesh key={index} position={[x, 0.25, z]} castShadow>
           <cylinderGeometry args={[0.035, 0.035, 0.5, 12]} />
           <meshStandardMaterial
-            color={LAB.metalDark}
+            color={MUSEUM.metalDark}
             roughness={0.45}
             metalness={0.7}
           />
@@ -428,7 +428,7 @@ function IceCubes() {
       <mesh position={[-0.05, BENCH_TOP + 0.007, 0.33]} receiveShadow>
         <cylinderGeometry args={[0.13, 0.13, 0.014, 20]} />
         <meshStandardMaterial
-          color={LAB.metalDark}
+          color={MUSEUM.metalDark}
           roughness={0.35}
           metalness={0.8}
         />
@@ -437,7 +437,7 @@ function IceCubes() {
         <mesh key={index} position={cube.position} rotation={cube.rotation}>
           <boxGeometry args={[cube.size, cube.size, cube.size]} />
           <meshStandardMaterial
-            color={LAB.glass}
+            color={MUSEUM.glass}
             transparent
             opacity={0.38}
             roughness={0.15}
