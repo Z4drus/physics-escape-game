@@ -1,0 +1,198 @@
+{
+  "meta": {
+    "title": "Kelvin Hall : escape game au musée de physique",
+    "description": "Escape game 3D dans un musée de physique : explorez la galerie, fouillez, résolvez six énigmes de physique et réunissez les sceaux pour rencontrer l'hologramme d'Einstein."
+  },
+  "errorPage": {
+    "title": "Le musée n'a pas pu se charger",
+    "body": "Une erreur est survenue pendant l'initialisation du jeu. Vérifiez que WebGL est activé dans votre navigateur, puis réessayez.",
+    "retry": "Réessayer"
+  },
+  "notFound": {
+    "title": "Cette salle n'existe pas",
+    "body": "Le couloir que vous cherchez ne fait pas partie du bâtiment.",
+    "back": "Retourner au musée"
+  },
+  "loading": "Ouverture du musée…",
+  "language": {
+    "eyebrow": "Avant d'entrer",
+    "title": "Choisissez votre langue",
+    "body": "Énigmes, indices et dialogues : tout le jeu passe dans cette langue. Vous pourrez encore changer depuis l'écran titre.",
+    "legend": "Langue du jeu",
+    "continue": "Continuer",
+    "switching": "Changement de langue…"
+  },
+  "title": {
+    "eyebrow": "Musée de Physique · Escape game",
+    "pitch": "Un soir, un musée, six sceaux et une porte. Ceux qui sortent rencontrent Albert Einstein. Le chronomètre tourne et chaque erreur compte.",
+    "start": "Commencer",
+    "hint": "Clavier et souris, casque conseillé. Prévoyez une feuille et une calculatrice : les calculs se font à côté.",
+    "changeLanguage": "Changer de langue"
+  },
+  "intro": {
+    "progress": "Progression du récit",
+    "next": "Suivant",
+    "enter": "Entrer dans la galerie",
+    "wait": "Un instant…"
+  },
+  "pause": {
+    "eyebrow": "Partie en pause",
+    "title": "Le musée vous attend",
+    "body": "Le chronomètre continue de tourner. Reprenez le contrôle pour continuer l'exploration.",
+    "resume": "Reprendre la partie",
+    "wait": "Un instant…"
+  },
+  "hud": {
+    "heading": "Kelvin Hall, escape game au musée de physique",
+    "errors": "{count, plural, =0 {Aucune erreur} one {# erreur} other {# erreurs}}",
+    "seals": "Sceaux",
+    "objective": "Objectif",
+    "progress": "{count, plural, one {# sceau} other {# sceaux}} sur {total}.",
+    "keys": {
+      "move": "ZQSD",
+      "run": "Maj",
+      "pause": "Échap"
+    },
+    "controls": {
+      "move": "Se déplacer",
+      "run": "Courir",
+      "interact": "Interagir",
+      "notebook": "Carnet",
+      "sound": "Son",
+      "pause": "Pause"
+    }
+  },
+  "sealTracker": {
+    "obtained": "{seal} obtenu",
+    "pending": "{station} : sceau à obtenir",
+    "pendingShort": "Sceau à obtenir"
+  },
+  "objectives": {
+    "allSeals": "Tous les sceaux sont réunis : la salle de l'hologramme est ouverte.",
+    "cabinetLocked": "Réunissez les sceaux. Le cabinet du conservateur est fermé par un code à quatre chiffres.",
+    "solveSafe": "Calculez la combinaison du coffre du conservateur.",
+    "useUvLamp": "Le conservateur cache quelque chose dans son cabinet. La lampe UV pourrait aider.",
+    "searchCabinet": "Le cabinet est ouvert. Fouillez-le, et n'oubliez pas le bureau du surveillant.",
+    "restorePower": "Remettez le fusible dans le tableau électrique de la galerie et réarmez-le.",
+    "sealsLeft": "{count, plural, one {Encore # sceau à obtenir aux postes.} other {Encore # sceaux à obtenir aux postes.}}"
+  },
+  "toasts": {
+    "lampAdded": "Lampe UV ajoutée au carnet.",
+    "finalDoorLocked": "La porte réclame {total} sceaux. Il en manque {missing}.",
+    "fuseMissing": "Le fusible principal manque. Il doit être quelque part.",
+    "cabinetOpened": "Le cadenas cède. Le cabinet est ouvert.",
+    "safeOpened": "Le coffre s'ouvre : fusible principal et clé de la vitrine ajoutés au carnet.",
+    "powerRestored": "Le courant est rétabli dans la galerie.",
+    "benchUnpowered": "Le banc d'Ampère est hors tension. Le tableau électrique doit être réarmé.",
+    "caseLocked": "La vitrine est fermée à clé.",
+    "caseOpened": "La clé du conservateur ouvre la vitrine.",
+    "soundOff": "Son coupé.",
+    "soundOn": "Son rétabli."
+  },
+  "carnet": {
+    "label": "Carnet",
+    "eyebrow": "Carnet",
+    "title": "Notes de l'escape game",
+    "seals": "Sceaux",
+    "sealObtained": ", sceau obtenu",
+    "sealPending": ", à résoudre",
+    "clues": "Indices",
+    "noClues": "Rien encore. Inspectez les tableaux, les plaques et les meubles.",
+    "safeHint": "Coffre : énergie potentielle d'une masse de {mass} kg à {height} m, en joules (g = 10 m/s²).",
+    "items": "Objets",
+    "noItems": "Les poches sont vides.",
+    "closeHint": "Tab pour refermer le carnet."
+  },
+  "inspect": {
+    "eyebrow": "Inspection",
+    "close": "Refermer la fiche",
+    "digitFound": "Au dos du cadre, un chiffre tracé à la craie. Noté dans le carnet.",
+    "digit": "Chiffre {digit}",
+    "resume": "Reprendre l'exploration"
+  },
+  "dial": {
+    "wheel": "Molette {index}",
+    "next": "{wheel} : chiffre suivant",
+    "previous": "{wheel} : chiffre précédent"
+  },
+  "codeLock": {
+    "eyebrow": "Porte du cabinet",
+    "title": "Cadenas à quatre chiffres",
+    "close": "Laisser le cadenas",
+    "hint": "Quatre chiffres, dans l'ordre du temps. Les cartels de la galerie savent qui a vécu avant qui.",
+    "wrong": "Le cadenas résiste. Une erreur de plus au compteur.",
+    "open": "Clic. Le cadenas s'ouvre.",
+    "submit": "Tirer le cadenas"
+  },
+  "safe": {
+    "title": "Coffre-fort",
+    "close": "Laisser le coffre",
+    "opened": "La poignée tourne. Le coffre est ouvert.",
+    "take": "Emporter et refermer",
+    "hintRevealed": "Trois chiffres : l'énergie potentielle, en joules, révélée sur le mur. Le carnet la rappelle.",
+    "hintHidden": "Trois molettes. Rien n'indique la combinaison, pour l'instant.",
+    "wrong": "La poignée bloque. Une erreur de plus au compteur.",
+    "submit": "Tourner la poignée"
+  },
+  "fuseBox": {
+    "title": "Tableau électrique",
+    "close": "Refermer le tableau",
+    "instructions": "Le fusible principal est remis. Réarmez les disjoncteurs du moins puissant au plus puissant : le réseau ne supporte pas qu'on commence par les gros consommateurs.",
+    "armed": ", réarmé",
+    "disarmed": ", désarmé",
+    "powered": "Le courant est rétabli. Les lustres se rallument.",
+    "tripped": "Tout a sauté. Une erreur de plus, on recommence.",
+    "progress": "{armed}/{total} {armed, plural, one {réarmé} other {réarmés}}. Attention aux kW.",
+    "back": "Retourner dans la galerie"
+  },
+  "hologramDialog": {
+    "label": "Hologramme d'Albert Einstein",
+    "imageAlt": "Hologramme cyan d'Albert Einstein",
+    "eyebrow": "Albert Einstein · hologramme",
+    "progress": "Progression du dialogue",
+    "next": "Continuer",
+    "skip": "Tout afficher",
+    "finish": "Voir mon score"
+  },
+  "victory": {
+    "eyebrow": "Sortie réussie",
+    "title": "Einstein vous salue",
+    "time": "Temps",
+    "errors": "Erreurs",
+    "accuracy": "Précision",
+    "accuracyValue": "{value} %",
+    "restart": "Rejouer"
+  },
+  "puzzle": {
+    "close": "Fermer le poste",
+    "difficulty": "Difficulté {level} sur 3",
+    "hint": "Répondez à la souris ou avec les touches 1, 2 et 3. Échap pour quitter le poste.",
+    "correct": "Bonne réponse. {seal} obtenu.",
+    "wrongAnnouncement": "Réponse incorrecte. Vous pouvez retenter sans pénalité.",
+    "answerCorrect": "Bonne réponse",
+    "answerWrong": "Réponse incorrecte",
+    "wrongTitle": "Ce n'est pas la bonne réponse.",
+    "wrongBody": "Reprenez la relation en jeu et les unités de l'énoncé, puis retentez : aucune pénalité.",
+    "backToRoom": "Retourner dans la salle",
+    "retry": "Réessayer",
+    "leave": "Quitter le poste"
+  },
+  "diagram": {
+    "unavailable": "Schéma indisponible",
+    "expandedPlaceholder": "Schéma ouvert en grand",
+    "expand": "Agrandir",
+    "dragHint": "Glissez pour pivoter",
+    "expandedLabel": "Schéma agrandi",
+    "expandedHint": "Molette ou +/- pour zoomer, glisser ou flèches pour pivoter, Échap pour réduire.",
+    "zoomOut": "Dézoomer (touche -)",
+    "zoomIn": "Zoomer (touche +)",
+    "zoomValue": "{value} %",
+    "hideLabels": "Masquer les légendes (touche L)",
+    "showLabels": "Afficher les légendes (touche L)",
+    "reset": "Recadrer la vue (touche R)",
+    "collapse": "Réduire le schéma (Échap)"
+  },
+  "modal": {
+    "close": "Fermer"
+  }
+}

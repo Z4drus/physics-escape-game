@@ -1,0 +1,48 @@
+{
+  "puzzles": {
+    "forces-poids-caisse-etabli": {
+      "scenario": "Une caisse à outils de 5,0 kg est posée, immobile, sur l'établi du laboratoire, où l'intensité de la pesanteur vaut g = 9,81 m/s².",
+      "question": "Quelle est l'intensité du poids de cette caisse ?",
+      "answers": {
+        "a": "5,0 N",
+        "b": "49,1 N",
+        "c": "0,51 N"
+      },
+      "explanation": "Le poids est la force exercée par la pesanteur sur un corps : P = m · g, avec m en kilogrammes et g en mètres par seconde carrée. Ici P = 5,0 × 9,81 = 49,05 N, soit 49,1 N. La masse (5,0 kg) et le poids (49,1 N) sont deux grandeurs distinctes : la masse ne change pas d'un astre à l'autre, le poids si.",
+      "formula": "P = m · g"
+    },
+    "forces-soutien-plan-incline": {
+      "scenario": "Une caisse de 20 kg reste immobile sur une rampe inclinée de 30° par rapport à l'horizontale, bloquée par un taquet fixé en bas de la pente.",
+      "question": "Quelle est l'intensité de la force de soutien exercée par la rampe sur la caisse (g = 9,81 m/s²) ?",
+      "answers": {
+        "a": "196 N",
+        "b": "98,1 N",
+        "c": "170 N"
+      },
+      "explanation": "La force de soutien est toujours perpendiculaire à la surface d'appui : elle ne compense que la composante du poids perpendiculaire au plan, soit N = m · g · cos α. Ici P = 20 × 9,81 = 196,2 N, puis N = 196,2 × cos 30° = 169,9 N, soit 170 N. La force de soutien n'est égale au poids que sur un plan horizontal (α = 0°) ; l'autre composante, m · g · sin α = 98,1 N, est retenue par le taquet.",
+      "formula": "N = m · g · cos α"
+    },
+    "forces-archimede-cube-flottant": {
+      "scenario": "Un cube de bois de 20 cm d'arête et de 4,8 kg flotte à la surface de l'eau d'un aquarium, une partie du cube dépassant hors de l'eau.",
+      "question": "Quelle est l'intensité de la poussée d'Archimède exercée par l'eau sur ce cube (ρ_eau = 1000 kg/m³, g = 9,81 m/s²) ?",
+      "answers": {
+        "a": "47,1 N",
+        "b": "78,5 N",
+        "c": "31,4 N"
+      },
+      "explanation": "La poussée d'Archimède ne dépend que du volume réellement immergé : F_A = ρ_eau · g · V_immergé. Le cube flottant est en équilibre, donc F_A compense son poids : F_A = P = 4,8 × 9,81 = 47,1 N, ce qui correspond à V_immergé = 4,8 / 1000 = 4,8 × 10⁻³ m³, soit 60 % des 8,0 × 10⁻³ m³ du cube. Prendre le volume total donnerait 1000 × 9,81 × 8,0 × 10⁻³ = 78,5 N, valeur atteinte seulement si l'on enfonçait entièrement le cube.",
+      "formula": "F_A = ρ_fluide · g · V_immergé"
+    }
+  },
+  "diagrams": {
+    "weight-crate-bench": {
+      "weightOnly": "seul le poids est représenté"
+    },
+    "buoyancy-floating-cube": {
+      "edge": "arête = {edge} cm",
+      "density": "ρ_eau = {density} kg/m³",
+      "submergedVolume": "V_immergé ({ratio} %)",
+      "fullySubmerged": "cube entièrement immergé"
+    }
+  }
+}

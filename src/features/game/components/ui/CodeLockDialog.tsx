@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
@@ -20,6 +21,8 @@ export function CodeLockDialog({
   onSubmit: (digits: number[]) => boolean;
   onClose: () => void | Promise<void>;
 }) {
+  const t = useTranslations("ui.codeLock");
+  const tDial = useTranslations("ui.dial");
   const [digits, setDigits] = useState([0, 0, 0, 0]);
   const [feedback, setFeedback] = useState<"idle" | "wrong" | "open">("idle");
 
@@ -42,12 +45,12 @@ export function CodeLockDialog({
     >
       <header className="border-line flex items-center justify-between gap-4 border-b px-5 py-3.5">
         <div>
-          <Eyebrow>Porte du cabinet</Eyebrow>
+          <Eyebrow>{t("eyebrow")}</Eyebrow>
           <h2 id="code-lock-title" className="mt-1 text-2xl">
-            Cadenas à quatre chiffres
+            {t("title")}
           </h2>
         </div>
-        <CloseButton onClick={onClose} label="Laisser le cadenas" />
+        <CloseButton onClick={onClose} label={t("close")} />
       </header>
 
       <motion.div
@@ -56,10 +59,7 @@ export function CodeLockDialog({
         transition={revealAt(0, 0.05)}
         className="px-5 pt-5"
       >
-        <p className="text-ink-fade text-sm">
-          Quatre chiffres, dans l&apos;ordre du temps. Les cartels de la galerie
-          savent qui a vécu avant qui.
-        </p>
+        <p className="text-ink-fade text-sm">{t("hint")}</p>
       </motion.div>
 
       <motion.div
@@ -73,7 +73,7 @@ export function CodeLockDialog({
           <Dial
             key={index}
             value={digit}
-            label={`Molette ${index + 1}`}
+            label={tDial("wheel", { index: index + 1 })}
             disabled={feedback === "open"}
             onChange={(value) => {
               setFeedback("idle");
@@ -97,7 +97,7 @@ export function CodeLockDialog({
                 transition={TRANSITION.micro}
                 className="text-negative"
               >
-                Le cadenas résiste. Une erreur de plus au classement.
+                {t("wrong")}
               </motion.p>
             ) : feedback === "open" ? (
               <motion.p
@@ -108,13 +108,13 @@ export function CodeLockDialog({
                 transition={TRANSITION.micro}
                 className="text-positive"
               >
-                Clic. Le cadenas s&apos;ouvre.
+                {t("open")}
               </motion.p>
             ) : null}
           </AnimatePresence>
         </div>
         <Button onClick={submit} disabled={feedback === "open"} withArrow>
-          Tirer le cadenas
+          {t("submit")}
         </Button>
       </div>
     </ModalShell>

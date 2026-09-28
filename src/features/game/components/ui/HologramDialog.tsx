@@ -2,11 +2,12 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { HOLOGRAM_LINES } from "@/features/game/data/clues";
+import { HOLOGRAM_LINE_IDS } from "@/features/game/data/clues";
 import { TRANSITION } from "@/lib/motion";
 
 /**
@@ -22,9 +23,11 @@ export function HologramDialog({
   onNext: () => void;
   onFinish: () => void;
 }) {
-  const index = Math.min(step, HOLOGRAM_LINES.length - 1);
-  const line = HOLOGRAM_LINES[index];
-  const last = index === HOLOGRAM_LINES.length - 1;
+  const t = useTranslations("ui.hologramDialog");
+  const tLine = useTranslations("museum.hologram");
+  const index = Math.min(step, HOLOGRAM_LINE_IDS.length - 1);
+  const line = tLine(HOLOGRAM_LINE_IDS[index]);
+  const last = index === HOLOGRAM_LINE_IDS.length - 1;
   /** Rang de la dernière réplique entièrement affichée, ou passée. */
   const [completedIndex, setCompletedIndex] = useState(-1);
   const [skippedIndex, setSkippedIndex] = useState(-1);
@@ -41,7 +44,7 @@ export function HologramDialog({
       <motion.div
         role="dialog"
         aria-modal="false"
-        aria-label="Hologramme d'Albert Einstein"
+        aria-label={t("label")}
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 12 }}
@@ -52,7 +55,7 @@ export function HologramDialog({
           <div className="relative hidden w-40 shrink-0 sm:block">
             <Image
               src="/images/decor/einstein-hologram.webp"
-              alt="Hologramme cyan d'Albert Einstein"
+              alt={t("imageAlt")}
               fill
               sizes="160px"
               className="object-cover"
@@ -65,9 +68,7 @@ export function HologramDialog({
           </div>
 
           <div className="flex min-h-40 flex-1 flex-col px-5 py-4">
-            <Eyebrow className="text-cyan">
-              Albert Einstein · hologramme
-            </Eyebrow>
+            <Eyebrow className="text-cyan">{t("eyebrow")}</Eyebrow>
             <Typewriter
               key={index}
               text={line}
@@ -77,9 +78,9 @@ export function HologramDialog({
             <div className="mt-auto flex items-center justify-between gap-4 pt-3">
               <ol
                 className="flex items-center gap-1.5"
-                aria-label="Progression du dialogue"
+                aria-label={t("progress")}
               >
-                {HOLOGRAM_LINES.map((entry, dot) => (
+                {HOLOGRAM_LINE_IDS.map((entry, dot) => (
                   <li
                     key={entry}
                     className={
@@ -96,14 +97,14 @@ export function HologramDialog({
               >
                 {last ? (
                   <Button onClick={onFinish} withArrow>
-                    Voir le classement
+                    {t("finish")}
                   </Button>
                 ) : (
                   <Button
                     variant="glass"
                     onClick={complete ? onNext : () => setSkippedIndex(index)}
                   >
-                    {complete ? "Continuer" : "Tout afficher"}
+                    {complete ? t("next") : t("skip")}
                   </Button>
                 )}
               </motion.div>

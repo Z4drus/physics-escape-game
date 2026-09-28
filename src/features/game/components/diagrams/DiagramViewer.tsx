@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { DiagramToolbar } from "@/features/game/components/diagrams/DiagramToolbar";
@@ -40,6 +41,7 @@ export function DiagramViewer({
   expanded: boolean;
   onExpandedChange: (expanded: boolean) => void;
 }) {
+  const t = useTranslations("ui.diagram");
   const [showLabels, setShowLabels] = useState(true);
   const [zoom, setZoom] = useState(1);
   const controlsRef = useRef<DiagramControlsHandle | null>(null);
@@ -128,7 +130,7 @@ export function DiagramViewer({
       <div className="relative min-h-[18rem] w-full flex-1">
         {expanded ? (
           <div className="border-line text-ink-mute grid size-full place-items-center rounded-lg border border-dashed text-xs">
-            Schéma ouvert en grand
+            {t("expandedPlaceholder")}
           </div>
         ) : (
           <motion.div
@@ -150,11 +152,11 @@ export function DiagramViewer({
               className="glass rounded-pill text-ink-fade hover:text-ink ease-smooth tap-target absolute top-2.5 right-2.5 flex h-10 cursor-pointer items-center gap-2 pr-3.5 pl-3 text-xs transition-[color,scale] duration-[200ms] active:scale-[0.96]"
             >
               <ExpandGlyph />
-              Agrandir
+              {t("expand")}
             </button>
 
             <p className="text-ink-mute pointer-events-none absolute right-3 bottom-2.5 font-mono text-[10px]">
-              Glissez pour pivoter
+              {t("dragHint")}
             </p>
           </motion.div>
         )}
@@ -172,7 +174,7 @@ export function DiagramViewer({
             className="scrim fixed inset-0 z-30 flex flex-col gap-3 p-4 outline-none sm:p-6"
             role="dialog"
             aria-modal="true"
-            aria-label="Schéma agrandi"
+            aria-label={t("expandedLabel")}
           >
             <motion.div
               layoutId={FRAME_LAYOUT_ID}
@@ -214,10 +216,7 @@ export function DiagramViewer({
                 onReset={resetView}
                 onCollapse={collapse}
               />
-              <p className="text-ink-mute text-[11px]">
-                Molette ou +/- pour zoomer, glisser ou flèches pour pivoter,
-                Échap pour réduire.
-              </p>
+              <p className="text-ink-mute text-[11px]">{t("expandedHint")}</p>
             </motion.div>
           </motion.div>
         ) : null}

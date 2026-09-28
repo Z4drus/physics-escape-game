@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RefObject } from "react";
 import { BoxGeometry, CylinderGeometry } from "three";
@@ -10,6 +11,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /** Teinte de l'énergie cinétique : le cyan de la palette. */
@@ -53,11 +55,6 @@ const SPEED_ARROW_ORIGIN: Vec3 = [0.12, 0.22, 0];
 const SPEED_ARROW_DIRECTION: Vec3 = [1, 0, 0];
 const SPEED_ARROW_LENGTH = 0.5;
 
-/** Met un nombre au format français, virgule décimale comprise. */
-function formatFr(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
-}
-
 /**
  * Schéma « Ec = ½ · m · v² » : un skateur traverse une piste rigoureusement
  * plane à vitesse constante. Rien ne change d'altitude, donc rien ne se
@@ -67,6 +64,8 @@ function formatFr(value: number, digits: number): string {
 export function SkaterKineticEnergyScene({ params }: DiagramSceneProps) {
   const mass = Number(params.masse_kg ?? 60);
   const speed = Number(params.vitesse_m_s ?? 5);
+  const t = useTranslations("diagrams.skater-kinetic-energy");
+  const format = useNumberFormat();
 
   const skater = useRef<Group>(null);
   const trail = useRef<Mesh>(null);
@@ -178,7 +177,7 @@ export function SkaterKineticEnergyScene({ params }: DiagramSceneProps) {
       ))}
 
       <DiagramLabel position={[-1.45, 0.14, 0.55]}>
-        piste horizontale
+        {t("flatTrack")}
       </DiagramLabel>
 
       {/* Skateur : un seul groupe translaté, tout le reste est solidaire */}
@@ -253,9 +252,12 @@ export function SkaterKineticEnergyScene({ params }: DiagramSceneProps) {
         />
 
         <DiagramLabel position={[0, 0.8, 0]}>
-          m = {formatFr(mass, 0)} kg
+          m = {format.integer(mass)} kg
         </DiagramLabel>
-        <SpeedLabel progress={progress} value={speed} />
+        <SpeedLabel
+          progress={progress}
+          label={`v = ${format.decimal(speed, 1)} m/s`}
+        />
       </group>
 
       <EnergyGauges barGeometry={barGeometry} kineticBar={kineticBar} />
@@ -270,10 +272,11 @@ export function SkaterKineticEnergyScene({ params }: DiagramSceneProps) {
  */
 function SpeedLabel({
   progress,
-  value,
+  label,
 }: {
   progress: RefObject<number>;
-  value: number;
+  /** Texte déjà formaté par la scène, dans la langue active. */
+  label: string;
 }) {
   const [visible, setVisible] = useState(false);
 
@@ -286,7 +289,7 @@ function SpeedLabel({
 
   return (
     <DiagramLabel position={[0.72, 0.28, 0]} tone="info">
-      v = {formatFr(value, 1)} m/s
+      {label}
     </DiagramLabel>
   );
 }

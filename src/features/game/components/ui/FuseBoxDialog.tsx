@@ -1,12 +1,15 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { CloseButton, ModalShell } from "@/components/ui/ModalShell";
+import { useMuseumCopy } from "@/features/game/i18n/useMuseumCopy";
 import type { BreakerOutcome } from "@/features/game/state/useGameStore";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import { cn } from "@/lib/cn";
 import { TRANSITION, revealAt } from "@/lib/motion";
 import type { Breaker } from "@/types/game";
@@ -29,7 +32,17 @@ export function FuseBoxDialog({
   onArm: (breakerId: string) => BreakerOutcome;
   onClose: () => void | Promise<void>;
 }) {
+  const t = useTranslations("ui.fuseBox");
+  const museum = useMuseumCopy();
+  const { decimal } = useNumberFormat();
   const [message, setMessage] = useState<"idle" | "tripped">("idle");
+
+  /** Puissance telle que l'appareil l'affiche : « 1,2 kW », « 45 W ». */
+  const formatPower = (breaker: Breaker) => {
+    const value = breaker.unit === "kW" ? breaker.watts / 1000 : breaker.watts;
+    const digits = String(value).split(".")[1]?.length ?? 0;
+    return `${decimal(value, digits)} ${breaker.unit}`;
+  };
 
   const handleArm = (id: string) => {
     const outcome = onArm(id);
@@ -40,12 +53,12 @@ export function FuseBoxDialog({
     <ModalShell labelledBy="fuse-title" onClose={onClose} maxWidth="max-w-lg">
       <header className="border-line flex items-center justify-between gap-4 border-b px-5 py-3.5">
         <div>
-          <Eyebrow>Galerie des instruments</Eyebrow>
+          <Eyebrow>{museum.room("gallery")}</Eyebrow>
           <h2 id="fuse-title" className="mt-1 text-2xl">
-            Tableau électrique
+            {t("title")}
           </h2>
         </div>
-        <CloseButton onClick={onClose} label="Refermer le tableau" />
+        <CloseButton onClick={onClose} label={t("close")} />
       </header>
 
       <motion.p
@@ -54,9 +67,7 @@ export function FuseBoxDialog({
         transition={revealAt(0, 0.05)}
         className="text-ink-fade px-5 pt-5 text-sm"
       >
-        Le fusible principal est remis. Réarmez les disjoncteurs du moins
-        puissant au plus puissant : le réseau ne supporte pas qu&apos;on
-        commence par les gros consommateurs.
+        {t("instructions")}
       </motion.p>
 
       <motion.ul
@@ -99,12 +110,14 @@ export function FuseBoxDialog({
                     }
                   />
                 </span>
-                <span className="text-xs leading-tight">{breaker.label}</span>
+                <span className="text-xs leading-tight">
+                  {museum.breaker(breaker.id)}
+                </span>
                 <span className="text-accent-soft font-mono text-sm tabular-nums">
-                  {breaker.display}
+                  {formatPower(breaker)}
                 </span>
                 <span className="sr-only">
-                  {armed ? ", réarmé" : ", désarmé"}
+                  {armed ? t("armed") : t("disarmed")}
                 </span>
               </button>
             </li>
@@ -123,7 +136,7 @@ export function FuseBoxDialog({
                 transition={TRANSITION.micro}
                 className="text-positive"
               >
-                Le courant est rétabli. Les lustres se rallument.
+                {t("powered")}
               </motion.p>
             ) : message === "tripped" ? (
               <motion.p
@@ -134,7 +147,7 @@ export function FuseBoxDialog({
                 transition={TRANSITION.micro}
                 className="text-negative"
               >
-                Tout a sauté. Une erreur de plus, on recommence.
+                {t("tripped")}
               </motion.p>
             ) : (
               <motion.p
@@ -145,15 +158,17 @@ export function FuseBoxDialog({
                 transition={TRANSITION.micro}
                 className="text-ink-mute"
               >
-                {armedIds.length}/{breakers.length} réarmé
-                {armedIds.length > 1 ? "s" : ""}. Attention aux kW.
+                {t("progress", {
+                  armed: armedIds.length,
+                  total: breakers.length,
+                })}
               </motion.p>
             )}
           </AnimatePresence>
         </div>
         {powered ? (
           <Button onClick={onClose} withArrow>
-            Retourner dans la galerie
+            {t("back")}
           </Button>
         ) : null}
       </div>

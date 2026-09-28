@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useMemo, useRef } from "react";
 import { BoxGeometry, Group, Mesh } from "three";
 
@@ -8,6 +9,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /** Durée d'un cycle complet d'animation, en secondes. */
@@ -55,8 +57,11 @@ const ARROW_FRACTIONS = [0.25, 0.5, 0.75, 1] as const;
 export function HydrostaticColumnScene({ params }: DiagramSceneProps) {
   const tankWidthM = Number(params.tankWidthM ?? 1.2);
   const tankDepthM = Number(params.tankDepthM ?? 0.8);
-  const depthLabel = String(params.depthLabel ?? "h");
-  const liquidLabel = String(params.liquidLabel ?? "liquide");
+  const depthM = Number(params.depthM ?? 2.5);
+  const density = Number(params.densityKgPerM3 ?? 1000);
+
+  const t = useTranslations("diagrams.hydrostatic-column");
+  const format = useNumberFormat();
 
   const tankEdges = useMemo(
     () =>
@@ -193,25 +198,26 @@ export function HydrostaticColumnScene({ params }: DiagramSceneProps) {
         position={[RULER_X - 0.2, FLOOR_Y + WATER_MAX / 2, 0]}
         tone="info"
       >
-        {depthLabel}
+        {`h = ${format.decimal(depthM, 2)} m`}
       </DiagramLabel>
       <DiagramLabel
         position={[MAIN_X, WATER_MAX * 0.72, -TANK_DEPTH / 2 - 0.1]}
         tone="info"
       >
-        {liquidLabel}
+        {/* Masse volumique sans séparateur de milliers, comme dans l'énoncé. */}
+        {t("liquid", { density: format.decimal(density, 0) })}
       </DiagramLabel>
       <DiagramLabel
         position={[MAIN_X, FLOOR_Y + 0.14, TANK_DEPTH / 2 + 0.18]}
         tone="warning"
       >
-        capteur : p = ?
+        {t("sensor")}
       </DiagramLabel>
       <DiagramLabel position={[MAIN_X, -0.14, TANK_DEPTH / 2 + 0.1]}>
-        {`${formatMeters(tankWidthM)} × ${formatMeters(tankDepthM)}`}
+        {`${format.decimal(tankWidthM, 2)} m × ${format.decimal(tankDepthM, 2)} m`}
       </DiagramLabel>
       <DiagramLabel position={[GHOST_X, TANK_HEIGHT + 0.16, 0]}>
-        même hauteur → même pression
+        {t("sameHeight")}
       </DiagramLabel>
     </group>
   );
@@ -421,9 +427,4 @@ function waterHeight(time: number): number {
 /** Accélération puis décélération symétriques, pour un remplissage sans à-coup. */
 function easeInOutSine(t: number): number {
   return 0.5 - Math.cos(Math.PI * Math.min(Math.max(t, 0), 1)) / 2;
-}
-
-/** Met en forme une longueur en mètres à la française : « 1,20 m ». */
-function formatMeters(value: number): string {
-  return `${value.toFixed(2).replace(".", ",")} m`;
 }

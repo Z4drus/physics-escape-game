@@ -57,6 +57,13 @@ servait pas.
 | `public/images/decor/parchment.webp`            | Fond des fiches, des cartes du récit et du carnet  | Nano Banana 2 Lite |
 | `public/images/decor/einstein-hologram.webp`    | Portrait du dialogue final                         | Nano Banana 2 Lite |
 
+## Sons (Kenney, CC0)
+
+Les effets sonores de `public/audio` (clic, ouverture et fermeture d'une
+fenêtre, sceau, erreur, objet ramassé, déverrouillage, courant rétabli,
+hologramme) viennent des packs audio de Kenney (https://kenney.nl/assets),
+publiés en CC0.
+
 ## Polices (Google Fonts, licence OFL 1.1)
 
 | Police     | Usage                                              |
@@ -69,6 +76,6 @@ servait pas.
 
 Vérifiées mais non utilisées, au cas où le musée s'agrandit : Kenney Furniture
 Kit et Graveyard Kit (CC0, https://kenney.nl/assets), modèles Quaternius et
-CreativeTrio sur poly.pizza (CC0), packs audio Kenney (CC0), HDRI
+CreativeTrio sur poly.pizza (CC0), HDRI
 `museum_of_ethnography` (Poly Haven, CC0), textures ambientCG Metal034,
 Paper006, PaintedPlaster003 (CC0).

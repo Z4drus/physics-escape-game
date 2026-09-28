@@ -1,0 +1,49 @@
+{
+  "puzzles": {
+    "cinematique-mru-graphique-vitesse": {
+      "scenario": "On the marked air track, a glider slides along and leaves a mark every second. All the marks are the same distance apart.",
+      "question": "The glider is at x = 0.80 m at time t = 1.0 s and at x = 3.20 m at time t = 5.0 s. The x(t) graph is a straight line: what is the speed of the glider?",
+      "answers": {
+        "a": "0.48 m/s",
+        "b": "0.60 m/s",
+        "c": "0.64 m/s"
+      },
+      "explanation": "The glider moves in a straight line at a constant speed: its speed is the slope of the x(t) line, so the change in position divided by the time that has passed. Δx = 3.20 − 0.80 = 2.40 m and Δt = 5.0 − 1.0 = 4.0 s, so v = 2.40 / 4.0 = 0.60 m/s. Dividing by 5.0 s (forgetting that the timer already shows 1.0 s at the first point) would give 0.48 m/s, and dividing 3.20 m by 5.0 s would give 0.64 m/s: both mistakes forget that you need a change, not a single value.",
+      "formula": "v = Δx / Δt = (x₂ − x₁) / (t₂ − t₁)"
+    },
+    "cinematique-chute-libre-profondeur": {
+      "scenario": "A steel ball is dropped from the edge of a well with no starting speed, and you hear it hit the bottom 1.5 s later.",
+      "question": "Ignoring air resistance and the time the sound takes to come back up, how deep is the well? (g = 9.81 m/s²)",
+      "answers": {
+        "a": "7.4 m",
+        "b": "22.1 m",
+        "c": "11.0 m"
+      },
+      "explanation": "A free fall with no starting speed is a motion with a constant acceleration g: the distance fallen is h = ½ · g · t². Here h = 0.5 × 9.81 × 1.5² = 0.5 × 9.81 × 2.25 = 11.0 m. Forgetting the ½ (or multiplying the final speed v = g·t = 14.7 m/s by the time, which is the same mistake) gives 22.1 m, and writing ½ · g · t instead of ½ · g · t² gives 7.4 m.",
+      "formula": "h = ½ · g · t²"
+    },
+    "cinematique-distance-freinage": {
+      "scenario": "On the test track, a car driving at a constant speed suddenly brakes until it stops completely, leaving skid marks on the asphalt.",
+      "question": "The car is driving at 72 km/h and brakes with a constant deceleration of 5.0 m/s² until it stops. How far does it travel while braking?",
+      "answers": {
+        "a": "40 m",
+        "b": "80 m",
+        "c": "518 m"
+      },
+      "explanation": "First, convert the speed: 72 km/h = 72 / 3.6 = 20 m/s. The formula that does not use time gives 0 = v₀² − 2 · a · Δx, so Δx = v₀² / (2·a) = 20² / (2 × 5.0) = 400 / 10 = 40 m. Forgetting the factor 2 gives 80 m, and keeping 72 km/h without converting gives 72² / 10 = 518 m, a braking distance that is impossible for a normal car.",
+      "formula": "v² = v₀² + 2 · a · Δx  ⟹  Δx = v₀² / (2 · a)"
+    }
+  },
+  "diagrams": {
+    "uniform-motion-rail": {
+      "markerInterval": "1 mark every {interval} s",
+      "graphTitle": "x(t) graph"
+    },
+    "free-fall-well": {
+      "markerInterval": "1 mark every {interval} s"
+    },
+    "braking-distance-track": {
+      "markerInterval": "1 mark every {interval} s"
+    }
+  }
+}

@@ -6,16 +6,6 @@ import { FORCES_PUZZLES } from "@/features/game/data/puzzles/forces";
 import { PRESSION_PUZZLES } from "@/features/game/data/puzzles/pression";
 import type { PhysicsTopic, Puzzle } from "@/types/game";
 
-/** Intitulé affiché de chaque thème. */
-export const TOPIC_LABELS: Readonly<Record<PhysicsTopic, string>> = {
-  pression: "Pression",
-  chaleur: "Chaleur",
-  energie: "Énergie",
-  electricite: "Électricité",
-  forces: "Forces",
-  cinematique: "MRU / MRUA",
-};
-
 /** Banque de questions, regroupée par thème. */
 export const PUZZLES_BY_TOPIC: Readonly<
   Record<PhysicsTopic, readonly Puzzle[]>

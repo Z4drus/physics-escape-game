@@ -1,13 +1,14 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Dial } from "@/components/ui/Dial";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { CloseButton, ModalShell } from "@/components/ui/ModalShell";
-import { INVENTORY_ITEMS } from "@/features/game/data/clues";
+import { useMuseumCopy } from "@/features/game/i18n/useMuseumCopy";
 import { TRANSITION, revealAt } from "@/lib/motion";
 
 /**
@@ -24,6 +25,9 @@ export function SafeDialog({
   onSubmit: (value: number) => boolean;
   onClose: () => void | Promise<void>;
 }) {
+  const t = useTranslations("ui.safe");
+  const tDial = useTranslations("ui.dial");
+  const museum = useMuseumCopy();
   const [digits, setDigits] = useState([0, 0, 0]);
   const [feedback, setFeedback] = useState<"idle" | "wrong" | "open">("idle");
 
@@ -37,12 +41,12 @@ export function SafeDialog({
     <ModalShell labelledBy="safe-title" onClose={onClose} maxWidth="max-w-lg">
       <header className="border-line flex items-center justify-between gap-4 border-b px-5 py-3.5">
         <div>
-          <Eyebrow>Cabinet du conservateur</Eyebrow>
+          <Eyebrow>{museum.room("cabinet")}</Eyebrow>
           <h2 id="safe-title" className="mt-1 text-2xl">
-            Coffre-fort
+            {t("title")}
           </h2>
         </div>
-        <CloseButton onClick={onClose} label="Laisser le coffre" />
+        <CloseButton onClick={onClose} label={t("close")} />
       </header>
 
       <AnimatePresence mode="wait" initial={false}>
@@ -55,9 +59,7 @@ export function SafeDialog({
             transition={TRANSITION.base}
             className="px-5 py-6"
           >
-            <p className="text-positive text-sm font-medium">
-              La poignée tourne. Le coffre est ouvert.
-            </p>
+            <p className="text-positive text-sm font-medium">{t("opened")}</p>
             <ul className="mt-4 flex flex-col gap-2">
               {(["fuse", "case-key"] as const).map((id, index) => (
                 <motion.li
@@ -76,11 +78,9 @@ export function SafeDialog({
                     }}
                   />
                   <span className="text-sm">
-                    <span className="font-medium">
-                      {INVENTORY_ITEMS[id].label}
-                    </span>
+                    <span className="font-medium">{museum.item(id).name}</span>
                     <span className="text-ink-mute block text-xs">
-                      {INVENTORY_ITEMS[id].description}
+                      {museum.item(id).description}
                     </span>
                   </span>
                 </motion.li>
@@ -88,7 +88,7 @@ export function SafeDialog({
             </ul>
             <div className="mt-5">
               <Button onClick={onClose} withArrow>
-                Emporter et refermer
+                {t("take")}
               </Button>
             </div>
           </motion.div>
@@ -104,9 +104,7 @@ export function SafeDialog({
               transition={revealAt(0, 0.05)}
               className="text-ink-fade px-5 pt-5 text-sm"
             >
-              {hintRevealed
-                ? "Trois chiffres : l'énergie potentielle, en joules, révélée sur le mur. Le carnet la rappelle."
-                : "Trois molettes. Rien n'indique la combinaison, pour l'instant."}
+              {hintRevealed ? t("hintRevealed") : t("hintHidden")}
             </motion.p>
 
             <motion.div
@@ -122,7 +120,7 @@ export function SafeDialog({
                   key={index}
                   value={digit}
                   tone="iron"
-                  label={`Molette ${index + 1}`}
+                  label={tDial("wheel", { index: index + 1 })}
                   onChange={(value) => {
                     setFeedback("idle");
                     setDigits((current) =>
@@ -136,13 +134,11 @@ export function SafeDialog({
             <div className="border-line flex flex-wrap items-center justify-between gap-3 border-t px-5 py-4">
               <p className="min-h-5 text-sm" aria-live="polite">
                 {feedback === "wrong" ? (
-                  <span className="text-negative">
-                    La poignée bloque. Une erreur de plus au classement.
-                  </span>
+                  <span className="text-negative">{t("wrong")}</span>
                 ) : null}
               </p>
               <Button onClick={submit} withArrow>
-                Tourner la poignée
+                {t("submit")}
               </Button>
             </div>
           </motion.div>

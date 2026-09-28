@@ -10,6 +10,6 @@ import { useGameStore } from "@/features/game/state/useGameStore";
 export function exposeDebugHandle(camera: Camera, scene: Scene) {
   if (process.env.NODE_ENV === "production") return;
   Object.assign(window, {
-    __physicsEscape: { store: useGameStore, camera, scene },
+    __kelvinHall: { store: useGameStore, camera, scene },
   });
 }

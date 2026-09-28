@@ -36,21 +36,19 @@ export function generateSafeRiddle(): SafeRiddle {
   return { massKg, heightM, answer: massKg * 10 * heightM };
 }
 
-/** Appareils du tableau électrique, avec des puissances en W ou en kW. */
+/**
+ * Appareils du tableau électrique, nommés sous `museum.breakers`. Les
+ * puissances sont affichées tantôt en W, tantôt en kW.
+ */
 const BREAKER_POOL: readonly Breaker[] = [
-  {
-    id: "emergency",
-    label: "Éclairage de secours",
-    display: "45 W",
-    watts: 45,
-  },
-  { id: "vitrines", label: "Vitrines", display: "300 W", watts: 300 },
-  { id: "alarm", label: "Alarme", display: "0,12 kW", watts: 120 },
-  { id: "chandeliers", label: "Lustres", display: "1,2 kW", watts: 1200 },
-  { id: "bench", label: "Banc d'Ampère", display: "2 kW", watts: 2000 },
-  { id: "heating", label: "Chauffage", display: "3,5 kW", watts: 3500 },
-  { id: "projector", label: "Projecteur", display: "0,8 kW", watts: 800 },
-  { id: "elevator", label: "Monte-charge", display: "6 kW", watts: 6000 },
+  { id: "emergency", watts: 45, unit: "W" },
+  { id: "vitrines", watts: 300, unit: "W" },
+  { id: "alarm", watts: 120, unit: "kW" },
+  { id: "chandeliers", watts: 1200, unit: "kW" },
+  { id: "bench", watts: 2000, unit: "kW" },
+  { id: "heating", watts: 3500, unit: "kW" },
+  { id: "projector", watts: 800, unit: "kW" },
+  { id: "elevator", watts: 6000, unit: "kW" },
 ];
 
 /** Tire quatre disjoncteurs, dans un ordre d'affichage mélangé. */

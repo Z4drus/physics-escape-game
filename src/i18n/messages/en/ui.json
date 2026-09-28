@@ -1,0 +1,198 @@
+{
+  "meta": {
+    "title": "Kelvin Hall: a physics museum escape game",
+    "description": "A 3D escape game in a physics museum: explore the gallery, search the rooms, solve six physics puzzles and collect the seals to meet Einstein's hologram."
+  },
+  "errorPage": {
+    "title": "The museum could not load",
+    "body": "Something went wrong while the game was starting. Check that WebGL is turned on in your browser, then try again.",
+    "retry": "Try again"
+  },
+  "notFound": {
+    "title": "This room does not exist",
+    "body": "The corridor you are looking for is not part of the building.",
+    "back": "Back to the museum"
+  },
+  "loading": "Opening the museum…",
+  "language": {
+    "eyebrow": "Before you go in",
+    "title": "Choose your language",
+    "body": "Puzzles, clues and dialogue: the whole game uses this language. You can still change it from the title screen.",
+    "legend": "Game language",
+    "continue": "Continue",
+    "switching": "Changing language…"
+  },
+  "title": {
+    "eyebrow": "Physics Museum · Escape game",
+    "pitch": "One night, one museum, six seals and one door. Those who get out meet Albert Einstein. The timer is running and every mistake counts.",
+    "start": "Start",
+    "hint": "Keyboard and mouse, headphones recommended. Have some paper and a calculator ready: you do the maths on paper.",
+    "changeLanguage": "Change language"
+  },
+  "intro": {
+    "progress": "Story progress",
+    "next": "Next",
+    "enter": "Enter the gallery",
+    "wait": "One moment…"
+  },
+  "pause": {
+    "eyebrow": "Game paused",
+    "title": "The museum is waiting for you",
+    "body": "The timer is still running. Take back control to keep exploring.",
+    "resume": "Resume the game",
+    "wait": "One moment…"
+  },
+  "hud": {
+    "heading": "Kelvin Hall, a physics museum escape game",
+    "errors": "{count, plural, =0 {No mistakes} one {# mistake} other {# mistakes}}",
+    "seals": "Seals",
+    "objective": "Objective",
+    "progress": "{count, plural, one {# seal} other {# seals}} out of {total}.",
+    "keys": {
+      "move": "WASD",
+      "run": "Shift",
+      "pause": "Esc"
+    },
+    "controls": {
+      "move": "Move",
+      "run": "Run",
+      "interact": "Interact",
+      "notebook": "Notebook",
+      "sound": "Sound",
+      "pause": "Pause"
+    }
+  },
+  "sealTracker": {
+    "obtained": "{seal} earned",
+    "pending": "{station}: seal not earned yet",
+    "pendingShort": "Seal not earned yet"
+  },
+  "objectives": {
+    "allSeals": "All the seals are collected: the Hologram Room is open.",
+    "cabinetLocked": "Collect the seals. The Curator's Office is locked with a four-digit code.",
+    "solveSafe": "Work out the combination of the curator's safe.",
+    "useUvLamp": "The curator is hiding something in the office. The UV lamp might help.",
+    "searchCabinet": "The office is open. Search it, and don't forget the guard's desk.",
+    "restorePower": "Put the fuse back in the gallery fuse box and reset it.",
+    "sealsLeft": "{count, plural, one {# seal left to earn at the stations.} other {# seals left to earn at the stations.}}"
+  },
+  "toasts": {
+    "lampAdded": "UV lamp added to the notebook.",
+    "finalDoorLocked": "The door needs {total} seals. You are still missing {missing}.",
+    "fuseMissing": "The main fuse is missing. It must be somewhere.",
+    "cabinetOpened": "The padlock gives way. The office is open.",
+    "safeOpened": "The safe opens: main fuse and display case key added to the notebook.",
+    "powerRestored": "The power is back on in the gallery.",
+    "benchUnpowered": "Ampère's Bench has no power. The fuse box needs to be reset.",
+    "caseLocked": "The display case is locked.",
+    "caseOpened": "The curator's key opens the display case.",
+    "soundOff": "Sound off.",
+    "soundOn": "Sound on."
+  },
+  "carnet": {
+    "label": "Notebook",
+    "eyebrow": "Notebook",
+    "title": "Escape game notes",
+    "seals": "Seals",
+    "sealObtained": ", seal earned",
+    "sealPending": ", not solved yet",
+    "clues": "Clues",
+    "noClues": "Nothing yet. Look closely at the paintings, the plaques and the furniture.",
+    "safeHint": "Safe: potential energy of a {mass} kg mass at {height} m, in joules (g = 10 m/s²).",
+    "items": "Items",
+    "noItems": "Your pockets are empty.",
+    "closeHint": "Press Tab to close the notebook."
+  },
+  "inspect": {
+    "eyebrow": "Up close",
+    "close": "Close this panel",
+    "digitFound": "On the back of the frame, a digit written in chalk. Added to the notebook.",
+    "digit": "Digit {digit}",
+    "resume": "Back to exploring"
+  },
+  "dial": {
+    "wheel": "Dial {index}",
+    "next": "{wheel}: next digit",
+    "previous": "{wheel}: previous digit"
+  },
+  "codeLock": {
+    "eyebrow": "Office door",
+    "title": "Four-digit padlock",
+    "close": "Leave the padlock",
+    "hint": "Four digits, in order of time. The labels in the gallery know who lived first.",
+    "wrong": "The padlock holds. One more mistake on the counter.",
+    "open": "Click. The padlock opens.",
+    "submit": "Pull the padlock"
+  },
+  "safe": {
+    "title": "Safe",
+    "close": "Leave the safe",
+    "opened": "The handle turns. The safe is open.",
+    "take": "Take and close",
+    "hintRevealed": "Three digits: the potential energy, in joules, shown on the wall. The notebook keeps a copy.",
+    "hintHidden": "Three dials. Nothing gives away the combination, for now.",
+    "wrong": "The handle is stuck. One more mistake on the counter.",
+    "submit": "Turn the handle"
+  },
+  "fuseBox": {
+    "title": "Fuse box",
+    "close": "Close the fuse box",
+    "instructions": "The main fuse is back in. Reset the breakers from the least powerful to the most powerful: the circuit cannot cope if you start with the big ones.",
+    "armed": ", on",
+    "disarmed": ", off",
+    "powered": "The power is back. The chandeliers light up again.",
+    "tripped": "Everything tripped. One more mistake, start again.",
+    "progress": "{armed}/{total} reset. Watch the kW.",
+    "back": "Back to the gallery"
+  },
+  "hologramDialog": {
+    "label": "Hologram of Albert Einstein",
+    "imageAlt": "Cyan hologram of Albert Einstein",
+    "eyebrow": "Albert Einstein · hologram",
+    "progress": "Dialogue progress",
+    "next": "Continue",
+    "skip": "Show all",
+    "finish": "See my score"
+  },
+  "victory": {
+    "eyebrow": "You got out",
+    "title": "Einstein salutes you",
+    "time": "Time",
+    "errors": "Mistakes",
+    "accuracy": "Accuracy",
+    "accuracyValue": "{value}%",
+    "restart": "Play again"
+  },
+  "puzzle": {
+    "close": "Close the station",
+    "difficulty": "Difficulty {level} out of 3",
+    "hint": "Answer with the mouse or with keys 1, 2 and 3. Press Esc to leave the station.",
+    "correct": "Correct answer. {seal} earned.",
+    "wrongAnnouncement": "Wrong answer. You can try again with no penalty.",
+    "answerCorrect": "Correct answer",
+    "answerWrong": "Wrong answer",
+    "wrongTitle": "That is not the right answer.",
+    "wrongBody": "Check which formula applies and the units in the question, then try again: there is no penalty.",
+    "backToRoom": "Back to the room",
+    "retry": "Try again",
+    "leave": "Leave the station"
+  },
+  "diagram": {
+    "unavailable": "Diagram not available",
+    "expandedPlaceholder": "Diagram open in full view",
+    "expand": "Expand",
+    "dragHint": "Drag to rotate",
+    "expandedLabel": "Expanded diagram",
+    "expandedHint": "Scroll wheel or +/- to zoom, drag or arrow keys to rotate, Esc to shrink.",
+    "zoomOut": "Zoom out (- key)",
+    "zoomIn": "Zoom in (+ key)",
+    "zoomValue": "{value}%",
+    "hideLabels": "Hide labels (L key)",
+    "showLabels": "Show labels (L key)",
+    "reset": "Reset the view (R key)",
+    "collapse": "Shrink the diagram (Esc)"
+  },
+  "modal": {
+    "close": "Close"
+  }
+}

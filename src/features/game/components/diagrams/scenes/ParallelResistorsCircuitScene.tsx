@@ -9,6 +9,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /** Hauteur du dessus de la platine. */
@@ -133,11 +134,6 @@ function flowProfile(curve: CatmullRomCurve3, current: number) {
   };
 }
 
-/** Écrit un nombre à la française (virgule décimale). */
-function formatNumber(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
-}
-
 /**
  * Schéma de l'association en dérivation : deux résistances branchées entre les
  * deux mêmes nœuds, alimentées par une pile.
@@ -153,6 +149,7 @@ export function ParallelResistorsCircuitScene({ params }: DiagramSceneProps) {
   const totalCurrent = Number(params.I ?? 0.6);
   const current1 = Number(params.I1 ?? 0.4);
   const current2 = Number(params.I2 ?? 0.2);
+  const format = useNumberFormat();
 
   /** Éclat de l'ampoule témoin : elle traduit la puissance totale du montage. */
   const lampIntensity = MathUtils.clamp(
@@ -258,13 +255,13 @@ export function ParallelResistorsCircuitScene({ params }: DiagramSceneProps) {
       />
 
       <DiagramLabel position={[-1.5, 0.82, -0.55]}>
-        {`U = ${formatNumber(voltage, 0)} V`}
+        {`U = ${format.integer(voltage)} V`}
       </DiagramLabel>
       <DiagramLabel position={[RESISTOR_X, 0.64, -0.86]}>
-        {`R₁ = ${formatNumber(resistance1, 0)} Ω`}
+        {`R₁ = ${format.integer(resistance1)} Ω`}
       </DiagramLabel>
       <DiagramLabel position={[RESISTOR_X, 0.64, 0.86]}>
-        {`R₂ = ${formatNumber(resistance2, 0)} Ω`}
+        {`R₂ = ${format.integer(resistance2)} Ω`}
       </DiagramLabel>
 
       {/* Les deux intensités de branche restent sans valeur : c'est au joueur

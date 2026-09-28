@@ -1,0 +1,190 @@
+{
+  "rooms": {
+    "gallery": "Instrument Gallery",
+    "cabinet": "Curator's Office",
+    "hologram": "Hologram Room"
+  },
+  "topics": {
+    "pression": "Pressure",
+    "chaleur": "Heat",
+    "energie": "Energy",
+    "electricite": "Electricity",
+    "forces": "Forces",
+    "cinematique": "Motion"
+  },
+  "stations": {
+    "force-table": "Newton's Table",
+    "air-rail": "Galileo's Rail",
+    "circuit-bench": "Ampère's Bench",
+    "energy-track": "Joule's Track",
+    "pressure-bench": "Pascal's Press",
+    "calorimeter": "Lavoisier's Calorimeter"
+  },
+  "seals": {
+    "seal-forces": "Seal of Forces",
+    "seal-cinematique": "Seal of Motion",
+    "seal-electricite": "Seal of Electricity",
+    "seal-energie": "Seal of Energy",
+    "seal-pression": "Seal of Pressure",
+    "seal-chaleur": "Seal of Heat"
+  },
+  "objects": {
+    "painting-archimede": "Portrait of Archimedes",
+    "painting-galilee": "Portrait of Galileo",
+    "painting-newton": "Portrait of Newton",
+    "painting-curie": "Portrait of Marie Curie",
+    "poster": "Exhibition poster",
+    "plaque-rules": "Curator's plaque",
+    "bust-archimede": "Bust of Archimedes",
+    "vitrine-armillary": "Armillary sphere",
+    "vitrine-telescope": "Astronomical telescope",
+    "guard-desk": "Guard's desk",
+    "fuse-box": "Fuse box",
+    "cabinet-door": "Curator's Office door",
+    "final-door": "Hologram Room door",
+    "desk-note": "Curator's desk",
+    "uv-wall": "Wall behind the desk",
+    "safe": "Safe",
+    "chalkboard": "Blackboard"
+  },
+  "verbs": {
+    "analyze": "Analyse",
+    "inspect": "Inspect",
+    "read": "Read",
+    "search": "Search",
+    "open": "Open",
+    "unlock": "Unlock",
+    "uvLight": "Shine UV on"
+  },
+  "inspect": {
+    "painting-archimede": {
+      "title": "Archimedes of Syracuse",
+      "caption": "c. 287 BC – 212 BC · Oil on canvas, Italian school",
+      "imageAlt": "Painted portrait of Archimedes, a bearded old man drawing shapes with a compass.",
+      "body": "The scholar from Syracuse draws circles in the sand. We owe him the principle of the buoyant force, the upward push of a fluid on an object placed in it, and the cry “Eureka!” that the museum loves to recall."
+    },
+    "painting-galilee": {
+      "title": "Galileo Galilei",
+      "caption": "1564 – 1642 · Oil on canvas, Florentine school",
+      "imageAlt": "Painted portrait of Galileo holding a telescope, with a celestial globe beside him.",
+      "body": "Telescope in hand, Galileo looks at the visitor. He showed that without friction, all objects fall in the same way, and that an object moving in a straight line at a constant speed needs no force to keep going."
+    },
+    "painting-newton": {
+      "title": "Isaac Newton",
+      "caption": "1643 – 1727 · Oil on canvas, English school",
+      "imageAlt": "Painted portrait of Newton holding a prism that splits a ray of light.",
+      "body": "A prism, a ray, seven colours. Newton wrote the three laws of motion and the law of gravity, but he also showed that white light is a mix of colours."
+    },
+    "painting-curie": {
+      "title": "Marie Curie",
+      "caption": "1867 – 1934 · Oil on canvas, French school",
+      "imageAlt": "Painted portrait of Marie Curie in her laboratory, near glowing glass vials.",
+      "body": "Two Nobel Prizes, first in physics, then in chemistry. The glowing vials next to her remind us of radium, which was isolated in a shed on rue Lhomond after tonnes of ore were processed by hand."
+    },
+    "poster": {
+      "title": "Physics: the laws of the world",
+      "caption": "Exhibition poster · Lithograph, 1926",
+      "imageAlt": "Art Deco poster: a stylised pendulum, atom orbits and a prism splitting light.",
+      "body": "A pendulum, an atom and a prism. The poster announces the museum's permanent exhibition. Nothing is hidden in it, but it is beautiful."
+    },
+    "plaque-rules": {
+      "title": "Curator's note",
+      "caption": "Engraved plaque, near the office door",
+      "body": "“The office padlock opens in order of time: from the oldest to the most recent. The labels next to the paintings will tell you who lived first. Every frame has a digit on the back.”"
+    },
+    "bust-archimede": {
+      "title": "Bust of Archimedes",
+      "caption": "Carrara marble, 19th-century copy",
+      "body": "Under the base, a note in pencil: “The paintings do not lie, look behind them.” Someone has searched here before you."
+    },
+    "vitrine-armillary": {
+      "title": "Armillary sphere",
+      "caption": "Brass and mahogany, Paris workshop, c. 1780",
+      "body": "The marked rings show the equator, the ecliptic and the tropics. People used it to find the position of the stars long before pocket telescopes."
+    },
+    "vitrine-telescope": {
+      "title": "Astronomical telescope",
+      "caption": "Brass and leather on a tripod, c. 1850",
+      "body": "A telescope like Galileo's does not magnify much, but it can already show the moons of Jupiter. Museum visitors used this one until 1962."
+    },
+    "desk-note": {
+      "title": "Curator's desk",
+      "caption": "Oak, green leather, dry inkwell",
+      "body": "Under the desk pad, a note in purple ink: “What the eye cannot see, black light reveals. Look at the wall.” The drawer, though, is empty."
+    },
+    "chalkboard": {
+      "title": "Curator's blackboard",
+      "caption": "Formulas from the syllabus, white chalk",
+      "imageAlt": "Blackboard covered with physics formulas: F = m·a, p = F/S, E = mc², Q = m·c·ΔT, U = R·I.",
+      "body": "The formulas used by the museum's stations. Useful to check a formula before you answer, or to find the one for potential energy."
+    },
+    "uv-wall": {
+      "title": "Revealed message",
+      "caption": "Invisible ink, only readable under UV light",
+      "body": "“The safe opens with the potential energy due to gravity, in joules, of a {mass} kg mass placed at a height of {height} m. Use g = 10 m/s². Three digits, nothing more.”"
+    }
+  },
+  "items": {
+    "uv-lamp": {
+      "name": "UV lamp",
+      "description": "Reveals invisible ink. Found in the guard's drawer."
+    },
+    "fuse": {
+      "name": "Main fuse",
+      "description": "The fuse for the gallery's fuse box."
+    },
+    "case-key": {
+      "name": "Display case key",
+      "description": "Opens the display case at Joule's Track."
+    }
+  },
+  "intro": {
+    "announcement": {
+      "eyebrow": "The announcement",
+      "title": "An evening at the museum",
+      "body": "Tonight, the Physics Museum is hosting an escape game. Those who get out will meet Albert Einstein, who will be there as a hologram. Each player's time and mistakes will be counted until they get out."
+    },
+    "queue": {
+      "eyebrow": "The queue",
+      "title": "Alone, but ready",
+      "body": "Your friends said no: a physics escape game is not their thing. You spent the whole night revising. At the entrance, the queue is long. The guard sneers: “Alone? Good luck. Lots of people give up.”"
+    },
+    "doors": {
+      "eyebrow": "The doors close",
+      "title": "Six seals to get out",
+      "body": "The gallery doors close behind you. Each station you solve gives you a seal, and the Hologram Room needs six. Search, read, look around: not everything is physics. The timer starts now."
+    }
+  },
+  "hologram": {
+    "greeting": "Ah, there you are. Did you come alone? Few people make it to the end, and even fewer do it without a team.",
+    "praise": "I watched you play. You answered, but you also searched, read, and dared to make mistakes. That's exactly how physics moves forward.",
+    "farewell": "Imagination is more important than knowledge. Tonight, you showed that you have both. Now, let's see your score."
+  },
+  "breakers": {
+    "emergency": "Emergency lighting",
+    "vitrines": "Display cases",
+    "alarm": "Alarm",
+    "chandeliers": "Chandeliers",
+    "bench": "Ampère's Bench",
+    "heating": "Heating",
+    "projector": "Projector",
+    "elevator": "Goods lift"
+  },
+  "signs": {
+    "entrance": "Physics Museum",
+    "cabinet": "Curator's Office",
+    "hologram": "Hologram Room"
+  },
+  "cartels": {
+    "archimedes": "Archimedes",
+    "galileo": "Galileo",
+    "newton": "Isaac Newton",
+    "curie": "Marie Curie",
+    "armillary": "Armillary sphere",
+    "telescope": "Astronomical telescope",
+    "galvanometer": "Galvanometer, 1870",
+    "inductionCoil": "Induction coil"
+  },
+  "plaque": "The padlock opens\nin order of time,\nfrom the oldest\nto the most recent.",
+  "uvMessage": "The safe opens with the\npotential energy, in joules,\nof a mass of {mass} kg\nat a height of {height} m.\ng = 10 m/s²"
+}

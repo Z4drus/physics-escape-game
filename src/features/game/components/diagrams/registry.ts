@@ -21,7 +21,7 @@ import { WinchLiftPowerScene } from "@/features/game/components/diagrams/scenes/
 
 /** Props reçues par toute scène de schéma : les grandeurs de l'énoncé. */
 export interface DiagramSceneProps {
-  params: Readonly<Record<string, number | string>>;
+  params: Readonly<Record<string, number>>;
 }
 
 /**

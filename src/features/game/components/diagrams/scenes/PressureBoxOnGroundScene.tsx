@@ -8,6 +8,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /** Durée d'un cycle complet d'animation, en secondes. */
@@ -52,8 +53,11 @@ export function PressureBoxOnGroundScene({ params }: DiagramSceneProps) {
   const contactWidth = Number(params.contactWidthM ?? 0.5);
   const contactDepth = Number(params.contactDepthM ?? 0.4);
   const boxHeightM = Number(params.boxHeightM ?? 0.35);
-  const forceLabel = String(params.forceLabel ?? "F");
-  const areaLabel = String(params.areaLabel ?? "S = surface d'appui");
+  const forceN = Number(params.forceN ?? 600);
+
+  const format = useNumberFormat();
+  const widthLabel = `${format.decimal(contactWidth, 2)} m`;
+  const depthLabel = `${format.decimal(contactDepth, 2)} m`;
 
   // La face d'appui est mise à l'échelle de la scène en conservant strictement
   // le rapport largeur / profondeur de l'énoncé : c'est lui qui se lit.
@@ -218,16 +222,16 @@ export function PressureBoxOnGroundScene({ params }: DiagramSceneProps) {
         ]}
         tone="warning"
       >
-        {forceLabel}
+        {`F = ${format.integer(forceN)} N`}
       </DiagramLabel>
       <DiagramLabel position={[0, 0.03, halfDepth + 0.24]}>
-        {formatMeters(contactWidth)}
+        {widthLabel}
       </DiagramLabel>
       <DiagramLabel position={[halfWidth + 0.3, 0.03, 0]}>
-        {formatMeters(contactDepth)}
+        {depthLabel}
       </DiagramLabel>
       <DiagramLabel position={[0, 0.04, -halfDepth - 0.26]} tone="info">
-        {areaLabel}
+        {`S = ${widthLabel} × ${depthLabel}`}
       </DiagramLabel>
       <DiagramLabel
         position={[-halfWidth - 0.42, 0.26, halfDepth * 0.4]}
@@ -352,9 +356,4 @@ function easeInOutSine(t: number): number {
 /** Borne une valeur dans un intervalle. */
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
-}
-
-/** Met en forme une longueur en mètres à la française : « 0,50 m ». */
-function formatMeters(value: number): string {
-  return `${value.toFixed(2).replace(".", ",")} m`;
 }

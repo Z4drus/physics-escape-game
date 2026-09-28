@@ -1,0 +1,48 @@
+{
+  "puzzles": {
+    "energie-cinetique-skateur": {
+      "scenario": "A skater rolls in a straight line at constant speed on a flat track at the skatepark.",
+      "question": "The skater and the board have a total mass of 60 kg and move at 5.0 m/s. What is their kinetic energy?",
+      "answers": {
+        "a": "1,500 J",
+        "b": "750 J",
+        "c": "150 J"
+      },
+      "explanation": "Kinetic energy is Ec = ½ · m · v², so Ec = 0.5 × 60 × 5.0² = 0.5 × 60 × 25 = 750 J. Forgetting the ½ gives 1,500 J, and forgetting to square the speed gives 150 J: both of these values are wrong.",
+      "formula": "Ec = ½ · m · v²"
+    },
+    "energie-puissance-treuil": {
+      "scenario": "On a building site, a winch lifts a crate straight up at constant speed to a walkway.",
+      "question": "The winch lifts an 80 kg crate 6.0 m up in 12 s, at constant speed (g = 9.81 m/s²). What is its average power?",
+      "answers": {
+        "a": "4.7 kW",
+        "b": "40 W",
+        "c": "392 W"
+      },
+      "explanation": "The work done by the winch is equal to the potential energy gained: W = m · g · h = 80 × 9.81 × 6.0 = 4,708.8 J. Power is this work divided by the time: P = W / t = 4,708.8 / 12 = 392 W, or about 0.39 kW. Answering 4.7 kW means mixing up work (in joules) and power (in watts), and 40 W comes from forgetting g.",
+      "formula": "W = m · g · h  and  P = W / t"
+    },
+    "energie-conservation-pendule": {
+      "scenario": "A ball hanging from a string is pulled to one side, then let go with no starting speed, and swings with no friction.",
+      "question": "The string is 1.20 m long and, when it is let go, the 0.50 kg ball is 0.20 m higher than its lowest position (g = 9.81 m/s²). What is its speed when it passes through the lowest point?",
+      "answers": {
+        "a": "2.0 m/s",
+        "b": "4.9 m/s",
+        "c": "3.9 m/s"
+      },
+      "explanation": "With no friction, the potential energy lost turns into kinetic energy: m · g · h = ½ · m · v², the mass cancels out and v = √(2 · g · h) = √(2 × 9.81 × 0.20) = √3.92 = 2.0 m/s. The height to use is the 0.20 m height difference, not the length of the string: using 1.20 m would give 4.9 m/s, and forgetting the square root would give 3.9 m/s.",
+      "formula": "m · g · h = ½ · m · v²  ⟹  v = √(2 · g · h)"
+    }
+  },
+  "diagrams": {
+    "skater-kinetic-energy": {
+      "flatTrack": "flat track"
+    },
+    "winch-lift-power": {
+      "motorWork": "W (motor)"
+    },
+    "pendulum-energy-exchange": {
+      "constantMechanicalEnergy": "Em = constant"
+    }
+  }
+}

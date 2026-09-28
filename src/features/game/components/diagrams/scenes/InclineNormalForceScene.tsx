@@ -9,6 +9,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /* -------------------------------------------------------------------- */
@@ -64,11 +65,6 @@ function easeOutCubic(value: number): number {
 
 function easeInCubic(value: number): number {
   return value ** 3;
-}
-
-/** Écriture française d'un nombre : la virgule sépare les décimales. */
-function formatNumber(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
 }
 
 /** Tige de construction reliant deux points : position, axe et longueur. */
@@ -139,6 +135,7 @@ export function InclineNormalForceScene({ params }: DiagramSceneProps) {
   const parallelLength = parallel * unitPerNewton;
 
   const reduced = usePrefersReducedMotion();
+  const format = useNumberFormat();
 
   const weightArrow = useRef<Group>(null);
   const perpendicularArrow = useRef<Group>(null);
@@ -600,10 +597,10 @@ export function InclineNormalForceScene({ params }: DiagramSceneProps) {
       </group>
 
       <DiagramLabel position={layout.labels.angle}>
-        α = {formatNumber(angleDeg, 0)}°
+        α = {format.decimal(angleDeg, 0)}°
       </DiagramLabel>
       <DiagramLabel position={layout.labels.mass}>
-        m = {formatNumber(mass, 0)} kg
+        m = {format.decimal(mass, 0)} kg
       </DiagramLabel>
 
       {inCycle ? (

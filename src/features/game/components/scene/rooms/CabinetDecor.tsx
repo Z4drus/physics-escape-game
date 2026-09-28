@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { CuratorDesk } from "@/features/game/components/scene/decor/Desks";
 import { Safe } from "@/features/game/components/scene/decor/Devices";
 import { Bookshelf } from "@/features/game/components/scene/decor/Fixtures";
@@ -15,6 +17,7 @@ import { useGameStore } from "@/features/game/state/useGameStore";
  * noir et le message invisible du mur nord.
  */
 export function CabinetDecor() {
+  const t = useTranslations("museum");
   const safeOpen = useGameStore((state) => state.safeOpen);
   const uvRevealed = useGameStore((state) => state.uvRevealed);
   const riddle = useGameStore((state) => state.safeRiddle);
@@ -34,13 +37,10 @@ export function CabinetDecor() {
         position={[11.6, 1.8, -0.98]}
         rotationY={0}
         revealed={uvRevealed}
-        lines={[
-          "Le coffre s'ouvre sur l'énergie",
-          "potentielle, en joules,",
-          `d'une masse de ${riddle.massKg} kg`,
-          `posée à ${riddle.heightM} m de hauteur.`,
-          "g = 10 m/s²",
-        ]}
+        lines={t("uvMessage", {
+          mass: riddle.massKg,
+          height: riddle.heightM,
+        }).split("\n")}
       />
 
       {/* Tapis et plafonnier */}

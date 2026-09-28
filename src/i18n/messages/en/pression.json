@@ -1,0 +1,47 @@
+{
+  "puzzles": {
+    "pression-caisse-au-sol": {
+      "scenario": "A metal crate weighing 600 N sits flat on the floor of the machine room. Its base measures 0.50 m by 0.40 m.",
+      "question": "What pressure does the crate put on the floor under its base?",
+      "answers": {
+        "a": "120 Pa",
+        "b": "1,200 Pa",
+        "c": "3,000 Pa (3.0 kPa)"
+      },
+      "explanation": "Pressure is the force divided by the contact area: S = 0.50 × 0.40 = 0.20 m². So p = 600 / 0.20 = 3,000 Pa, or 3.0 kPa. Multiplying by the area gives 120 Pa, and dividing by only one side (0.50 m) gives 1,200 Pa: these are two common mistakes.",
+      "formula": "p = F / S"
+    },
+    "pression-fond-du-bassin": {
+      "scenario": "A holding tank measuring 1.20 m by 0.80 m is filled with water up to a height of 2.50 m, and a pressure sensor sits on the bottom.",
+      "question": "What pressure does the water alone put on the sensor, not counting atmospheric pressure? Use ρ = 1000 kg/m³ and g = 9.81 m/s².",
+      "answers": {
+        "a": "24,525 Pa (≈ 24.5 kPa)",
+        "b": "2,500 Pa (2.5 kPa)",
+        "c": "125,850 Pa (≈ 125.9 kPa)"
+      },
+      "explanation": "The pressure of a liquid depends only on the depth and on the density of the liquid, never on the width of the tank or the amount of water: p = 1000 × 9.81 × 2.50 = 24,525 Pa ≈ 24.5 kPa. Forgetting g gives 2,500 Pa. Adding atmospheric pressure (101,325 Pa) would give the total pressure, 125,850 Pa, which the question clearly leaves out.",
+      "formula": "p = ρ · g · h"
+    },
+    "pression-presse-hydraulique": {
+      "scenario": "On the workshop's hydraulic press, a small piston with a diameter of 4.0 cm and a large piston with a diameter of 20 cm are linked by the same oil circuit.",
+      "question": "The technician pushes on the small piston with a force of 150 N. What force does the large piston then put on the load?",
+      "answers": {
+        "a": "750 N",
+        "b": "3,750 N",
+        "c": "30 N"
+      },
+      "explanation": "Pascal's principle says the pressure is the same in both cylinders, so F₂ = F₁ · S₂/S₁. The areas grow with the square of the diameter: S₂/S₁ = (20 / 4.0)² = 25, so F₂ = 150 × 25 = 3,750 N. The classic trap is to use the simple ratio of the diameters (× 5 → 750 N) or to turn it upside down (150 / 5 → 30 N).",
+      "formula": "F₂ = F₁ · (S₂ / S₁) = F₁ · (d₂ / d₁)²"
+    }
+  },
+  "diagrams": {
+    "hydrostatic-column": {
+      "liquid": "water, ρ = {density} kg/m³",
+      "sensor": "sensor: p = ?",
+      "sameHeight": "same height → same pressure"
+    },
+    "hydraulic-press": {
+      "samePressure": "same pressure p everywhere in the oil"
+    }
+  }
+}

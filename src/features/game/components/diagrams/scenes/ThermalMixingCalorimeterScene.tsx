@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useMemo, useRef } from "react";
 import {
   BufferAttribute,
@@ -18,6 +19,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /* -------------------------------------------------------------------------- */
@@ -196,16 +198,6 @@ function writeTemperatureColor(target: Color, celsius: number): void {
   target.lerpColors(COLD_COLOR, HOT_COLOR, ratio);
 }
 
-/** Formate un nombre décimal à la française (virgule décimale). */
-function formatDecimal(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
-}
-
-/** Formate un entier avec des espaces fines insécables comme séparateurs. */
-function formatInteger(value: number): string {
-  return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-}
-
 /* -------------------------------------------------------------------------- */
 /*  Scène                                                                      */
 /* -------------------------------------------------------------------------- */
@@ -226,6 +218,9 @@ export function ThermalMixingCalorimeterScene({ params }: DiagramSceneProps) {
   const hotMass = Number(params.masseChaudeKg ?? 1);
   const hotStartC = Number(params.temperatureChaudeC ?? 80);
   const heatCapacity = Number(params.capaciteThermiqueJParKgK ?? 4180);
+
+  const t = useTranslations("diagrams.thermal-mixing-calorimeter");
+  const format = useNumberFormat();
 
   /**
    * Température d'équilibre, moyenne pondérée par les masses. Elle ne sert qu'à
@@ -484,14 +479,22 @@ export function ThermalMixingCalorimeterScene({ params }: DiagramSceneProps) {
 
       {/* Étiquettes : uniquement les données de l'énoncé. */}
       <DiagramLabel position={[1.28, 1, 0.25]} tone="danger">
-        {formatDecimal(hotMass, 1)} kg à {Math.round(hotStartC)} °C
+        {t("waterLayer", {
+          mass: format.decimal(hotMass, 1),
+          temperature: format.integer(hotStartC),
+        })}
       </DiagramLabel>
       <DiagramLabel position={[-1.28, 0.45, 0.25]} tone="info">
-        {formatDecimal(coldMass, 1)} kg à {Math.round(coldStartC)} °C
+        {t("waterLayer", {
+          mass: format.decimal(coldMass, 1),
+          temperature: format.integer(coldStartC),
+        })}
       </DiagramLabel>
-      <DiagramLabel position={[-1.28, 1.28, 0]}>calorimètre isolé</DiagramLabel>
+      <DiagramLabel position={[-1.28, 1.28, 0]}>
+        {t("insulatedCalorimeter")}
+      </DiagramLabel>
       <DiagramLabel position={[1.28, 0.5, 0.25]}>
-        c = {formatInteger(heatCapacity)} J/(kg·K)
+        c = {format.integer(heatCapacity)} J/(kg·K)
       </DiagramLabel>
       <DiagramLabel position={[0.34, 1.76, 0]} tone="accent">
         T_f = ?

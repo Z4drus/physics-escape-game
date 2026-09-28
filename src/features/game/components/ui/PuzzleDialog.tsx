@@ -1,18 +1,20 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { AnswerList } from "@/features/game/components/ui/AnswerList";
 import { PuzzleVerdict } from "@/features/game/components/ui/PuzzleVerdict";
 import { DiagramViewer } from "@/features/game/components/diagrams/DiagramViewer";
-import { TOPIC_LABELS } from "@/features/game/data/puzzles";
+import { useMuseumCopy } from "@/features/game/i18n/useMuseumCopy";
+import { usePuzzleCopy } from "@/features/game/i18n/usePuzzleCopy";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import type { AnswerResult } from "@/features/game/state/useGameStore";
 import { cn } from "@/lib/cn";
 import { TRANSITION, revealAt } from "@/lib/motion";
-import type { Puzzle, PuzzleAnswer, Seal } from "@/types/game";
+import type { AnswerId, Puzzle, Seal } from "@/types/game";
 
 /**
  * Boîte de dialogue d'un poste : le schéma 3D animé de la situation à gauche,
@@ -21,8 +23,8 @@ import type { Puzzle, PuzzleAnswer, Seal } from "@/types/game";
  */
 export function PuzzleDialog({
   puzzle,
-  answers,
-  stationLabel,
+  answerIds,
+  stationId,
   reward,
   selectedAnswerId,
   answerResult,
@@ -32,15 +34,19 @@ export function PuzzleDialog({
 }: {
   puzzle: Puzzle;
   /** Propositions dans leur ordre d'affichage, tiré à l'ouverture du poste. */
-  answers: readonly PuzzleAnswer[];
-  stationLabel: string;
+  answerIds: readonly AnswerId[];
+  stationId: string;
   reward: Seal;
-  selectedAnswerId: string | null;
+  selectedAnswerId: AnswerId | null;
   answerResult: AnswerResult | null;
-  onAnswer: (answerId: string) => void;
+  onAnswer: (answerId: AnswerId) => void;
   onRetry: () => void;
   onClose: () => void | Promise<void>;
 }) {
+  const t = useTranslations("ui.puzzle");
+  const museum = useMuseumCopy();
+  const copy = usePuzzleCopy(puzzle);
+  const sealName = museum.seal(reward.id);
   const dialogRef = useRef<HTMLDivElement>(null);
   const [diagramExpanded, setDiagramExpanded] = useState(false);
 
@@ -75,16 +81,16 @@ export function PuzzleDialog({
       if (answerResult) return;
 
       const index = Number.parseInt(event.key, 10) - 1;
-      const answer = answers[index];
-      if (answer) {
+      const answerId = answerIds[index];
+      if (answerId) {
         event.preventDefault();
-        onAnswer(answer.id);
+        onAnswer(answerId);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [answerResult, answers, diagramExpanded, onAnswer, onClose]);
+  }, [answerResult, answerIds, diagramExpanded, onAnswer, onClose]);
 
   return (
     <motion.div
@@ -109,9 +115,11 @@ export function PuzzleDialog({
         <div className="bg-background-deep flex h-[min(88dvh,60rem)] flex-col overflow-hidden rounded-lg">
           <header className="border-line flex items-center justify-between gap-4 border-b px-5 py-3.5">
             <div className="flex items-center gap-3">
-              <Eyebrow>{TOPIC_LABELS[puzzle.topic]}</Eyebrow>
+              <Eyebrow>{museum.topic(puzzle.topic)}</Eyebrow>
               <span aria-hidden className="bg-line-strong h-3.5 w-px" />
-              <p className="text-ink-mute text-xs">{stationLabel}</p>
+              <p className="text-ink-mute text-xs">
+                {museum.station(stationId)}
+              </p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -119,7 +127,7 @@ export function PuzzleDialog({
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="Fermer le poste"
+                aria-label={t("close")}
                 className="text-ink-mute hover:text-ink hover:bg-surface-raised ease-smooth tap-target grid size-10 cursor-pointer place-items-center rounded-sm transition-colors duration-[200ms]"
               >
                 <svg
@@ -146,10 +154,10 @@ export function PuzzleDialog({
               transition={revealAt(0, 0.05)}
               className="border-line flex min-h-0 flex-col border-b p-5 lg:border-r lg:border-b-0"
             >
-              <p className="text-ink-fade mb-4 text-base">{puzzle.scenario}</p>
+              <p className="text-ink-fade mb-4 text-base">{copy.scenario}</p>
               <DiagramViewer
                 spec={puzzle.diagram}
-                caption={puzzle.scenario}
+                caption={copy.scenario}
                 expanded={diagramExpanded}
                 onExpandedChange={setDiagramExpanded}
               />
@@ -163,7 +171,7 @@ export function PuzzleDialog({
                 className="border-line border-b p-6"
               >
                 <h2 id="puzzle-question" className="text-2xl">
-                  {puzzle.question}
+                  {copy.question}
                 </h2>
               </motion.div>
 
@@ -173,7 +181,10 @@ export function PuzzleDialog({
                 transition={revealAt(2, 0.05)}
               >
                 <AnswerList
-                  answers={answers}
+                  answers={answerIds.map((id) => ({
+                    id,
+                    label: copy.answer(id),
+                  }))}
                   selectedAnswerId={selectedAnswerId}
                   answerResult={answerResult}
                   correctAnswerId={puzzle.correctAnswerId}
@@ -185,9 +196,11 @@ export function PuzzleDialog({
                 {answerResult ? (
                   <PuzzleVerdict
                     key={answerResult}
-                    puzzle={puzzle}
+                    formula={copy.formula}
+                    explanation={copy.explanation}
                     result={answerResult}
                     reward={reward}
+                    sealName={sealName}
                     onRetry={onRetry}
                     onClose={onClose}
                   />
@@ -200,8 +213,7 @@ export function PuzzleDialog({
                     transition={TRANSITION.micro}
                     className="text-ink-mute border-line mt-auto border-t px-5 py-4 text-xs"
                   >
-                    Répondez à la souris ou avec les touches 1, 2 et 3. Échap
-                    pour quitter le poste.
+                    {t("hint")}
                   </motion.p>
                 )}
               </AnimatePresence>
@@ -215,9 +227,9 @@ export function PuzzleDialog({
          */}
         <p className="sr-only" aria-live="polite">
           {answerResult === "correct"
-            ? `Bonne réponse. ${reward.label} obtenu.`
+            ? t("correct", { seal: sealName })
             : answerResult === "wrong"
-              ? "Réponse incorrecte. Vous pouvez retenter sans pénalité."
+              ? t("wrongAnnouncement")
               : ""}
         </p>
       </motion.div>
@@ -227,12 +239,15 @@ export function PuzzleDialog({
 
 /** Trois barres indiquant le niveau d'exigence de la question. */
 function DifficultyMeter({ level }: { level: 1 | 2 | 3 }) {
+  const t = useTranslations("ui.puzzle");
+  const label = t("difficulty", { level });
+
   return (
     <div
       className="flex items-end gap-0.5"
       role="img"
-      title={`Difficulté ${level} sur 3`}
-      aria-label={`Difficulté ${level} sur 3`}
+      title={label}
+      aria-label={label}
     >
       {[0, 1, 2].map((index) => (
         <span

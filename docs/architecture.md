@@ -1,6 +1,6 @@
 # Architecture
 
-Physics Escape est un escape game 3D à la première personne : Next.js 16 en App
+Kelvin Hall est un escape game 3D à la première personne : Next.js 16 en App
 Router, React 19, three.js via React Three Fiber, Zustand pour l'état.
 
 Le code est fonctionnel : il n'y a pratiquement pas de `class`. Le diagramme de
@@ -210,7 +210,7 @@ stateDiagram-v2
     locking --> paused : pause, requestLock refusé par le navigateur
     playing --> finale : enterFinale, le joueur monte sur l'estrade
     finale --> finale : advanceHologram
-    finale --> won : finish, bouton Voir le classement
+    finale --> won : finish, bouton Voir mon score
     won --> idle : reset, bouton Rejouer
 
     playing --> playing : setFocused, setCurrentRoom, toggleCarnet
@@ -239,7 +239,8 @@ Gardes vérifiées dans `useGameStore.ts` :
 ```mermaid
 flowchart TD
     subgraph L1["Route, rendu serveur"]
-        layout["app/layout.tsx, polices et metadata"]
+        layout["app/layout.tsx, polices, metadata, NextIntlClientProvider"]
+        intl["i18n/request, langue et messages de la requête"]
         page["app/page.tsx"]
     end
 
@@ -247,7 +248,7 @@ flowchart TD
         screen["GameScreen.tsx"]
         hud["ui/Hud, SealTracker"]
         aim["ui/Crosshair, InteractionPrompt, Toasts, Carnet"]
-        overlays["ui/TitleOverlay, IntroOverlay, PauseOverlay, VictoryOverlay"]
+        overlays["ui/LanguageOverlay, TitleOverlay, IntroOverlay, PauseOverlay, VictoryOverlay"]
         dialogs["ui/PuzzleDialog, InspectDialog, CodeLockDialog, SafeDialog, FuseBoxDialog, HologramDialog"]
         shell["components/ui/ModalShell, Dial, Button"]
     end
@@ -274,10 +275,11 @@ flowchart TD
         store["state/useGameStore"]
         data["data/world, stations, interactables, clues, colliders, puzzles"]
         logic["logic/escape, objective, renderQuality"]
-        lib["lib/collision, leaderboard, audio, motion"]
+        lib["lib/collision, audio, motion, format"]
     end
 
     layout --> page
+    layout --> intl
     page --> screen
     screen -->|"next/dynamic, ssr false"| canvas
     screen --> hud
@@ -325,6 +327,16 @@ Points de lecture :
   d'ombre tant que leur porte est close. `<Preload all />` compile pourtant
   leurs shaders et envoie leurs textures dès le chargement : l'ouverture d'une
   porte ne provoque pas d'à-coup.
+- Les textes sont servis par next-intl, sans préfixe de langue dans l'URL.
+  `i18n/request` lit le cookie posé par l'écran de choix (Server Action
+  `setUserLocale`), sinon `Accept-Language`, et ne transmet au client que les
+  messages de la langue active. Changer de langue re-rend la page sans la
+  démonter : l'état de la partie est conservé. Les `<Canvas>` de React Three
+  Fiber relaient le contexte React, les composants 3D lisent donc les
+  messages ; les enfants d'une `<Html>` de drei, rendus dans une racine à
+  part, reçoivent des chaînes déjà traduites.
+- Le store et `logic/` ne produisent aucun texte : notifications et objectif
+  sont des clés de message, formulées au rendu (`Toasts`, `Hud`).
 - `PerformanceMonitor` mesure la cadence réelle et, via
   `logic/renderQuality`, abaisse la densité de pixels puis l'anticrénelage du
   post-traitement sur les machines modestes.
@@ -386,21 +398,23 @@ sequenceDiagram
 
 ## 5. Tableau des modules
 
-| Dossier                                 | Rôle                                                              | Dépendances autorisées                                                     | Interdits                              |
-| --------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------- |
-| `src/app`                               | Route unique : `layout`, `page`, `error`, `not-found`.            | `features/game/components/GameScreen`                                      | Le store, les données, three.js        |
-| `src/components/ui`                     | Primitives partagées : `Button`, `Eyebrow`, `ModalShell`, `Dial`. | `lib`, `hooks`                                                             | Le domaine, le store, three.js         |
-| `src/hooks`                             | Hooks génériques : piège à focus, classement.                     | `lib`, React                                                               | Le domaine                             |
-| `src/features/game/components`          | `GameScreen` compose, `GameCanvas` ouvre le `<Canvas>`.           | `state`, `data`, `logic`, `hooks`, sous-dossiers, `lib`                    | -                                      |
-| `src/features/game/components/scene`    | Coque, portes, lumières, joueur, postes, décor.                   | `data`, `state`, `hooks`, `lib`, `types`, `debug`                          | `components/ui`, `components/diagrams` |
-| `src/features/game/components/diagrams` | Schémas 3D des questions.                                         | `types`, `lib`, `hooks/useFocusTrap`                                       | Le store, `data`, `components/scene`   |
-| `src/features/game/components/ui`       | HUD, carnet, notifications, overlays, fenêtres.                   | `components/ui`, `data`, `logic`, `hooks`, `lib`, `diagrams/DiagramViewer` | `components/scene`, three.js           |
-| `src/features/game/data`                | Monde, postes, interactables, textes, collisions, questions.      | `types`, `lib/collision`                                                   | Les composants, le store, React        |
-| `src/features/game/logic`               | Tirages des énigmes, objectif, formatage.                         | `types`, `lib/shuffle`, `data/stations`                                    | Les composants, le store               |
-| `src/features/game/hooks`               | Clavier, interaction, Pointer Lock, son.                          | `state`, `lib`, React, drei (type)                                         | Les composants, `data`                 |
-| `src/features/game/state`               | Store Zustand : état, actions, sélecteurs.                        | `data`, `logic`, `lib`, `types`                                            | Les composants, three.js, React        |
-| `src/lib`                               | Logique pure : collisions, classement, audio, mouvement, `cn`.    | `clsx`, `tailwind-merge`, `types`                                          | Tout le domaine                        |
-| `src/types`                             | Modèle de domaine partagé.                                        | Aucun import                                                               | Tout le reste                          |
+| Dossier                                 | Rôle                                                                               | Dépendances autorisées                                                                                     | Interdits                              |
+| --------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `src/app`                               | Route unique : `layout`, `page`, `error`, `not-found`.                             | `features/game/components/GameScreen`                                                                      | Le store, les données, three.js        |
+| `src/components/ui`                     | Primitives partagées : `Button`, `Eyebrow`, `ModalShell`, `Dial`, `LocaleFlag`.    | `lib`, `hooks`, `i18n/config`, next-intl, nucleo-flags                                                     | Le domaine, le store, three.js         |
+| `src/i18n`                              | Langues, requête next-intl, action de changement, messages, formatage des nombres. | `lib/format`, next-intl, `next/headers`                                                                    | Le domaine, le store                   |
+| `src/hooks`                             | Hook générique : piège à focus.                                                    | `lib`, React                                                                                               | Le domaine                             |
+| `src/features/game/components`          | `GameScreen` compose, `GameCanvas` ouvre le `<Canvas>`.                            | `state`, `data`, `logic`, `hooks`, sous-dossiers, `lib`                                                    | -                                      |
+| `src/features/game/components/scene`    | Coque, portes, lumières, joueur, postes, décor.                                    | `data`, `state`, `hooks`, `lib`, `types`, `debug`, `game/i18n`, next-intl                                  | `components/ui`, `components/diagrams` |
+| `src/features/game/components/diagrams` | Schémas 3D des questions.                                                          | `types`, `lib`, `hooks/useFocusTrap`, `i18n/useNumberFormat`, next-intl                                    | Le store, `data`, `components/scene`   |
+| `src/features/game/i18n`                | Textes du musée et des questions dans la langue active.                            | `types`, next-intl                                                                                         | Le store, les composants               |
+| `src/features/game/components/ui`       | HUD, carnet, notifications, overlays, fenêtres.                                    | `components/ui`, `data`, `logic`, `hooks`, `lib`, `diagrams/DiagramViewer`, `game/i18n`, `i18n`, next-intl | `components/scene`, three.js           |
+| `src/features/game/data`                | Monde, postes, interactables, textes, collisions, questions.                       | `types`, `lib/collision`                                                                                   | Les composants, le store, React        |
+| `src/features/game/logic`               | Tirages des énigmes, objectif, formatage.                                          | `types`, `lib/shuffle`, `data/stations`                                                                    | Les composants, le store               |
+| `src/features/game/hooks`               | Clavier, interaction, Pointer Lock, son.                                           | `state`, `lib`, React, drei (type)                                                                         | Les composants, `data`                 |
+| `src/features/game/state`               | Store Zustand : état, actions, sélecteurs.                                         | `data`, `logic`, `lib`, `types`                                                                            | Les composants, three.js, React        |
+| `src/lib`                               | Logique pure : collisions, audio, mouvement, formatage, `cn`.                      | `clsx`, `tailwind-merge`, `types`, `i18n/config` (type)                                                    | Tout le domaine                        |
+| `src/types`                             | Modèle de domaine partagé.                                                         | Aucun import                                                                                               | Tout le reste                          |
 
 ### Écarts connus
 
@@ -409,6 +423,10 @@ sequenceDiagram
   corresponde à une scène enregistrée, d'où la garde « Schéma indisponible ».
 - `pickPuzzle` exclut les questions déjà tirées tous thèmes confondus ; le
   résultat est correct puisque les identifiants sont uniques.
+- Les identifiants des données (postes, objets, fiches, questions) sont des
+  `string` : `features/game/i18n` les rattache aux clés typées des messages
+  par une conversion de type. Un identifiant sans message n'est donc pas
+  détecté à la compilation ; next-intl le signale au rendu.
 - Les positions du décor (`scene/rooms`) et celles des interactables
   (`data/interactables.ts`) sont déclarées à deux endroits : un objet déplacé
   doit l'être dans les deux.

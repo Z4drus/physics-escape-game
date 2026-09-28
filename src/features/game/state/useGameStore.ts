@@ -1,9 +1,6 @@
 import { create } from "zustand";
 
-import {
-  INSPECT_CONTENTS_BY_ID,
-  INVENTORY_ITEMS,
-} from "@/features/game/data/clues";
+import { INSPECT_CONTENTS_BY_ID } from "@/features/game/data/clues";
 import { INTERACTABLES_BY_ID } from "@/features/game/data/interactables";
 import { PUZZLES_BY_ID, pickPuzzle } from "@/features/game/data/puzzles";
 import { STATIONS_BY_ID, TOTAL_SEALS } from "@/features/game/data/stations";
@@ -21,8 +18,8 @@ import type {
   Interactable,
   InventoryItemId,
   Modal,
+  AnswerId,
   Puzzle,
-  PuzzleAnswer,
   RoomId,
   SafeRiddle,
   Seal,
@@ -35,9 +32,26 @@ export type AnswerResult = "correct" | "wrong";
 /** Issue d'un réarmement de disjoncteur. */
 export type BreakerOutcome = "armed" | "tripped" | "complete";
 
+/** Notifications du jeu, formulées sous `ui.toasts.<key>`. */
+export type ToastMessage =
+  | {
+      key:
+        | "lampAdded"
+        | "fuseMissing"
+        | "cabinetOpened"
+        | "safeOpened"
+        | "powerRestored"
+        | "benchUnpowered"
+        | "caseLocked"
+        | "caseOpened"
+        | "soundOff"
+        | "soundOn";
+    }
+  | { key: "finalDoorLocked"; total: number; missing: number };
+
 export interface Toast {
   id: number;
-  text: string;
+  message: ToastMessage;
 }
 
 interface GameState {
@@ -59,8 +73,8 @@ interface GameState {
    */
   assignedPuzzleIds: Record<string, string>;
   /** Ordre d'affichage des propositions, tiré en même temps que la question. */
-  answerOrders: Record<string, string[]>;
-  selectedAnswerId: string | null;
+  answerOrders: Record<string, AnswerId[]>;
+  selectedAnswerId: AnswerId | null;
   answerResult: AnswerResult | null;
   inventory: InventoryItemId[];
   /** Objets inspectés qui portent un indice, dans l'ordre de découverte. */
@@ -103,7 +117,7 @@ interface GameActions {
   setCurrentRoom: (roomId: RoomId) => void;
   /** Touche E sur l'objet visé : aiguille vers la bonne réaction. */
   interact: (id: string) => void;
-  selectAnswer: (answerId: string) => void;
+  selectAnswer: (answerId: AnswerId) => void;
   /** Réarme la question après une mauvaise réponse. */
   retryPuzzle: () => void;
   /** Referme la fenêtre ouverte et rend la main au joueur sans passer par la pause. */
@@ -115,8 +129,8 @@ interface GameActions {
   /** Tableau électrique : réarme un disjoncteur. */
   armBreaker: (breakerId: string) => BreakerOutcome;
   dismissToast: (id: number) => void;
-  /** Notification libre, pour les réglages hors partie (son, par exemple). */
-  notify: (text: string) => void;
+  /** Notification hors partie, pour les réglages (son, par exemple). */
+  notify: (message: ToastMessage) => void;
   toggleCarnet: (open?: boolean) => void;
   /** Le joueur monte sur l'estrade : l'hologramme s'active. */
   enterFinale: () => void;
@@ -171,12 +185,18 @@ const INITIAL_STATE: GameState = {
   hologramStep: 0,
 };
 
+/** Les trois propositions de chaque question, avant mélange. */
+const ANSWER_IDS: readonly AnswerId[] = ["a", "b", "c"];
+
 let toastCounter = 0;
 
 /** Ajoute une notification éphémère à l'état donné. */
-function withToast(state: GameState, text: string): Pick<GameState, "toasts"> {
+function withToast(
+  state: GameState,
+  message: ToastMessage,
+): Pick<GameState, "toasts"> {
   toastCounter += 1;
-  return { toasts: [...state.toasts, { id: toastCounter, text }] };
+  return { toasts: [...state.toasts, { id: toastCounter, message }] };
 }
 
 export const useGameStore = create<GameState & GameActions>()((set, get) => ({
@@ -249,10 +269,7 @@ export const useGameStore = create<GameState & GameActions>()((set, get) => ({
       case "pickup":
         set((current) => ({
           inventory: [...current.inventory, "uv-lamp"],
-          ...withToast(
-            current,
-            `${INVENTORY_ITEMS["uv-lamp"].label} ajoutée au carnet.`,
-          ),
+          ...withToast(current, { key: "lampAdded" }),
         }));
         return;
 
@@ -263,10 +280,11 @@ export const useGameStore = create<GameState & GameActions>()((set, get) => ({
       case "final-door": {
         const missing = TOTAL_SEALS - state.seals.length;
         set((current) =>
-          withToast(
-            current,
-            `La porte réclame ${TOTAL_SEALS} sceaux. Il en manque ${missing}.`,
-          ),
+          withToast(current, {
+            key: "finalDoorLocked",
+            total: TOTAL_SEALS,
+            missing,
+          }),
         );
         return;
       }
@@ -277,12 +295,7 @@ export const useGameStore = create<GameState & GameActions>()((set, get) => ({
 
       case "fuse-box":
         if (!state.inventory.includes("fuse")) {
-          set((current) =>
-            withToast(
-              current,
-              "Le fusible principal manque. Il doit être quelque part.",
-            ),
-          );
+          set((current) => withToast(current, { key: "fuseMissing" }));
           return;
         }
         set({ status: "modal", modal: { kind: "fuseBox" } });
@@ -353,7 +366,7 @@ export const useGameStore = create<GameState & GameActions>()((set, get) => ({
       correct
         ? {
             cabinetUnlocked: true,
-            ...withToast(current, "Le cadenas cède. Le cabinet est ouvert."),
+            ...withToast(current, { key: "cabinetOpened" }),
           }
         : { errors: current.errors + 1 },
     );
@@ -368,10 +381,7 @@ export const useGameStore = create<GameState & GameActions>()((set, get) => ({
         ? {
             safeOpen: true,
             inventory: [...current.inventory, "fuse", "case-key"],
-            ...withToast(
-              current,
-              "Le coffre s'ouvre : fusible principal et clé de la vitrine ajoutés au carnet.",
-            ),
+            ...withToast(current, { key: "safeOpened" }),
           }
         : { errors: current.errors + 1 },
     );
@@ -393,9 +403,7 @@ export const useGameStore = create<GameState & GameActions>()((set, get) => ({
     set((current) => ({
       armedBreakerIds: armed,
       powerRestored: complete || current.powerRestored,
-      ...(complete
-        ? withToast(current, "Le courant est rétabli dans la galerie.")
-        : {}),
+      ...(complete ? withToast(current, { key: "powerRestored" }) : {}),
     }));
     return complete ? "complete" : "armed";
   },
@@ -405,7 +413,7 @@ export const useGameStore = create<GameState & GameActions>()((set, get) => ({
       toasts: state.toasts.filter((toast) => toast.id !== id),
     })),
 
-  notify: (text) => set((state) => withToast(state, text)),
+  notify: (message) => set((state) => withToast(state, message)),
 
   toggleCarnet: (open) =>
     set((state) => ({ carnetOpen: open ?? !state.carnetOpen })),
@@ -439,14 +447,11 @@ function openStation(state: GameState, stationId: string): Partial<GameState> {
 
   let unlockCase = false;
   if (station.gate === "power" && !state.powerRestored) {
-    return withToast(
-      state,
-      "Le banc d'Ampère est hors tension. Le tableau électrique doit être réarmé.",
-    );
+    return withToast(state, { key: "benchUnpowered" });
   }
   if (station.gate === "energy-case" && !state.energyCaseUnlocked) {
     if (!state.inventory.includes("case-key")) {
-      return withToast(state, "La vitrine est fermée à clé.");
+      return withToast(state, { key: "caseLocked" });
     }
     unlockCase = true;
   }
@@ -466,13 +471,11 @@ function openStation(state: GameState, stationId: string): Partial<GameState> {
       ? state.answerOrders
       : {
           ...state.answerOrders,
-          [puzzle.id]: shuffle(puzzle.answers.map((answer) => answer.id)),
+          [puzzle.id]: shuffle(ANSWER_IDS),
         },
     selectedAnswerId: null,
     answerResult: null,
-    ...(unlockCase
-      ? withToast(state, "La clé du conservateur ouvre la vitrine.")
-      : {}),
+    ...(unlockCase ? withToast(state, { key: "caseOpened" }) : {}),
   };
 }
 
@@ -527,23 +530,17 @@ export function selectActivePuzzle(state: GameState): Puzzle | null {
 }
 
 /**
- * Réordonne les propositions d'une question selon l'ordre tiré à l'ouverture
- * du poste. Fonction pure plutôt que sélecteur : elle construit un nouveau
- * tableau, ce qu'un sélecteur zustand ne peut pas faire sans provoquer un
- * re-render à chaque notification du store.
+ * Propositions d'une question dans l'ordre tiré à l'ouverture du poste.
+ * Fonction plutôt que sélecteur : le repli construit un nouveau tableau, ce
+ * qu'un sélecteur zustand ne peut pas faire sans provoquer un re-render à
+ * chaque notification du store.
  */
 export function orderAnswers(
   puzzle: Puzzle | null,
-  answerOrders: Readonly<Record<string, string[]>>,
-): readonly PuzzleAnswer[] {
+  answerOrders: Readonly<Record<string, AnswerId[]>>,
+): readonly AnswerId[] {
   if (!puzzle) return [];
-
-  const order = answerOrders[puzzle.id];
-  if (!order) return puzzle.answers;
-
-  return order
-    .map((id) => puzzle.answers.find((answer) => answer.id === id))
-    .filter((answer): answer is PuzzleAnswer => answer !== undefined);
+  return answerOrders[puzzle.id] ?? ANSWER_IDS;
 }
 
 /** La porte finale s'ouvre lorsque tous les sceaux ont été réunis. */

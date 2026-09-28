@@ -3,6 +3,7 @@
 import { OrbitControls } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useReducedMotion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Suspense, useRef, type ComponentRef, type ReactNode } from "react";
 import { Vector3, type Group } from "three";
 
@@ -42,12 +43,13 @@ export function DiagramStage({
   zoom: number;
   controlsRef?: React.RefObject<DiagramControlsHandle | null>;
 }) {
+  const t = useTranslations("ui.diagram");
   const Scene = DIAGRAM_SCENES[spec.kind];
 
   if (!Scene) {
     return (
       <div className="text-ink-mute grid size-full place-items-center text-xs">
-        Schéma indisponible
+        {t("unavailable")}
       </div>
     );
   }

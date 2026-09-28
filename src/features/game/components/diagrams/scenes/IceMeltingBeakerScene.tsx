@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useRef } from "react";
 import {
   Color,
@@ -15,6 +16,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /* -------------------------------------------------------------------------- */
@@ -187,11 +189,6 @@ function writeTemperatureColor(target: Color, celsius: number): void {
   target.lerpColors(COLD_COLOR, HOT_COLOR, ratio);
 }
 
-/** Formate un entier avec des espaces fines insécables comme séparateurs. */
-function formatInteger(value: number): string {
-  return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-}
-
 /* -------------------------------------------------------------------------- */
 /*  Scène                                                                      */
 /* -------------------------------------------------------------------------- */
@@ -214,6 +211,9 @@ export function IceMeltingBeakerScene({ params }: DiagramSceneProps) {
   const finalC = Number(params.temperatureFinaleC ?? 20);
   const latentHeat = Number(params.chaleurLatenteFusionJParKg ?? 334000);
   const heatCapacity = Number(params.capaciteThermiqueJParKgK ?? 4180);
+
+  const t = useTranslations("diagrams.ice-melting-beaker");
+  const format = useNumberFormat();
 
   const waterMesh = useRef<Mesh>(null);
   const waterMaterial = useRef<MeshStandardMaterial>(null);
@@ -557,30 +557,33 @@ export function IceMeltingBeakerScene({ params }: DiagramSceneProps) {
 
         {/* Étiquettes du panneau : les constantes de l'énoncé, aucun bilan. */}
         <DiagramLabel position={[0, 0.56, 0]}>
-          L_f = {formatInteger(latentHeat)} J/kg
+          L_f = {format.integer(latentHeat)} J/kg
         </DiagramLabel>
         <DiagramLabel position={[0, 0.3, 0]}>
-          c = {formatInteger(heatCapacity)} J/(kg·K)
+          c = {format.integer(heatCapacity)} J/(kg·K)
         </DiagramLabel>
         <DiagramLabel position={[-0.1, -0.5, 0]} tone="info">
-          fusion
+          {t("melting")}
         </DiagramLabel>
         <DiagramLabel position={[0.5, -0.74, 0]} tone="danger">
-          réchauffement
+          {t("warming")}
         </DiagramLabel>
       </group>
 
       {/* Étiquettes de la casserole : uniquement les données de l'énoncé. */}
       <DiagramLabel position={[POT_X, 1.08, 0.5]}>
         <span ref={iceLabel}>
-          {formatInteger(iceMass * 1000)} g de glace à {Math.round(initialC)} °C
+          {t("iceMass", {
+            mass: format.integer(iceMass * 1000),
+            temperature: format.integer(initialC),
+          })}
         </span>
       </DiagramLabel>
       <DiagramLabel position={[POT_X + 0.85, 0.3, 0.12]} tone="warning">
         <span ref={temperatureLabel}>θ = {Math.round(initialC)} °C</span>
       </DiagramLabel>
       <DiagramLabel position={[POT_X, 0.02, 0.85]}>
-        puissance constante
+        {t("constantPower")}
       </DiagramLabel>
     </group>
   );

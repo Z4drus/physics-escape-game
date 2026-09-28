@@ -16,6 +16,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /** Hauteur du dessus du plan de travail. */
@@ -106,11 +107,6 @@ function flowProfile(curve: CatmullRomCurve3, current: number) {
   };
 }
 
-/** Écrit un nombre à la française (virgule décimale). */
-function formatNumber(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
-}
-
 /**
  * Schéma « P = U · I, E = P · t » : un radiateur branché sur le secteur, la
  * pince ampèremétrique posée sur son câble et un compteur qui égrène le temps.
@@ -122,6 +118,7 @@ export function PowerApplianceCircuitScene({ params }: DiagramSceneProps) {
   const current = Number(params.I ?? 8);
   const power = Number(params.P ?? voltage * current);
   const duration = Number(params.t ?? 2.5);
+  const format = useNumberFormat();
 
   /** Palier de chauffe atteint par les ailettes, proportionnel à la puissance. */
   const heatPlateau =
@@ -191,13 +188,13 @@ export function PowerApplianceCircuitScene({ params }: DiagramSceneProps) {
       />
 
       <DiagramLabel position={[-1.14, 1.34, -0.1]}>
-        {`U = ${formatNumber(voltage, 0)} V`}
+        {`U = ${format.integer(voltage)} V`}
       </DiagramLabel>
       <DiagramLabel position={[-1.16, 0.86, 0.22]}>
-        {`I = ${formatNumber(current, 1)} A`}
+        {`I = ${format.decimal(current, 1)} A`}
       </DiagramLabel>
       <DiagramLabel position={[-1.05, 0.66, 0.9]}>
-        {`t = ${formatNumber(duration, 1)} h`}
+        {`t = ${format.decimal(duration, 1)} h`}
       </DiagramLabel>
       <DiagramLabel position={[0.82, 1.36, 0]} tone="accent">
         E = ?

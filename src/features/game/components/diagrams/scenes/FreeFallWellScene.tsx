@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 import type { Group, Mesh, MeshStandardMaterial } from "three";
 
@@ -8,6 +9,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /**
@@ -78,6 +80,9 @@ export function FreeFallWellScene({ params }: DiagramSceneProps) {
   const depthMetres = Number(params.h ?? 0.5 * gravity * fallDuration ** 2);
   const finalSpeed = Number(params.vFinale ?? gravity * fallDuration);
   const markerInterval = Number(params.markerInterval ?? 0.25);
+
+  const t = useTranslations("diagrams.free-fall-well");
+  const format = useNumberFormat();
 
   const layout = useMemo(() => {
     const unitsPerMetre = FALL_UNITS / depthMetres;
@@ -434,19 +439,16 @@ export function FreeFallWellScene({ params }: DiagramSceneProps) {
         h = ?
       </DiagramLabel>
       <DiagramLabel position={[-1.55, 0.46, 0.35]} tone="warning">
-        g = {formatDecimal(gravity, 2)} m/s²
+        g = {format.decimal(gravity, 2)} m/s²
       </DiagramLabel>
       <DiagramLabel position={[-1.55, 0.04, 0.42]}>
-        1 marque toutes les {formatDecimal(markerInterval, 2)} s
+        {t("markerInterval", {
+          interval: format.decimal(markerInterval, 2),
+        })}
       </DiagramLabel>
       <DiagramLabel position={[1.05, 1.34, BAR_Z]}>v = g · t</DiagramLabel>
     </group>
   );
-}
-
-/** Écrit un nombre à la française, avec la virgule comme séparateur. */
-function formatDecimal(value: number, decimals: number): string {
-  return value.toFixed(decimals).replace(".", ",");
 }
 
 /**
@@ -474,6 +476,7 @@ function LiveLabel({
   suffix: string;
   tone?: "neutral" | "accent" | "warning" | "danger" | "info";
 }) {
+  const format = useNumberFormat();
   const step = 10 ** decimals;
   const [rounded, setRounded] = useState(() => Math.round(initialValue * step));
 
@@ -485,7 +488,7 @@ function LiveLabel({
   return (
     <DiagramLabel position={position} tone={tone}>
       {prefix}
-      {formatDecimal(rounded / step, decimals)}
+      {format.decimal(rounded / step, decimals)}
       {suffix}
     </DiagramLabel>
   );

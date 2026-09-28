@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useRef } from "react";
 import {
   BufferAttribute,
@@ -17,6 +18,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /* -------------------------------------------------------------------------- */
@@ -184,16 +186,6 @@ function writeTemperatureColor(target: Color, celsius: number): void {
   target.lerpColors(COLD_COLOR, HOT_COLOR, ratio);
 }
 
-/** Formate un nombre décimal à la française (virgule décimale). */
-function formatDecimal(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
-}
-
-/** Formate un entier avec des espaces fines insécables comme séparateurs. */
-function formatInteger(value: number): string {
-  return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-}
-
 /* -------------------------------------------------------------------------- */
 /*  Scène                                                                      */
 /* -------------------------------------------------------------------------- */
@@ -212,6 +204,9 @@ export function WaterHeatingBeakerScene({ params }: DiagramSceneProps) {
   const initialC = Number(params.temperatureInitialeC ?? 20);
   const finalC = Number(params.temperatureFinaleC ?? 80);
   const heatCapacity = Number(params.capaciteThermiqueJParKgK ?? 4180);
+
+  const t = useTranslations("diagrams.water-heating-beaker");
+  const format = useNumberFormat();
 
   const columnMesh = useRef<Mesh>(null);
   const bubbleMesh = useRef<InstancedMesh>(null);
@@ -455,15 +450,15 @@ export function WaterHeatingBeakerScene({ params }: DiagramSceneProps) {
 
       {/* Étiquettes : uniquement les données de l'énoncé. */}
       <DiagramLabel position={[-1.05, 0.78, 0]}>
-        m = {formatDecimal(mass, 2)} kg d&apos;eau
+        {t("waterMass", { mass: format.decimal(mass, 2) })}
       </DiagramLabel>
       <DiagramLabel position={[-1.05, 0.44, 0]}>
-        c = {formatInteger(heatCapacity)} J/(kg·K)
+        c = {format.integer(heatCapacity)} J/(kg·K)
       </DiagramLabel>
       <DiagramLabel position={[0.95, 0.22, 0.1]} tone="warning">
         <span ref={temperatureLabel}>θ = {Math.round(initialC)} °C</span>
       </DiagramLabel>
-      <DiagramLabel position={[0, 0.06, 0.95]}>plaque chauffante</DiagramLabel>
+      <DiagramLabel position={[0, 0.06, 0.95]}>{t("hotPlate")}</DiagramLabel>
       <DiagramLabel position={[0.62, 1.55, 0.1]} tone="accent">
         <span ref={deltaLabel} style={{ opacity: 0 }}>
           ΔT = {Math.round(finalC)} − {Math.round(initialC)} ={" "}

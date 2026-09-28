@@ -1,16 +1,26 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { formatDuration } from "@/features/game/logic/escape";
-import { useLeaderboard } from "@/hooks/useLeaderboard";
+import { LocaleFlag } from "@/components/ui/LocaleFlag";
 import { TRANSITION, revealAt } from "@/lib/motion";
 
-/** Écran titre : le nom du jeu, le pitch en une phrase et le classement local. */
-export function TitleOverlay({ onStart }: { onStart: () => void }) {
-  const leaderboard = useLeaderboard().slice(0, 3);
+/**
+ * Écran titre : le nom du jeu et le pitch en une phrase. Le drapeau ramène à
+ * l'étape du choix de la langue.
+ */
+export function TitleOverlay({
+  onStart,
+  onChangeLanguage,
+}: {
+  onStart: () => void;
+  onChangeLanguage: () => void;
+}) {
+  const t = useTranslations("ui.title");
+  const locale = useLocale();
 
   return (
     <motion.div
@@ -37,13 +47,22 @@ export function TitleOverlay({ onStart }: { onStart: () => void }) {
               aria-hidden
               className="absolute inset-0 bg-[linear-gradient(rgb(255_240_220/0.05)_1px,transparent_1px),linear-gradient(90deg,rgb(255_240_220/0.05)_1px,transparent_1px)] bg-[length:8px_8px]"
             />
+            <button
+              type="button"
+              onClick={onChangeLanguage}
+              className="glass rounded-pill text-ink-fade hover:text-ink ease-smooth tap-target absolute top-4 right-4 z-10 flex h-9 cursor-pointer items-center gap-2 pr-3 pl-2 font-mono text-xs uppercase transition-[color,scale] duration-[200ms] active:scale-[0.96]"
+            >
+              <LocaleFlag locale={locale} className="size-5" />
+              <span className="sr-only">{t("changeLanguage")}</span>
+              {locale}
+            </button>
             <div className="relative">
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={revealAt(0)}
               >
-                <Eyebrow>Musée de Physique · Escape game</Eyebrow>
+                <Eyebrow>{t("eyebrow")}</Eyebrow>
               </motion.div>
               <motion.h1
                 initial={{ opacity: 0, y: 10 }}
@@ -51,7 +70,7 @@ export function TitleOverlay({ onStart }: { onStart: () => void }) {
                 transition={revealAt(1)}
                 className="mt-3 text-4xl sm:text-5xl"
               >
-                Le Cabinet de Physique
+                Kelvin Hall
               </motion.h1>
             </div>
           </header>
@@ -62,51 +81,20 @@ export function TitleOverlay({ onStart }: { onStart: () => void }) {
             transition={revealAt(2)}
             className="border-line border-t px-6 py-5"
           >
-            <p className="text-ink-fade text-sm">
-              Un soir, un musée, six sceaux et une porte. Ceux qui sortent
-              rencontrent Albert Einstein. Le classement retient le temps et les
-              erreurs.
-            </p>
+            <p className="text-ink-fade text-sm text-pretty">{t("pitch")}</p>
           </motion.div>
-
-          {leaderboard.length > 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={revealAt(3)}
-              className="border-line border-t px-6 py-4"
-            >
-              <Eyebrow>Meilleures sorties</Eyebrow>
-              <ol className="mt-2 flex flex-col gap-1">
-                {leaderboard.map((entry, index) => (
-                  <li
-                    key={`${entry.name}:${entry.date}`}
-                    className="flex items-center gap-3 text-sm"
-                  >
-                    <span className="text-accent-soft font-mono text-xs tabular-nums">
-                      {index + 1}
-                    </span>
-                    <span className="flex-1 truncate">{entry.name}</span>
-                    <span className="text-ink-mute font-mono text-xs tabular-nums">
-                      {entry.errors} err. · {formatDuration(entry.timeMs)}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </motion.div>
-          ) : null}
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={revealAt(4)}
+            transition={revealAt(3)}
             className="border-line border-t px-6 py-5"
           >
             <Button onClick={onStart} withArrow className="w-full">
-              Commencer
+              {t("start")}
             </Button>
-            <p className="text-ink-mute mt-3 text-center text-xs">
-              Clavier et souris. Casque conseillé, calculette autorisée.
+            <p className="text-ink-mute mt-3 text-center text-xs text-pretty">
+              {t("hint")}
             </p>
           </motion.div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef } from "react";
 import type { RefObject } from "react";
 import {
@@ -18,6 +19,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /** Teinte de l'énergie cinétique : le cyan de la palette. */
@@ -57,11 +59,6 @@ const HEIGHT_GUIDE_X = 0.95;
 /** Objet de travail réutilisé pour poser les tirets : zéro allocation par frame. */
 const dashPlacer = new Object3D();
 
-/** Met un nombre au format français, virgule décimale comprise. */
-function formatFr(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
-}
-
 /**
  * Schéma de la conservation de l'énergie mécanique : une boule oscille sans
  * frottement au bout d'un fil. Les deux jauges se transvasent en permanence,
@@ -74,6 +71,8 @@ export function PendulumEnergyExchangeScene({ params }: DiagramSceneProps) {
   const wireLength = Number(params.longueur_fil_m ?? 1.2);
   const mass = Number(params.masse_kg ?? 0.5);
   const drop = Number(params.denivellation_m ?? 0.2);
+  const t = useTranslations("diagrams.pendulum-energy-exchange");
+  const format = useNumberFormat();
 
   const wire = useRef<Mesh>(null);
   const ball = useRef<Group>(null);
@@ -353,7 +352,7 @@ export function PendulumEnergyExchangeScene({ params }: DiagramSceneProps) {
           opacity={0.5}
         />
         <DiagramLabel position={[0, 0.2, 0]}>
-          m = {formatFr(mass, 2)} kg
+          m = {format.decimal(mass, 2)} kg
         </DiagramLabel>
       </group>
 
@@ -411,7 +410,7 @@ export function PendulumEnergyExchangeScene({ params }: DiagramSceneProps) {
           0.14,
         ]}
       >
-        L = {formatFr(wireLength, 2)} m
+        L = {format.decimal(wireLength, 2)} m
       </DiagramLabel>
 
       {/* Cote h : courte, verticale, pulsée — la grandeur à retenir */}
@@ -442,7 +441,7 @@ export function PendulumEnergyExchangeScene({ params }: DiagramSceneProps) {
         ]}
         tone="warning"
       >
-        h = {formatFr(drop, 2)} m
+        h = {format.decimal(drop, 2)} m
       </DiagramLabel>
 
       <EnergyGauges
@@ -450,6 +449,7 @@ export function PendulumEnergyExchangeScene({ params }: DiagramSceneProps) {
         potentialBar={potentialBar}
         kineticBar={kineticBar}
         kineticMaterial={kineticMaterial}
+        totalLabel={t("constantMechanicalEnergy")}
       />
     </group>
   );
@@ -465,11 +465,14 @@ function EnergyGauges({
   potentialBar,
   kineticBar,
   kineticMaterial,
+  totalLabel,
 }: {
   barGeometry: BoxGeometry;
   potentialBar: RefObject<Mesh | null>;
   kineticBar: RefObject<Mesh | null>;
   kineticMaterial: RefObject<MeshStandardMaterial | null>;
+  /** Légende du liseré de l'énergie mécanique, déjà traduite par la scène. */
+  totalLabel: string;
 }) {
   return (
     <group>
@@ -537,7 +540,7 @@ function EnergyGauges({
           GAUGE_Z,
         ]}
       >
-        Em = constante
+        {totalLabel}
       </DiagramLabel>
       <DiagramLabel
         position={[POTENTIAL_GAUGE_X, 0.06, GAUGE_Z]}

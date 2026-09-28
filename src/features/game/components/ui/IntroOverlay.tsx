@@ -1,9 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/Button";
-import { INTRO_CARDS } from "@/features/game/data/clues";
+import { INTRO_CARD_IDS } from "@/features/game/data/clues";
 import { cn } from "@/lib/cn";
 import { TRANSITION } from "@/lib/motion";
 
@@ -24,9 +25,11 @@ export function IntroOverlay({
   /** `false` pendant le délai de garde imposé après une sortie de Pointer Lock. */
   ready: boolean;
 }) {
-  const index = Math.min(step, INTRO_CARDS.length - 1);
-  const card = INTRO_CARDS[index];
-  const last = index === INTRO_CARDS.length - 1;
+  const t = useTranslations("ui.intro");
+  const tCard = useTranslations("museum.intro");
+  const index = Math.min(step, INTRO_CARD_IDS.length - 1);
+  const card = INTRO_CARD_IDS[index];
+  const last = index === INTRO_CARD_IDS.length - 1;
 
   return (
     <motion.div
@@ -55,21 +58,25 @@ export function IntroOverlay({
               aria-live="polite"
             >
               <p className="text-xs font-medium uppercase opacity-70">
-                {card.eyebrow} · {index + 1}/{INTRO_CARDS.length}
+                {tCard(`${card}.eyebrow`)} · {index + 1}/{INTRO_CARD_IDS.length}
               </p>
-              <h2 className="mt-2 text-3xl sm:text-4xl">{card.title}</h2>
-              <p className="mt-4 text-base leading-relaxed">{card.body}</p>
+              <h2 className="mt-2 text-3xl sm:text-4xl">
+                {tCard(`${card}.title`)}
+              </h2>
+              <p className="mt-4 text-base leading-relaxed">
+                {tCard(`${card}.body`)}
+              </p>
             </motion.article>
           </AnimatePresence>
 
           <footer className="flex items-center justify-between gap-4 border-t border-[rgb(43_29_18/0.14)] px-7 py-4">
             <ol
               className="flex items-center gap-1.5"
-              aria-label="Progression du récit"
+              aria-label={t("progress")}
             >
-              {INTRO_CARDS.map((entry, dot) => (
+              {INTRO_CARD_IDS.map((entry, dot) => (
                 <li
-                  key={entry.title}
+                  key={entry}
                   aria-current={dot === index ? "step" : undefined}
                   className={cn(
                     "rounded-pill ease-smooth h-1.5 transition-[width,background-color] duration-[450ms]",
@@ -83,11 +90,11 @@ export function IntroOverlay({
 
             {last ? (
               <Button onClick={onEnter} disabled={!ready} withArrow>
-                {ready ? "Entrer dans la galerie" : "Un instant…"}
+                {ready ? t("enter") : t("wait")}
               </Button>
             ) : (
               <Button onClick={onNext} withArrow>
-                Suivant
+                {t("next")}
               </Button>
             )}
           </footer>

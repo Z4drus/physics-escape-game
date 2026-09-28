@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BackSide, BoxGeometry, DoubleSide, EdgesGeometry } from "three";
 import type { Group, Mesh, MeshStandardMaterial, PlaneGeometry } from "three";
@@ -9,6 +10,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /* -------------------------------------------------------------------- */
@@ -73,11 +75,6 @@ function easeInCubic(value: number): number {
 
 function easeInOutCubic(value: number): number {
   return value < 0.5 ? 4 * value ** 3 : 1 - (-2 * value + 2) ** 3 / 2;
-}
-
-/** Écriture française d'un nombre : la virgule sépare les décimales. */
-function formatNumber(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
 }
 
 /**
@@ -166,6 +163,8 @@ export function BuoyancyFloatingCubeScene({ params }: DiagramSceneProps) {
   const submergedRatio = submergedVolume / totalVolume;
 
   const reduced = usePrefersReducedMotion();
+  const t = useTranslations("diagrams.buoyancy-floating-cube");
+  const format = useNumberFormat();
 
   const cube = useRef<Group>(null);
   const weightArrow = useRef<Group>(null);
@@ -549,20 +548,22 @@ export function BuoyancyFloatingCubeScene({ params }: DiagramSceneProps) {
         </group>
 
         <DiagramLabel position={layout.labels.mass}>
-          m = {formatNumber(mass, 1)} kg
+          m = {format.decimal(mass, 1)} kg
         </DiagramLabel>
         <DiagramLabel position={layout.labels.edge}>
-          arête = {formatNumber(edge * 100, 0)} cm
+          {t("edge", { edge: format.decimal(edge * 100, 0) })}
         </DiagramLabel>
       </group>
 
       <DiagramLabel position={DENSITY_LABEL_POSITION} tone="info">
-        ρ_eau = {formatNumber(density, 0)} kg/m³
+        {t("density", { density: format.decimal(density, 0) })}
       </DiagramLabel>
 
       {showVolume ? (
         <DiagramLabel position={layout.labels.volume} tone="accent">
-          V_immergé ({formatNumber(submergedRatio * 100, 0)} %)
+          {t("submergedVolume", {
+            ratio: format.decimal(submergedRatio * 100, 0),
+          })}
         </DiagramLabel>
       ) : null}
 
@@ -580,7 +581,7 @@ export function BuoyancyFloatingCubeScene({ params }: DiagramSceneProps) {
 
       {showTrap ? (
         <DiagramLabel position={TRAP_LABEL_POSITION} tone="danger">
-          cube entièrement immergé
+          {t("fullySubmerged")}
         </DiagramLabel>
       ) : null}
     </group>

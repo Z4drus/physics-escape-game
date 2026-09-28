@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BoxGeometry, EdgesGeometry } from "three";
 import type { Group, Mesh, MeshStandardMaterial } from "three";
@@ -9,6 +10,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /* -------------------------------------------------------------------- */
@@ -72,11 +74,6 @@ function easeInCubic(value: number): number {
   return value ** 3;
 }
 
-/** Écriture française d'un nombre : la virgule sépare les décimales. */
-function formatNumber(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
-}
-
 /**
  * Vrai quand le système demande de réduire les animations. La scène se fige
  * alors sur son état final, toutes les flèches et étiquettes visibles.
@@ -112,6 +109,9 @@ export function WeightCrateBenchScene({ params }: DiagramSceneProps) {
   const mass = Number(params.masse_kg ?? 5);
   const gravity = Number(params.g_m_s2 ?? 9.81);
   const weight = Number(params.poids_N ?? mass * gravity);
+
+  const t = useTranslations("diagrams.weight-crate-bench");
+  const format = useNumberFormat();
 
   // Échelle des flèches : la force la plus intense du schéma mesure 1,10 u.
   // Le poids étant ici la seule force tracée, il fixe seul le facteur.
@@ -263,7 +263,7 @@ export function WeightCrateBenchScene({ params }: DiagramSceneProps) {
         </mesh>
 
         <DiagramLabel position={MASS_LABEL_POSITION}>
-          m = {formatNumber(mass, 1)} kg
+          m = {format.decimal(mass, 1)} kg
         </DiagramLabel>
       </group>
 
@@ -285,11 +285,11 @@ export function WeightCrateBenchScene({ params }: DiagramSceneProps) {
       ) : null}
 
       <DiagramLabel position={GRAVITY_LABEL_POSITION}>
-        g = {formatNumber(gravity, 2)} m/s²
+        g = {format.decimal(gravity, 2)} m/s²
       </DiagramLabel>
 
       <DiagramLabel position={NOTE_LABEL_POSITION}>
-        seul le poids est représenté
+        {t("weightOnly")}
       </DiagramLabel>
     </group>
   );

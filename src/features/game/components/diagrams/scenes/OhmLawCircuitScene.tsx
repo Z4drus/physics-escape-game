@@ -10,6 +10,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /** Hauteur du dessus de la platine : tout le circuit repose dessus. */
@@ -82,11 +83,6 @@ function flowProfile(curve: CatmullRomCurve3, current: number) {
   };
 }
 
-/** Écrit un nombre à la française (virgule décimale). */
-function formatNumber(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
-}
-
 /**
  * Schéma « U = R · I » : une résistance seule, alimentée par un générateur
  * réglable, avec un ampèremètre en série. La boucle unique porte le message
@@ -95,6 +91,7 @@ function formatNumber(value: number, digits: number): string {
 export function OhmLawCircuitScene({ params }: DiagramSceneProps) {
   const resistance = Number(params.R ?? 220);
   const current = Number(params.I ?? 0.25);
+  const format = useNumberFormat();
 
   const resistorMaterial = useRef<MeshStandardMaterial>(null);
   const needle = useRef<Group>(null);
@@ -160,10 +157,10 @@ export function OhmLawCircuitScene({ params }: DiagramSceneProps) {
       />
 
       <DiagramLabel position={[0.15, 0.64, -0.72]}>
-        {`R = ${formatNumber(resistance, 0)} Ω`}
+        {`R = ${format.integer(resistance)} Ω`}
       </DiagramLabel>
       <DiagramLabel position={[0.78, 0.56, 0.72]}>
-        {`I = ${formatNumber(current, 2)} A`}
+        {`I = ${format.decimal(current, 2)} A`}
       </DiagramLabel>
       <DiagramLabel position={[-1.05, 1.02, 0]} tone="accent">
         U = ?

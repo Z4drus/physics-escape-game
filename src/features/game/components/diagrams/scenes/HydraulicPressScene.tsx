@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useMemo, useRef } from "react";
 import {
   BoxGeometry,
@@ -18,6 +19,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /** Durée d'un cycle complet d'animation, en secondes. */
@@ -79,9 +81,12 @@ const WORK_MATRIX = new Matrix4();
 export function HydraulicPressScene({ params }: DiagramSceneProps) {
   const smallDiameter = Number(params.smallPistonDiameterM ?? 0.04);
   const largeDiameter = Number(params.largePistonDiameterM ?? 0.2);
-  const inputForceLabel = String(params.inputForceLabel ?? "F₁");
-  const smallPistonLabel = String(params.smallPistonLabel ?? "d₁");
-  const largePistonLabel = String(params.largePistonLabel ?? "d₂");
+  const inputForce = Number(params.inputForceN ?? 150);
+
+  const t = useTranslations("diagrams.hydraulic-press");
+  const format = useNumberFormat();
+  const smallDiameterCm = smallDiameter * 100;
+  const largeDiameterCm = largeDiameter * 100;
 
   // Le rapport des diamètres est encodé dans la géométrie : le grand piston
   // mesure exactement « rapport » fois le petit, et le pavage en découle.
@@ -402,19 +407,19 @@ export function HydraulicPressScene({ params }: DiagramSceneProps) {
       ))}
 
       <DiagramLabel position={[SMALL_X, 1.38, 0]} tone="accent">
-        {inputForceLabel}
+        {`F₁ = ${format.integer(inputForce)} N`}
       </DiagramLabel>
       <DiagramLabel position={[SMALL_X, 0.62, 0.26]}>
-        {smallPistonLabel}
+        {`d₁ = ${format.decimal(smallDiameterCm, diameterDigits(smallDiameterCm))} cm`}
       </DiagramLabel>
       <DiagramLabel position={[LARGE_X, 0.16, 0.66]}>
-        {largePistonLabel}
+        {`d₂ = ${format.decimal(largeDiameterCm, diameterDigits(largeDiameterCm))} cm`}
       </DiagramLabel>
       <DiagramLabel position={[LARGE_X, 1.55, 0]} tone="info">
         F₂ = ?
       </DiagramLabel>
       <DiagramLabel position={[-0.3, 0.36, -0.42]} tone="warning">
-        même pression p dans toute l&apos;huile
+        {t("samePressure")}
       </DiagramLabel>
       <DiagramLabel position={[-1.05, 0.2, PAVING_CENTER_Z]} tone="info">
         S₂ / S₁ = (d₂ / d₁)²
@@ -564,4 +569,12 @@ function easeInOutSine(t: number): number {
 /** Borne une valeur dans un intervalle. */
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
+}
+
+/**
+ * Nombre de décimales d'un diamètre en centimètres : deux chiffres
+ * significatifs, comme dans l'énoncé (« 4,0 cm », « 20 cm »).
+ */
+function diameterDigits(centimeters: number): number {
+  return centimeters < 10 ? 1 : 0;
 }

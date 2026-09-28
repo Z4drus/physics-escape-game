@@ -18,6 +18,7 @@ import { EnergyTrackProp } from "@/features/game/components/scene/props/EnergyTr
 import { ForceTableProp } from "@/features/game/components/scene/props/ForceTableProp";
 import { PressureBenchProp } from "@/features/game/components/scene/props/PressureBenchProp";
 import { ROOMS } from "@/features/game/data/world";
+import { useMuseumCopy } from "@/features/game/i18n/useMuseumCopy";
 import { useGameStore } from "@/features/game/state/useGameStore";
 import type { Station, StationKind } from "@/types/game";
 
@@ -51,8 +52,9 @@ export function StationProp({ station }: { station: Station }) {
   const toCenterX = (room.minX + room.maxX) / 2 - station.position[0];
   const toCenterZ = (room.minZ + room.maxZ) / 2 - station.position[2];
   const facing = Math.atan2(toCenterX, toCenterZ);
+  const stationName = useMuseumCopy().station(station.id);
   const cartel = useTextTexture({
-    lines: [station.label],
+    lines: [stationName],
     width: 768,
     height: 128,
     fontSize: 56,

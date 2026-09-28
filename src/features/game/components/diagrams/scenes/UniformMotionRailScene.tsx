@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 import type { Group, Mesh } from "three";
 
@@ -8,6 +9,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /**
@@ -76,6 +78,9 @@ export function UniformMotionRailScene({ params }: DiagramSceneProps) {
   const speed = Number(params.v ?? 0.6);
   const railLength = Number(params.railLength ?? 3.6);
   const markerInterval = Number(params.markerInterval ?? 1);
+
+  const t = useTranslations("diagrams.uniform-motion-rail");
+  const format = useNumberFormat();
 
   const layout = useMemo(() => {
     const railUnits = railLength * UNITS_PER_METRE;
@@ -443,22 +448,24 @@ export function UniformMotionRailScene({ params }: DiagramSceneProps) {
 
       {/* Étiquettes : uniquement les données de l'énoncé */}
       <DiagramLabel position={[layout.markers[0].x - 0.16, 1.35, 0.55]}>
-        1 marque toutes les {formatDecimal(markerInterval, 1)} s
+        {t("markerInterval", {
+          interval: format.decimal(markerInterval, 1),
+        })}
       </DiagramLabel>
       <DiagramLabel position={[-0.42, 1.8, GRAPH_Z]}>
-        graphique x(t)
+        {t("graphTitle")}
       </DiagramLabel>
       <DiagramLabel
         position={[markerX(layout.markers, t1), 0.02, 0.95]}
         tone="info"
       >
-        x₁ = {formatDecimal(x1, 2)} m · t₁ = {formatDecimal(t1, 1)} s
+        x₁ = {format.decimal(x1, 2)} m · t₁ = {format.decimal(t1, 1)} s
       </DiagramLabel>
       <DiagramLabel
         position={[markerX(layout.markers, t2), 0.02, 0.95]}
         tone="info"
       >
-        x₂ = {formatDecimal(x2, 2)} m · t₂ = {formatDecimal(t2, 1)} s
+        x₂ = {format.decimal(x2, 2)} m · t₂ = {format.decimal(t2, 1)} s
       </DiagramLabel>
     </group>
   );
@@ -468,11 +475,6 @@ export function UniformMotionRailScene({ params }: DiagramSceneProps) {
 function markerX(markers: readonly RailMarker[], time: number): number {
   const found = markers.find((marker) => Math.abs(marker.time - time) < 1e-6);
   return found ? found.x : 0;
-}
-
-/** Écrit un nombre à la française, avec la virgule comme séparateur. */
-function formatDecimal(value: number, decimals: number): string {
-  return value.toFixed(decimals).replace(".", ",");
 }
 
 /**
@@ -500,6 +502,7 @@ function LiveLabel({
   suffix: string;
   tone?: "neutral" | "accent" | "warning" | "danger" | "info";
 }) {
+  const format = useNumberFormat();
   const step = 10 ** decimals;
   const [rounded, setRounded] = useState(() => Math.round(initialValue * step));
 
@@ -511,7 +514,7 @@ function LiveLabel({
   return (
     <DiagramLabel position={position} tone={tone}>
       {prefix}
-      {formatDecimal(rounded / step, decimals)}
+      {format.decimal(rounded / step, decimals)}
       {suffix}
     </DiagramLabel>
   );

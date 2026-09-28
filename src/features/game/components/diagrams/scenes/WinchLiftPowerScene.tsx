@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RefObject } from "react";
 import { BoxGeometry, CylinderGeometry, EdgesGeometry } from "three";
@@ -10,6 +11,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /** Teinte de l'énergie cinétique : le cyan de la palette. */
@@ -67,11 +69,6 @@ const TENSION_DIRECTION: Vec3 = [0, 1, 0];
 const WEIGHT_ORIGIN: Vec3 = [0, 0, FORCE_Z];
 const WEIGHT_DIRECTION: Vec3 = [0, -1, 0];
 
-/** Met un nombre au format français, virgule décimale comprise. */
-function formatFr(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
-}
-
 /**
  * Schéma « W = m·g·h puis P = W/t » : un treuil hisse une caisse à vitesse
  * constante le long d'un portique. La tension et le poids ont exactement la
@@ -84,6 +81,8 @@ export function WinchLiftPowerScene({ params }: DiagramSceneProps) {
   const mass = Number(params.masse_kg ?? 80);
   const height = Number(params.hauteur_m ?? 6);
   const duration = Number(params.duree_s ?? 12);
+  const t = useTranslations("diagrams.winch-lift-power");
+  const format = useNumberFormat();
 
   const crate = useRef<Group>(null);
   const cable = useRef<Mesh>(null);
@@ -287,7 +286,7 @@ export function WinchLiftPowerScene({ params }: DiagramSceneProps) {
       <DiagramLabel
         position={[HEIGHT_GUIDE_X - 0.24, (BOTTOM_Y + TOP_Y) / 2, 0]}
       >
-        h = {formatFr(height, 1)} m
+        h = {format.decimal(height, 1)} m
       </DiagramLabel>
 
       {/* Caisse : elle porte crochet, forces et masse, tout est solidaire */}
@@ -344,7 +343,7 @@ export function WinchLiftPowerScene({ params }: DiagramSceneProps) {
           P = m·g
         </DiagramLabel>
         <DiagramLabel position={[0.3, 0.02, 0.14]}>
-          m = {formatFr(mass, 0)} kg
+          m = {format.integer(mass)} kg
         </DiagramLabel>
       </group>
 
@@ -354,6 +353,7 @@ export function WinchLiftPowerScene({ params }: DiagramSceneProps) {
         barGeometry={barGeometry}
         potentialBar={potentialBar}
         workBar={workBar}
+        workLabel={t("motorWork")}
       />
     </group>
   );
@@ -371,6 +371,7 @@ function Chronometer({
   elapsed: RefObject<number>;
   duration: number;
 }) {
+  const format = useNumberFormat();
   const [shown, setShown] = useState(0);
 
   useFrame(() => {
@@ -380,7 +381,7 @@ function Chronometer({
 
   return (
     <DiagramLabel position={[1.05, 1.5, 0]} tone="info">
-      t = {formatFr(shown, 1)} s / {formatFr(duration, 1)} s
+      t = {format.decimal(shown, 1)} s / {format.decimal(duration, 1)} s
     </DiagramLabel>
   );
 }
@@ -394,10 +395,13 @@ function EnergyGauges({
   barGeometry,
   potentialBar,
   workBar,
+  workLabel,
 }: {
   barGeometry: BoxGeometry;
   potentialBar: RefObject<Mesh | null>;
   workBar: RefObject<Mesh | null>;
+  /** Légende de la colonne du travail moteur, déjà traduite par la scène. */
+  workLabel: string;
 }) {
   return (
     <group>
@@ -479,7 +483,7 @@ function EnergyGauges({
         Epp
       </DiagramLabel>
       <DiagramLabel position={[WORK_GAUGE_X, GAUGE_HEIGHT + 0.14, GAUGE_Z]}>
-        W moteur
+        {workLabel}
       </DiagramLabel>
     </group>
   );

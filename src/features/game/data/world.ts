@@ -5,7 +5,6 @@ export const WALL_THICKNESS = 0.3;
 
 export interface RoomSpec {
   id: RoomId;
-  label: string;
   minX: number;
   maxX: number;
   minZ: number;
@@ -14,13 +13,13 @@ export interface RoomSpec {
 }
 
 /**
- * Les trois espaces, en repère monde. Le joueur démarre au sud de la galerie
- * et regarde vers le nord (z négatif), où se trouve la porte finale.
+ * Les trois espaces, en repère monde, nommés sous `museum.rooms`. Le joueur
+ * démarre au sud de la galerie et regarde vers le nord (z négatif), où se
+ * trouve la porte finale.
  */
 export const ROOMS: Readonly<Record<RoomId, RoomSpec>> = {
   gallery: {
     id: "gallery",
-    label: "Galerie des instruments",
     minX: -8,
     maxX: 8,
     minZ: -6,
@@ -29,7 +28,6 @@ export const ROOMS: Readonly<Record<RoomId, RoomSpec>> = {
   },
   cabinet: {
     id: "cabinet",
-    label: "Cabinet du conservateur",
     minX: 8.3,
     maxX: 14.3,
     minZ: -1,
@@ -38,7 +36,6 @@ export const ROOMS: Readonly<Record<RoomId, RoomSpec>> = {
   },
   hologram: {
     id: "hologram",
-    label: "Salle de l'hologramme",
     minX: -4,
     maxX: 4,
     minZ: -13.3,

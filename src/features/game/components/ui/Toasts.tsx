@@ -1,9 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
-import type { Toast } from "@/features/game/state/useGameStore";
+import type { Toast, ToastMessage } from "@/features/game/state/useGameStore";
 import { TRANSITION } from "@/lib/motion";
 
 const TOAST_DURATION_MS = 4200;
@@ -16,25 +17,44 @@ export function Toasts({
   toasts: readonly Toast[];
   onDismiss: (id: number) => void;
 }) {
+  const format = useToastFormatter();
+  const latest = toasts.at(-1);
+
   return (
     <div className="pointer-events-none fixed inset-x-0 top-20 z-10 flex flex-col items-center gap-2 px-4">
       <AnimatePresence initial={false}>
         {toasts.map((toast) => (
-          <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
+          <ToastItem
+            key={toast.id}
+            toast={toast}
+            text={format(toast.message)}
+            onDismiss={onDismiss}
+          />
         ))}
       </AnimatePresence>
       <p className="sr-only" aria-live="polite">
-        {toasts.at(-1)?.text ?? ""}
+        {latest ? format(latest.message) : ""}
       </p>
     </div>
   );
 }
 
+/** Formule une notification du store dans la langue active. */
+function useToastFormatter() {
+  const t = useTranslations("ui.toasts");
+  return (message: ToastMessage) =>
+    message.key === "finalDoorLocked"
+      ? t("finalDoorLocked", { total: message.total, missing: message.missing })
+      : t(message.key);
+}
+
 function ToastItem({
   toast,
+  text,
   onDismiss,
 }: {
   toast: Toast;
+  text: string;
   onDismiss: (id: number) => void;
 }) {
   useEffect(() => {
@@ -59,7 +79,7 @@ function ToastItem({
           boxShadow: "0 0 10px var(--accent-soft)",
         }}
       />
-      <span>{toast.text}</span>
+      <span>{text}</span>
     </motion.div>
   );
 }

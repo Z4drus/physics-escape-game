@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -15,6 +16,8 @@ export function PauseOverlay({
   /** `false` pendant le délai de garde imposé après une sortie de Pointer Lock. */
   ready: boolean;
 }) {
+  const t = useTranslations("ui.pause");
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -37,7 +40,7 @@ export function PauseOverlay({
               animate={{ opacity: 1, y: 0 }}
               transition={revealAt(0)}
             >
-              <Eyebrow>Partie en pause</Eyebrow>
+              <Eyebrow>{t("eyebrow")}</Eyebrow>
             </motion.div>
             <motion.h2
               initial={{ opacity: 0, y: 10 }}
@@ -45,7 +48,7 @@ export function PauseOverlay({
               transition={revealAt(1)}
               className="mt-3 text-3xl"
             >
-              Le musée vous attend
+              {t("title")}
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
@@ -53,8 +56,7 @@ export function PauseOverlay({
               transition={revealAt(2)}
               className="text-ink-fade mt-3 text-sm"
             >
-              Le chronomètre continue de tourner. Reprenez le contrôle pour
-              continuer l&apos;exploration.
+              {t("body")}
             </motion.p>
           </header>
           <motion.div
@@ -69,7 +71,7 @@ export function PauseOverlay({
               withArrow
               className="w-full"
             >
-              {ready ? "Reprendre la partie" : "Un instant…"}
+              {ready ? t("resume") : t("wait")}
             </Button>
           </motion.div>
         </div>

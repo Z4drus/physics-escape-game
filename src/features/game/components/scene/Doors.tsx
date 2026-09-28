@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useRef } from "react";
 import { MathUtils, type Group } from "three";
 
@@ -113,18 +114,19 @@ function DoorFrame({ width, height }: { width: number; height: number }) {
   );
 }
 
-/** Enseigne gravée au-dessus d'une porte. */
+/** Enseigne gravée au-dessus d'une porte, libellée sous `museum.signs`. */
 function Sign({
-  text,
+  sign,
   y,
   width = 1.6,
 }: {
-  text: string;
+  sign: "entrance" | "cabinet" | "hologram";
   y: number;
   width?: number;
 }) {
+  const t = useTranslations("museum.signs");
   const texture = useTextTexture({
-    lines: [text],
+    lines: [t(sign)],
     width: 1024,
     height: 160,
     fontSize: 72,
@@ -157,7 +159,7 @@ export function EntranceDoor() {
       <group position={[width / 2, 0, 0]} rotation-y={Math.PI}>
         <Leaf width={width / 2} height={height} />
       </group>
-      <Sign text="Musée de Physique" y={height + 0.38} width={2.2} />
+      <Sign sign="entrance" y={height + 0.38} width={2.2} />
     </group>
   );
 }
@@ -223,7 +225,7 @@ export function CabinetDoor({ unlocked }: { unlocked: boolean }) {
           </group>
         ) : null}
       </group>
-      <Sign text="Cabinet du conservateur" y={height + 0.38} width={1.7} />
+      <Sign sign="cabinet" y={height + 0.38} width={1.7} />
     </group>
   );
 }
@@ -291,7 +293,7 @@ export function FinalDoor({
           back
         />
       </group>
-      <Sign text="Salle de l'hologramme" y={height + 0.38} width={1.9} />
+      <Sign sign="hologram" y={height + 0.38} width={1.9} />
     </group>
   );
 }

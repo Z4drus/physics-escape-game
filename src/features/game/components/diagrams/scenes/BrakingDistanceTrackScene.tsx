@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 import type { Group, MeshStandardMaterial } from "three";
 
@@ -8,6 +9,7 @@ import { DIAGRAM_COLORS } from "@/features/game/components/diagrams/palette";
 import { DiagramLabel } from "@/features/game/components/diagrams/primitives/DiagramLabel";
 import { VectorArrow } from "@/features/game/components/diagrams/primitives/VectorArrow";
 import type { DiagramSceneProps } from "@/features/game/components/diagrams/registry";
+import { useNumberFormat } from "@/i18n/useNumberFormat";
 import type { Vec3 } from "@/types/game";
 
 /**
@@ -89,6 +91,9 @@ export function BrakingDistanceTrackScene({ params }: DiagramSceneProps) {
       (initialSpeed * initialSpeed) / (2 * Math.abs(acceleration)),
   );
   const markerInterval = Number(params.markerInterval ?? 0.5);
+
+  const t = useTranslations("diagrams.braking-distance-track");
+  const format = useNumberFormat();
 
   const layout = useMemo(() => {
     const cruiseMetres = initialSpeed * CRUISE_SECONDS;
@@ -485,13 +490,16 @@ export function BrakingDistanceTrackScene({ params }: DiagramSceneProps) {
 
       {/* Étiquettes : les données de l'énoncé, la distance restant inconnue */}
       <DiagramLabel position={[-1.42, 1.42, 0.3]} tone="info">
-        {formatDecimal(speedKmH, 0)} km/h = {formatDecimal(initialSpeed, 0)} m/s
+        {format.decimal(speedKmH, 0)} km/h = {format.decimal(initialSpeed, 0)}{" "}
+        m/s
       </DiagramLabel>
       <DiagramLabel position={[0.95, 1.42, 0.3]} tone="warning">
-        a = −{formatDecimal(Math.abs(acceleration), 1)} m/s²
+        a = −{format.decimal(Math.abs(acceleration), 1)} m/s²
       </DiagramLabel>
       <DiagramLabel position={[-1.45, 0.05, 0.6]}>
-        1 marque toutes les {formatDecimal(markerInterval, 1)} s
+        {t("markerInterval", {
+          interval: format.decimal(markerInterval, 1),
+        })}
       </DiagramLabel>
       <DiagramLabel
         position={[(layout.brakeLineX + layout.stopX) / 2, 0.05, 0.72]}
@@ -501,11 +509,6 @@ export function BrakingDistanceTrackScene({ params }: DiagramSceneProps) {
       </DiagramLabel>
     </group>
   );
-}
-
-/** Écrit un nombre à la française, avec la virgule comme séparateur. */
-function formatDecimal(value: number, decimals: number): string {
-  return value.toFixed(decimals).replace(".", ",");
 }
 
 /**
@@ -533,6 +536,7 @@ function LiveLabel({
   suffix: string;
   tone?: "neutral" | "accent" | "warning" | "danger" | "info";
 }) {
+  const format = useNumberFormat();
   const step = 10 ** decimals;
   const [rounded, setRounded] = useState(() => Math.round(initialValue * step));
 
@@ -544,7 +548,7 @@ function LiveLabel({
   return (
     <DiagramLabel position={position} tone={tone}>
       {prefix}
-      {formatDecimal(rounded / step, decimals)}
+      {format.decimal(rounded / step, decimals)}
       {suffix}
     </DiagramLabel>
   );

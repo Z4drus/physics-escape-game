@@ -1,0 +1,48 @@
+{
+  "puzzles": {
+    "forces-poids-caisse-etabli": {
+      "scenario": "A 5.0 kg toolbox sits still on the lab workbench, where the strength of gravity is g = 9.81 m/s².",
+      "question": "What is the weight of this toolbox?",
+      "answers": {
+        "a": "5.0 N",
+        "b": "49.1 N",
+        "c": "0.51 N"
+      },
+      "explanation": "Weight is the force of gravity pulling on an object: P = m · g, with m in kilograms and g in m/s². Here P = 5.0 × 9.81 = 49.05 N, so about 49.1 N. Mass (5.0 kg) and weight (49.1 N) are two different things: the mass stays the same on any planet or moon, but the weight does not.",
+      "formula": "P = m · g"
+    },
+    "forces-soutien-plan-incline": {
+      "scenario": "A 20 kg crate stays still on a ramp tilted 30° from the horizontal. A small stop block fixed at the bottom of the slope keeps it from sliding.",
+      "question": "What is the support force of the ramp on the crate (g = 9.81 m/s²)?",
+      "answers": {
+        "a": "196 N",
+        "b": "98.1 N",
+        "c": "170 N"
+      },
+      "explanation": "The support force always pushes at a right angle to the surface. So it only balances the part of the weight that presses into the ramp: N = m · g · cos α. Here P = 20 × 9.81 = 196.2 N, then N = 196.2 × cos 30° = 169.9 N, so about 170 N. The support force equals the weight only on a horizontal surface (α = 0°). The other part of the weight, m · g · sin α = 98.1 N, is held back by the stop block.",
+      "formula": "N = m · g · cos α"
+    },
+    "forces-archimede-cube-flottant": {
+      "scenario": "A wooden cube with 20 cm sides and a mass of 4.8 kg floats in an aquarium, with part of the cube sticking out of the water.",
+      "question": "What is the buoyant force of the water on this cube (ρ_water = 1000 kg/m³, g = 9.81 m/s²)?",
+      "answers": {
+        "a": "47.1 N",
+        "b": "78.5 N",
+        "c": "31.4 N"
+      },
+      "explanation": "The buoyant force only depends on the volume that is really underwater: F_A = ρ_water · g · V_submerged. The cube floats without moving, so F_A balances its weight: F_A = P = 4.8 × 9.81 = 47.1 N. This means V_submerged = 4.8 / 1000 = 4.8 × 10⁻³ m³, which is 60% of the cube's 8.0 × 10⁻³ m³. Using the whole volume would give 1000 × 9.81 × 8.0 × 10⁻³ = 78.5 N, a value you only get if you push the whole cube under the water.",
+      "formula": "F_A = ρ_fluid · g · V_submerged"
+    }
+  },
+  "diagrams": {
+    "weight-crate-bench": {
+      "weightOnly": "only the weight is shown"
+    },
+    "buoyancy-floating-cube": {
+      "edge": "side = {edge} cm",
+      "density": "ρ_water = {density} kg/m³",
+      "submergedVolume": "V_submerged ({ratio}%)",
+      "fullySubmerged": "cube fully underwater"
+    }
+  }
+}

@@ -1,8 +1,10 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/cn";
 import type { AnswerResult } from "@/features/game/state/useGameStore";
-import type { PuzzleAnswer } from "@/types/game";
+import type { AnswerId } from "@/types/game";
 
 /**
  * Les trois propositions d'une question. Chaque ligne est séparée par un
@@ -16,12 +18,13 @@ export function AnswerList({
   correctAnswerId,
   onAnswer,
 }: {
-  answers: readonly PuzzleAnswer[];
-  selectedAnswerId: string | null;
+  answers: readonly { id: AnswerId; label: string }[];
+  selectedAnswerId: AnswerId | null;
   answerResult: AnswerResult | null;
-  correctAnswerId: string;
-  onAnswer: (answerId: string) => void;
+  correctAnswerId: AnswerId;
+  onAnswer: (answerId: AnswerId) => void;
 }) {
+  const t = useTranslations("ui.puzzle");
   const revealed = answerResult === "correct";
 
   return (
@@ -76,13 +79,13 @@ export function AnswerList({
                */}
               {isCorrect ? (
                 <>
-                  <span className="sr-only">Bonne réponse</span>
+                  <span className="sr-only">{t("answerCorrect")}</span>
                   <CheckGlyph />
                 </>
               ) : null}
               {isWrong ? (
                 <>
-                  <span className="sr-only">Réponse incorrecte</span>
+                  <span className="sr-only">{t("answerWrong")}</span>
                   <CrossGlyph />
                 </>
               ) : null}

@@ -1,8 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import { STATIONS } from "@/features/game/data/stations";
+import { useMuseumCopy } from "@/features/game/i18n/useMuseumCopy";
 import type { Seal } from "@/types/game";
 
 /**
@@ -10,6 +12,8 @@ import type { Seal } from "@/types/game";
  * obtenu. Le rayon des pastilles suit celui du conteneur moins son padding.
  */
 export function SealTracker({ seals }: { seals: readonly Seal[] }) {
+  const t = useTranslations("ui.sealTracker");
+  const museum = useMuseumCopy();
   const collected = new Map(seals.map((seal) => [seal.id, seal]));
 
   return (
@@ -23,10 +27,10 @@ export function SealTracker({ seals }: { seals: readonly Seal[] }) {
               role="img"
               aria-label={
                 seal
-                  ? `${seal.label} obtenu`
-                  : `${station.label} : sceau à obtenir`
+                  ? t("obtained", { seal: museum.seal(seal.id) })
+                  : t("pending", { station: museum.station(station.id) })
               }
-              title={seal ? seal.label : "Sceau à obtenir"}
+              title={seal ? museum.seal(seal.id) : t("pendingShort")}
               className="bg-surface-raised rounded-pill relative grid size-6 place-items-center"
             >
               <span

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, type ReactNode } from "react";
 
 import { useFocusTrap } from "@/hooks/useFocusTrap";
@@ -95,16 +96,18 @@ export function ModalShell({
 /** Bouton de fermeture d'une fenêtre, en croix, 40 px minimum. */
 export function CloseButton({
   onClick,
-  label = "Fermer",
+  label,
 }: {
   onClick: () => void | Promise<void>;
   label?: string;
 }) {
+  const t = useTranslations("ui.modal");
+
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={label}
+      aria-label={label ?? t("close")}
       className="text-ink-mute hover:text-ink hover:bg-surface-raised ease-smooth tap-target grid size-10 cursor-pointer place-items-center rounded-sm transition-[color,background-color,scale] duration-[200ms] active:scale-[0.96]"
     >
       <svg viewBox="0 0 16 16" fill="none" aria-hidden className="size-4">

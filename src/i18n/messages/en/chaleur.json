@@ -1,0 +1,53 @@
+{
+  "puzzles": {
+    "chaleur-chauffage-eau-becher": {
+      "scenario": "A beaker holding 0.50 kg of water sits on a hot plate, and the thermometer in it slowly climbs from 20 °C to 80 °C.",
+      "question": "How much heat must the hot plate give the water to take it from 20 °C to 80 °C? Use c(water) = 4180 J/(kg·K) and ignore any heat lost to the outside.",
+      "answers": {
+        "a": "167.2 kJ",
+        "b": "125.4 kJ",
+        "c": "696.0 kJ"
+      },
+      "explanation": "Only the change in temperature matters: ΔT = 80 − 20 = 60 °C, which is exactly 60 K, because a change of 1 °C is the same as a change of 1 K. So Q = 0.50 × 4180 × 60 = 125,400 J ≈ 125.4 kJ. Using the final temperature instead of the change would give 0.50 × 4180 × 80 = 167.2 kJ, and converting only the final temperature to kelvins (353 − 20 = 333) would give 696.0 kJ.",
+      "formula": "Q = m · c · ΔT"
+    },
+    "chaleur-equilibre-melange-eau": {
+      "scenario": "In a calorimeter, 2.0 kg of water at 20 °C is poured onto 1.0 kg of water at 80 °C. Then the lid is closed and we wait for the thermometer to settle.",
+      "question": "At what temperature does the thermometer finally settle? The calorimeter is perfectly insulated, and its own heat capacity can be ignored.",
+      "answers": {
+        "a": "50 °C",
+        "b": "60 °C",
+        "c": "40 °C"
+      },
+      "explanation": "The hot water gives away exactly the energy that the cold water takes in: m₁·c·(T_f − 20) + m₂·c·(T_f − 80) = 0, and c cancels out because both liquids are water. So the final temperature is the average weighted by the masses: T_f = (2.0 × 20 + 1.0 × 80) / (2.0 + 1.0) = 120 / 3 = 40 °C. The plain average, 50 °C, forgets that there is twice as much cold water, and 60 °C comes from swapping the two masses.",
+      "formula": "m₁ · c · (T_f − T₁) + m₂ · c · (T_f − T₂) = 0"
+    },
+    "chaleur-fusion-glace-latente": {
+      "scenario": "A 200 g block of ice at 0 °C melts in a heated pan. The thermometer stays stuck at 0 °C while the ice melts, then starts rising again.",
+      "question": "How much energy in total is needed to turn these 200 g of ice at 0 °C into liquid water at 20 °C? Use L_f(ice) = 334,000 J/kg and c(liquid water) = 4180 J/(kg·K).",
+      "answers": {
+        "a": "83.5 kJ",
+        "b": "16.7 kJ",
+        "c": "66.8 kJ"
+      },
+      "explanation": "The heating happens in two steps. First, melting the ice at a constant temperature takes Q₁ = 0.200 × 334,000 = 66,800 J. Then, warming up the water takes Q₂ = 0.200 × 4180 × 20 = 16,720 J. The total is Q = 66,800 + 16,720 = 83,520 J ≈ 83.5 kJ. Counting only Q₂ (16.7 kJ) means forgetting the heat needed to melt the ice (the latent heat), and stopping at Q₁ (66.8 kJ) leaves the water at 0 °C instead of 20 °C.",
+      "formula": "Q = m · L_f + m · c · ΔT"
+    }
+  },
+  "diagrams": {
+    "water-heating-beaker": {
+      "waterMass": "m = {mass} kg of water",
+      "hotPlate": "hot plate"
+    },
+    "thermal-mixing-calorimeter": {
+      "waterLayer": "{mass} kg at {temperature} °C",
+      "insulatedCalorimeter": "insulated calorimeter"
+    },
+    "ice-melting-beaker": {
+      "iceMass": "{mass} g of ice at {temperature} °C",
+      "melting": "melting",
+      "warming": "warming",
+      "constantPower": "constant power"
+    }
+  }
+}

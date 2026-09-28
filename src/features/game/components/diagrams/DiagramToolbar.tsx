@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/cn";
 
 /**
@@ -21,41 +23,39 @@ export function DiagramToolbar({
   onReset: () => void;
   onCollapse: () => void;
 }) {
+  const t = useTranslations("ui.diagram");
+
   return (
     <div className="glass rounded-pill flex items-center gap-1 p-1.5">
-      <ToolButton label="Dézoomer (touche -)" onClick={() => onZoom(1 / 1.25)}>
+      <ToolButton label={t("zoomOut")} onClick={() => onZoom(1 / 1.25)}>
         <MinusGlyph />
       </ToolButton>
 
       <span className="text-ink-fade w-12 text-center font-mono text-xs tabular-nums">
-        {Math.round(zoom * 100)} %
+        {t("zoomValue", { value: Math.round(zoom * 100) })}
       </span>
 
-      <ToolButton label="Zoomer (touche +)" onClick={() => onZoom(1.25)}>
+      <ToolButton label={t("zoomIn")} onClick={() => onZoom(1.25)}>
         <PlusGlyph />
       </ToolButton>
 
       <Separator />
 
       <ToolButton
-        label={
-          showLabels
-            ? "Masquer les légendes (touche L)"
-            : "Afficher les légendes (touche L)"
-        }
+        label={showLabels ? t("hideLabels") : t("showLabels")}
         onClick={onToggleLabels}
         active={showLabels}
       >
         {showLabels ? <EyeGlyph /> : <EyeOffGlyph />}
       </ToolButton>
 
-      <ToolButton label="Recadrer la vue (touche R)" onClick={onReset}>
+      <ToolButton label={t("reset")} onClick={onReset}>
         <ResetGlyph />
       </ToolButton>
 
       <Separator />
 
-      <ToolButton label="Réduire le schéma (Échap)" onClick={onCollapse}>
+      <ToolButton label={t("collapse")} onClick={onCollapse}>
         <CollapseGlyph />
       </ToolButton>
     </div>

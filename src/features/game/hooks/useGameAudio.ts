@@ -54,7 +54,7 @@ export function useGameAudio() {
       if (status === "idle" || status === "intro") return;
       const next = !isMuted();
       setMuted(next);
-      notify(next ? "Son coupé." : "Son rétabli.");
+      notify({ key: next ? "soundOff" : "soundOn" });
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);

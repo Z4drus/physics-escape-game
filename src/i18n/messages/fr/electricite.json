@@ -1,0 +1,38 @@
+{
+  "puzzles": {
+    "electricite-loi-ohm-tension": {
+      "scenario": "Sur le banc d'essai, une résistance de 220 Ω est branchée seule aux bornes d'une alimentation réglable et l'ampèremètre du circuit indique 0,25 A.",
+      "question": "Quelle tension l'alimentation impose-t-elle aux bornes de cette résistance ?",
+      "answers": {
+        "a": "880 V",
+        "b": "55 V",
+        "c": "13,75 V"
+      },
+      "explanation": "La loi d'Ohm relie la tension aux bornes d'un conducteur ohmique à l'intensité qui le traverse : U = R · I = 220 × 0,25 = 55 V. Diviser au lieu de multiplier donne 220 / 0,25 = 880 V, et utiliser R · I² = 220 × 0,25² = 13,75 revient à calculer une puissance en watts, pas une tension.",
+      "formula": "U = R · I"
+    },
+    "electricite-puissance-energie-kwh": {
+      "scenario": "Un radiateur électrique est branché sur le secteur à 230 V et la pince ampèremétrique posée sur son câble d'alimentation lit 8,0 A.",
+      "question": "Quelle énergie électrique ce radiateur consomme-t-il pendant 2,5 h de fonctionnement, exprimée en kWh ?",
+      "answers": {
+        "a": "4600 kWh",
+        "b": "0,072 kWh",
+        "c": "4,6 kWh"
+      },
+      "explanation": "La puissance vaut P = U · I = 230 × 8,0 = 1840 W, soit 1,84 kW. L'énergie est E = P · t = 1,84 × 2,5 = 4,6 kWh. Oublier de convertir les watts en kilowatts conduit à 1840 × 2,5 = 4600 kWh, et poser P = U / I = 28,75 W donne à tort 0,072 kWh.",
+      "formula": "P = U · I  et  E = P · t"
+    },
+    "electricite-parallele-intensite-totale": {
+      "scenario": "Deux résistances, R₁ = 30 Ω et R₂ = 60 Ω, sont montées côte à côte en dérivation entre les deux mêmes nœuds, alimentés par une pile de 12 V.",
+      "question": "Quelle est l'intensité totale du courant débité par la pile dans ce montage ?",
+      "answers": {
+        "a": "0,60 A",
+        "b": "0,13 A",
+        "c": "0,40 A"
+      },
+      "explanation": "En parallèle, 1/R = 1/30 + 1/60 = 3/60, donc R = 20 Ω et I = U / R = 12 / 20 = 0,60 A. On retrouve ce résultat en additionnant les branches : I₁ = 12/30 = 0,40 A et I₂ = 12/60 = 0,20 A. Additionner les résistances comme en série donnerait 12/90 = 0,13 A, et 0,40 A n'est que le courant de la branche R₁, pas celui de la pile.",
+      "formula": "1/R = 1/R₁ + 1/R₂  et  I = I₁ + I₂"
+    }
+  },
+  "diagrams": {}
+}

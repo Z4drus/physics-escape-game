@@ -1,29 +1,35 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/Button";
 import { TRANSITION } from "@/lib/motion";
 import type { AnswerResult } from "@/features/game/state/useGameStore";
-import type { Puzzle, Seal } from "@/types/game";
+import type { Seal } from "@/types/game";
 
 /**
  * Correction affichée après une réponse : la relation mise en jeu, le
  * raisonnement chiffré, et la clé obtenue le cas échéant.
  */
 export function PuzzleVerdict({
-  puzzle,
+  formula,
+  explanation,
   result,
   reward,
+  sealName,
   onRetry,
   onClose,
 }: {
-  puzzle: Puzzle;
+  formula: string;
+  explanation: string;
   result: AnswerResult;
   reward: Seal;
+  sealName: string;
   onRetry: () => void;
   onClose: () => void | Promise<void>;
 }) {
+  const t = useTranslations("ui.puzzle");
   const isCorrect = result === "correct";
 
   return (
@@ -46,37 +52,30 @@ export function PuzzleVerdict({
               }}
             />
             <p className="text-positive text-sm font-medium">
-              Bonne réponse. {reward.label} obtenu.
+              {t("correct", { seal: sealName })}
             </p>
           </div>
 
-          <p className="text-accent-soft mt-4 font-mono text-sm">
-            {puzzle.formula}
-          </p>
-          <p className="text-ink-fade mt-2 text-sm">{puzzle.explanation}</p>
+          <p className="text-accent-soft mt-4 font-mono text-sm">{formula}</p>
+          <p className="text-ink-fade mt-2 text-sm">{explanation}</p>
         </>
       ) : (
         <>
-          <p className="text-negative text-sm font-medium">
-            Ce n&apos;est pas la bonne réponse.
-          </p>
-          <p className="text-ink-fade mt-2 text-sm">
-            Reprenez la relation en jeu et les unités de l&apos;énoncé, puis
-            retentez : aucune pénalité.
-          </p>
+          <p className="text-negative text-sm font-medium">{t("wrongTitle")}</p>
+          <p className="text-ink-fade mt-2 text-sm">{t("wrongBody")}</p>
         </>
       )}
 
       <div className="mt-5 flex flex-wrap gap-2">
         {isCorrect ? (
           <Button onClick={onClose} withArrow>
-            Retourner dans la salle
+            {t("backToRoom")}
           </Button>
         ) : (
           <>
-            <Button onClick={onRetry}>Réessayer</Button>
+            <Button onClick={onRetry}>{t("retry")}</Button>
             <Button variant="glass" size="md" onClick={onClose}>
-              Quitter le poste
+              {t("leave")}
             </Button>
           </>
         )}

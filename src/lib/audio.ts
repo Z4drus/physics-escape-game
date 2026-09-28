@@ -18,7 +18,7 @@ export const SOUND_EFFECTS = {
 
 export type SoundEffect = keyof typeof SOUND_EFFECTS;
 
-const MUTE_KEY = "physics-escape:muted";
+const MUTE_KEY = "kelvin-hall:muted";
 const AMBIENT_GAIN = 0.05;
 
 let context: AudioContext | null = null;

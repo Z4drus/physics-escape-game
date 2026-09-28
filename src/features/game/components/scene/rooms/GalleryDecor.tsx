@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { GuardDesk } from "@/features/game/components/scene/decor/Desks";
 import { FuseBox } from "@/features/game/components/scene/decor/Devices";
 import {
@@ -18,33 +20,34 @@ import {
 import { CHANDELIER_POSITIONS } from "@/features/game/components/scene/Lights";
 import { useGameStore } from "@/features/game/state/useGameStore";
 
+/** Tableaux du code, avec la clé de leur cartel sous `museum.cartels`. */
 const PAINTINGS: readonly {
   image: string;
-  caption: string;
+  cartel: "archimedes" | "galileo" | "newton" | "curie";
   position: [number, number, number];
   rotationY: number;
 }[] = [
   {
     image: "/images/paintings/archimede.webp",
-    caption: "Archimède",
+    cartel: "archimedes",
     position: [-8, 2.05, -1.3],
     rotationY: Math.PI / 2,
   },
   {
     image: "/images/paintings/galilee.webp",
-    caption: "Galilée",
+    cartel: "galileo",
     position: [-4.8, 2.05, -6],
     rotationY: 0,
   },
   {
     image: "/images/paintings/newton.webp",
-    caption: "Isaac Newton",
+    cartel: "newton",
     position: [8, 2.05, -0.6],
     rotationY: -Math.PI / 2,
   },
   {
     image: "/images/paintings/curie.webp",
-    caption: "Marie Curie",
+    cartel: "curie",
     position: [-2.8, 2.05, 8],
     rotationY: Math.PI,
   },
@@ -56,6 +59,7 @@ const PAINTINGS: readonly {
  * rendus à part par `StationProp`.
  */
 export function GalleryDecor() {
+  const t = useTranslations("museum");
   const powered = useGameStore((state) => state.powerRestored);
   const drawerOpen = useGameStore((state) =>
     state.inventory.includes("uv-lamp"),
@@ -63,8 +67,12 @@ export function GalleryDecor() {
 
   return (
     <group>
-      {PAINTINGS.map((painting) => (
-        <Painting key={painting.image} {...painting} />
+      {PAINTINGS.map(({ cartel, ...painting }) => (
+        <Painting
+          key={painting.image}
+          caption={t(`cartels.${cartel}`)}
+          {...painting}
+        />
       ))}
       <FramedPoster
         position={[2.8, 2.05, 8]}
@@ -74,12 +82,7 @@ export function GalleryDecor() {
       <Plaque
         position={[8, 1.5, 3.4]}
         rotationY={-Math.PI / 2}
-        lines={[
-          "Le cadenas s'ouvre",
-          "dans l'ordre du temps,",
-          "du plus ancien",
-          "au plus récent.",
-        ]}
+        lines={t("plaque").split("\n")}
         width={0.8}
         height={0.42}
       />
@@ -90,7 +93,7 @@ export function GalleryDecor() {
         model={MODELS.bustArchimede}
         modelHeight={0.78}
         pedestalHeight={1.05}
-        caption="Archimède"
+        caption={t("cartels.archimedes")}
       />
       <Showcase
         position={[2.3, 0, -0.6]}
@@ -100,7 +103,7 @@ export function GalleryDecor() {
         pedestalHeight={0.95}
         glass
         glassHeight={0.86}
-        caption="Sphère armillaire"
+        caption={t("cartels.armillary")}
       />
       <Showcase
         position={[-6.2, 0, 1.0]}
@@ -109,7 +112,7 @@ export function GalleryDecor() {
         modelHeight={1.55}
         pedestalHeight={0.18}
         pedestalSize={1.0}
-        caption="Lunette astronomique"
+        caption={t("cartels.telescope")}
       />
       {/* Instruments d'électricité du XIXe siècle (Smithsonian, CC0) */}
       <Showcase
@@ -120,7 +123,7 @@ export function GalleryDecor() {
         pedestalHeight={0.95}
         glass
         glassHeight={0.72}
-        caption="Galvanomètre, 1870"
+        caption={t("cartels.galvanometer")}
       />
       <Showcase
         position={[6.8, 0, -5.0]}
@@ -130,7 +133,7 @@ export function GalleryDecor() {
         pedestalHeight={0.95}
         glass
         glassHeight={0.66}
-        caption="Bobine d'induction"
+        caption={t("cartels.inductionCoil")}
       />
 
       <GuardDesk

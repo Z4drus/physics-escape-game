@@ -2,7 +2,8 @@
 
 import { AnimatePresence, MotionConfig } from "motion/react";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Carnet } from "@/features/game/components/ui/Carnet";
 import { CodeLockDialog } from "@/features/game/components/ui/CodeLockDialog";
@@ -13,6 +14,7 @@ import { Hud } from "@/features/game/components/ui/Hud";
 import { InspectDialog } from "@/features/game/components/ui/InspectDialog";
 import { InteractionPrompt } from "@/features/game/components/ui/InteractionPrompt";
 import { IntroOverlay } from "@/features/game/components/ui/IntroOverlay";
+import { LanguageOverlay } from "@/features/game/components/ui/LanguageOverlay";
 import { PauseOverlay } from "@/features/game/components/ui/PauseOverlay";
 import { PuzzleDialog } from "@/features/game/components/ui/PuzzleDialog";
 import { SafeDialog } from "@/features/game/components/ui/SafeDialog";
@@ -27,6 +29,7 @@ import {
   usePointerLock,
   type PointerLockControlsHandle,
 } from "@/features/game/hooks/usePointerLock";
+import { useMuseumCopy } from "@/features/game/i18n/useMuseumCopy";
 import { describeObjective } from "@/features/game/logic/objective";
 import {
   orderAnswers,
@@ -51,6 +54,12 @@ const GameCanvas = dynamic(
  */
 export function GameScreen() {
   const controlsRef = useRef<PointerLockControlsHandle | null>(null);
+  const museum = useMuseumCopy();
+  /**
+   * Première étape de la présentation, avant l'écran titre. Elle n'est pas
+   * reproposée après « Rejouer », mais l'écran titre permet d'y revenir.
+   */
+  const [choosingLanguage, setChoosingLanguage] = useState(true);
 
   const status = useGameStore((state) => state.status);
   const introStep = useGameStore((state) => state.introStep);
@@ -151,7 +160,9 @@ export function GameScreen() {
     status === "playing" && focusedId
       ? INTERACTABLES_BY_ID.get(focusedId)
       : null;
-  const prompt = focused ? { verb: focused.verb, label: focused.label } : null;
+  const prompt = focused
+    ? { verb: museum.verb(focused), label: museum.interactableName(focused) }
+    : null;
   const inspected =
     modal?.kind === "inspect"
       ? INSPECT_CONTENTS_BY_ID.get(modal.objectId)
@@ -201,8 +212,19 @@ export function GameScreen() {
         </AnimatePresence>
 
         <AnimatePresence mode="wait">
-          {status === "idle" ? (
-            <TitleOverlay key="title" onStart={startIntro} />
+          {status === "idle" && choosingLanguage ? (
+            <LanguageOverlay
+              key="language"
+              onContinue={() => setChoosingLanguage(false)}
+            />
+          ) : null}
+
+          {status === "idle" && !choosingLanguage ? (
+            <TitleOverlay
+              key="title"
+              onStart={startIntro}
+              onChangeLanguage={() => setChoosingLanguage(true)}
+            />
           ) : null}
 
           {status === "intro" ? (
@@ -230,8 +252,8 @@ export function GameScreen() {
             <PuzzleDialog
               key="puzzle"
               puzzle={activePuzzle}
-              answers={activeAnswers}
-              stationLabel={activeStation.label}
+              answerIds={activeAnswers}
+              stationId={activeStation.id}
               reward={activeStation.reward}
               selectedAnswerId={selectedAnswerId}
               answerResult={answerResult}
@@ -309,9 +331,11 @@ export function GameScreen() {
 
 /** Placeholder affiché pendant le chargement du bundle three.js. */
 function CanvasFallback() {
+  const t = useTranslations("ui");
+
   return (
     <div className="bg-background absolute inset-0 grid place-items-center">
-      <p className="text-ink-mute font-display text-sm">Ouverture du musée…</p>
+      <p className="text-ink-mute font-display text-sm">{t("loading")}</p>
     </div>
   );
 }

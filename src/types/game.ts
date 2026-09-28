@@ -44,27 +44,21 @@ export type DiagramKind = string;
  */
 export interface DiagramSpec {
   kind: DiagramKind;
-  params?: Readonly<Record<string, number | string>>;
+  params?: Readonly<Record<string, number>>;
 }
 
-export interface PuzzleAnswer {
-  id: string;
-  label: string;
-}
+/** Chaque question propose trois réponses, numérotées 1, 2 et 3 à l'écran. */
+export type AnswerId = "a" | "b" | "c";
 
-/** Question de physique posée par un poste. */
+/**
+ * Question de physique posée par un poste. Ses textes (mise en situation,
+ * énoncé, propositions, correction, relation) sont dans les messages, sous
+ * `puzzles.<id>`, dans le fichier du thème.
+ */
 export interface Puzzle {
   id: string;
   topic: PhysicsTopic;
-  /** Mise en situation en une phrase, affichée au-dessus du schéma. */
-  scenario: string;
-  question: string;
-  answers: readonly PuzzleAnswer[];
-  correctAnswerId: string;
-  /** Correction : le raisonnement et le calcul, en deux ou trois phrases. */
-  explanation: string;
-  /** Relation mise en jeu, affichée en évidence dans la correction. */
-  formula: string;
+  correctAnswerId: AnswerId;
   diagram: DiagramSpec;
   /** 1 = application directe, 2 = raisonnement, 3 = piège classique. */
   difficulty: 1 | 2 | 3;
@@ -72,8 +66,8 @@ export interface Puzzle {
 
 /** Sceau remis au joueur lorsqu'il résout la question d'un poste. */
 export interface Seal {
+  /** Clé de son nom dans les messages, sous `museum.seals`. */
   id: string;
-  label: string;
   /** Couleur hexadécimale utilisée dans le HUD et sur le socle du poste. */
   color: string;
 }
@@ -95,11 +89,10 @@ export type StationGate = "power" | "energy-case";
 
 /** Poste du musée : un thème, un modèle 3D, un sceau. */
 export interface Station {
+  /** Clé de son nom dans les messages, sous `museum.stations`. */
   id: string;
   topic: PhysicsTopic;
   kind: StationKind;
-  /** Nom affiché dans l'invite d'interaction et le dialogue. */
-  label: string;
   roomId: RoomId;
   position: Vec3;
   /** Rotation autour de l'axe Y, en radians. */
@@ -113,12 +106,6 @@ export interface Station {
 /** Objets que le joueur peut ramasser et garder dans son carnet. */
 export type InventoryItemId = "uv-lamp" | "fuse" | "case-key";
 
-export interface InventoryItem {
-  id: InventoryItemId;
-  label: string;
-  description: string;
-}
-
 /** Ce que le joueur peut viser et activer avec la touche E. */
 export type InteractableKind =
   | "station"
@@ -130,29 +117,33 @@ export type InteractableKind =
   | "fuse-box"
   | "uv-wall";
 
+/** Verbe de l'invite d'interaction, traduit sous `museum.verbs`. */
+export type InteractionVerb =
+  "analyze" | "inspect" | "read" | "search" | "open" | "unlock" | "uvLight";
+
+/**
+ * Objet visable. Son nom est dans les messages : sous `museum.stations` pour
+ * un poste, sous `museum.objects` pour le reste.
+ */
 export interface Interactable {
   id: string;
   kind: InteractableKind;
   roomId: RoomId;
-  /** Nom affiché dans l'invite d'interaction. */
-  label: string;
-  /** Verbe de l'invite : « Inspecter », « Ouvrir »… */
-  verb: string;
+  verb: InteractionVerb;
   position: Vec3;
   /** Rayon de l'objet, ajouté à la portée du joueur. */
   radius: number;
 }
 
-/** Contenu d'une fenêtre d'inspection (tableau, buste, plaque…). */
+/**
+ * Fiche d'inspection (tableau, buste, plaque…). Ses textes sont dans les
+ * messages, sous `museum.inspect.<id>` : titre, cartel, description et, pour
+ * une fiche illustrée, texte alternatif de l'image.
+ */
 export interface InspectContent {
   id: string;
-  title: string;
-  /** Cartel : dates, provenance. */
-  caption?: string;
   /** Image affichée en grand, chemin public. */
   image?: string;
-  imageAlt?: string;
-  body: string;
   /**
    * Rang chronologique du savant représenté : le tableau cache alors le
    * chiffre correspondant du code du cabinet.
@@ -160,13 +151,12 @@ export interface InspectContent {
   codeIndex?: 0 | 1 | 2 | 3;
 }
 
-/** Disjoncteur du tableau électrique. */
+/** Disjoncteur du tableau électrique, nommé sous `museum.breakers`. */
 export interface Breaker {
   id: string;
-  label: string;
-  /** Puissance affichée, telle que lue par le joueur (« 1,2 kW »). */
-  display: string;
   watts: number;
+  /** Unité d'affichage : le joueur doit comparer des W et des kW mélangés. */
+  unit: "W" | "kW";
 }
 
 /** Énigme du coffre, révélée par la lampe UV. */
@@ -175,12 +165,4 @@ export interface SafeRiddle {
   heightM: number;
   /** Énergie potentielle en joules, avec g = 10 m/s². */
   answer: number;
-}
-
-/** Ligne du classement local. */
-export interface LeaderboardEntry {
-  name: string;
-  errors: number;
-  timeMs: number;
-  date: string;
 }

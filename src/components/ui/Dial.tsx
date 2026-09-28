@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/cn";
 import { TRANSITION } from "@/lib/motion";
@@ -23,6 +24,7 @@ export function Dial({
   disabled?: boolean;
   tone?: "brass" | "iron";
 }) {
+  const t = useTranslations("ui.dial");
   const step = (delta: number) => onChange((value + delta + 10) % 10);
 
   return (
@@ -31,7 +33,7 @@ export function Dial({
         direction="up"
         onClick={() => step(1)}
         disabled={disabled}
-        label={`${label} : chiffre suivant`}
+        label={t("next", { wheel: label })}
       />
       <div
         role="spinbutton"
@@ -88,7 +90,7 @@ export function Dial({
         direction="down"
         onClick={() => step(-1)}
         disabled={disabled}
-        label={`${label} : chiffre précédent`}
+        label={t("previous", { wheel: label })}
       />
     </div>
   );

@@ -1,14 +1,13 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import {
-  INSPECT_CONTENTS_BY_ID,
-  INVENTORY_ITEMS,
-} from "@/features/game/data/clues";
+import { INSPECT_CONTENTS_BY_ID } from "@/features/game/data/clues";
 import { STATIONS } from "@/features/game/data/stations";
+import { useMuseumCopy } from "@/features/game/i18n/useMuseumCopy";
 import { TRANSITION, revealAt } from "@/lib/motion";
 import type {
   InspectContent,
@@ -37,6 +36,8 @@ export function Carnet({
   uvRevealed: boolean;
   inventory: readonly InventoryItemId[];
 }) {
+  const t = useTranslations("ui.carnet");
+  const museum = useMuseumCopy();
   const collected = new Set(seals.map((seal) => seal.id));
   const clues = discoveredClueIds
     .map((id) => INSPECT_CONTENTS_BY_ID.get(id))
@@ -48,7 +49,7 @@ export function Carnet({
   return (
     <motion.aside
       role="complementary"
-      aria-label="Carnet"
+      aria-label={t("label")}
       initial={{ opacity: 0, x: 24 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 16 }}
@@ -57,11 +58,13 @@ export function Carnet({
     >
       <div className="parchment flex h-full flex-col overflow-y-auto rounded-lg">
         <header className="border-b border-[rgb(43_29_18/0.14)] px-5 py-4">
-          <p className="text-xs font-medium uppercase opacity-70">Carnet</p>
-          <h2 className="mt-1 text-2xl">Notes de l&apos;escape game</h2>
+          <p className="text-xs font-medium uppercase opacity-70">
+            {t("eyebrow")}
+          </p>
+          <h2 className="mt-1 text-2xl">{t("title")}</h2>
         </header>
 
-        <Section title="Sceaux" index={0}>
+        <Section title={t("seals")} index={0}>
           <ul className="flex flex-col gap-1.5">
             {STATIONS.map((station) => {
               const has = collected.has(station.reward.id);
@@ -83,10 +86,10 @@ export function Carnet({
                     }}
                   />
                   <span className={has ? "" : "opacity-55"}>
-                    {station.label}
+                    {museum.station(station.id)}
                   </span>
                   <span className="sr-only">
-                    {has ? ", sceau obtenu" : ", à résoudre"}
+                    {has ? t("sealObtained") : t("sealPending")}
                   </span>
                 </li>
               );
@@ -94,55 +97,53 @@ export function Carnet({
           </ul>
         </Section>
 
-        <Section title="Indices" index={1}>
+        <Section title={t("clues")} index={1}>
           {clues.length === 0 && !uvRevealed ? (
-            <p className="text-sm opacity-60">
-              Rien encore. Inspectez les tableaux, les plaques et les meubles.
-            </p>
+            <p className="text-sm opacity-60">{t("noClues")}</p>
           ) : null}
           {clues.length > 0 ? (
             <ul className="flex flex-col gap-1.5">
-              {clues.map((clue) => (
-                <li
-                  key={clue.id}
-                  className="flex items-baseline justify-between gap-3 text-sm"
-                >
-                  <span>
-                    {clue.title}
-                    {clue.caption ? (
+              {clues.map((clue) => {
+                const copy = museum.inspect(clue, safeRiddle);
+                return (
+                  <li
+                    key={clue.id}
+                    className="flex items-baseline justify-between gap-3 text-sm"
+                  >
+                    <span>
+                      {copy.title}
                       <span className="block text-xs opacity-60">
-                        {clue.caption.split(" · ")[0]}
+                        {copy.caption.split(" · ")[0]}
                       </span>
-                    ) : null}
-                  </span>
-                  <span className="font-display text-xl tabular-nums">
-                    {codeDigits[clue.codeIndex ?? 0]}
-                  </span>
-                </li>
-              ))}
+                    </span>
+                    <span className="font-display text-xl tabular-nums">
+                      {codeDigits[clue.codeIndex ?? 0]}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           ) : null}
           {uvRevealed ? (
             <p className="mt-3 border-t border-[rgb(43_29_18/0.14)] pt-3 text-sm">
-              Coffre : énergie potentielle d&apos;une masse de{" "}
-              {safeRiddle.massKg} kg à {safeRiddle.heightM} m, en joules (g = 10
-              m/s²).
+              {t("safeHint", {
+                mass: safeRiddle.massKg,
+                height: safeRiddle.heightM,
+              })}
             </p>
           ) : null}
         </Section>
 
-        <Section title="Objets" index={2}>
+        <Section title={t("items")} index={2}>
           {inventory.length === 0 ? (
-            <p className="text-sm opacity-60">Les poches sont vides.</p>
+            <p className="text-sm opacity-60">{t("noItems")}</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {inventory.map((id) => (
                 <li key={id} className="text-sm">
-                  <span className="font-medium">
-                    {INVENTORY_ITEMS[id].label}
-                  </span>
+                  <span className="font-medium">{museum.item(id).name}</span>
                   <span className="block text-xs opacity-70">
-                    {INVENTORY_ITEMS[id].description}
+                    {museum.item(id).description}
                   </span>
                 </li>
               ))}
@@ -150,9 +151,7 @@ export function Carnet({
           )}
         </Section>
 
-        <p className="mt-auto px-5 py-3 text-xs opacity-60">
-          Tab pour refermer le carnet.
-        </p>
+        <p className="mt-auto px-5 py-3 text-xs opacity-60">{t("closeHint")}</p>
       </div>
     </motion.aside>
   );

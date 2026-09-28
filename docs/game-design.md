@@ -1,4 +1,4 @@
-# Game design : Le Cabinet de Physique
+# Game design : Kelvin Hall
 
 Escape game 3D à la première personne dans un musée de physique parisien, en
 fin de journée. Six questions de physique restent le cœur pédagogique ; autour
@@ -8,13 +8,14 @@ fusibles, lampe UV, inventaire) donnent du mouvement et relient les pièces.
 ## Histoire
 
 Le joueur est un adolescent passionné de physique. Le musée organise un escape
-game dont les vainqueurs rencontrent Albert Einstein en hologramme. Le classement
-récompense le temps le plus court et le moins d'erreurs. Ses amis ont décliné,
+game dont les vainqueurs rencontrent Albert Einstein en hologramme. Le temps et
+les erreurs de chacun sont comptés jusqu'à la sortie. Ses amis ont décliné,
 le surveillant ricane : « Seul ? Bonne chance. » Les portes se referment.
 
-L'introduction tient en trois cartes courtes (annonce, file d'attente, portes
-qui se ferment). La fin est un court dialogue avec l'hologramme, puis le score
-et un classement local.
+La présentation commence par le choix de la langue (français ou anglais), puis
+l'écran titre. L'introduction tient en trois cartes courtes (annonce, file
+d'attente, portes qui se ferment). La fin est un court dialogue avec
+l'hologramme, puis le score de la partie.
 
 ## Les trois espaces
 
@@ -46,14 +47,14 @@ et un classement local.
    Le courant revient : les lustres s'allument, le banc d'électricité s'éveille.
    Deux derniers postes, deux derniers sceaux.
 7. **Porte finale.** Six sceaux, la porte s'ouvre. L'hologramme s'active quand
-   le joueur monte sur l'estrade. Dialogue, score, classement.
+   le joueur monte sur l'estrade. Dialogue, puis score.
 
 ## Erreurs et score
 
 Une erreur est une mauvaise réponse à un poste, un code faux, ou un disjoncteur
 réarmé dans le mauvais ordre. Le chronomètre démarre à l'entrée dans la galerie
-et s'arrête à l'activation de l'hologramme. Le classement local (localStorage)
-trie par erreurs puis par temps.
+et s'arrête à l'activation de l'hologramme. L'écran de fin affiche le temps,
+les erreurs et la précision des réponses aux postes.
 
 ## Interactions
 

@@ -1,10 +1,12 @@
-# Physics Escape : le Cabinet de Physique
+# Kelvin Hall : escape game au musée de physique
 
 Escape game 3D à la première personne dans un musée de physique parisien, en
 fin de journée. Six questions de physique donnent six sceaux ; autour d'elles,
 des mécaniques d'escape game (fouille, cadenas à code, coffre, tableau
 électrique, lampe UV, carnet) relient trois espaces jusqu'à l'hologramme
-d'Albert Einstein, qui salue le joueur et l'inscrit au classement.
+d'Albert Einstein, qui salue le joueur avant l'écran de score. Le jeu est
+disponible en français et en anglais : la langue se choisit en première étape,
+avant l'écran titre.
 
 Le scénario, la chaîne de progression et la direction artistique sont décrits
 dans `docs/game-design.md`, l'architecture du code dans
@@ -57,7 +59,7 @@ Chaque question affiche un schéma 3D animé, agrandissable en plein écran.
 | ----------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Galerie des instruments | Quatre postes, quatre portraits qui cachent le code, buste, vitrines, bureau du surveillant, tableau électrique |
 | Cabinet du conservateur | Deux postes, bureau, coffre, bibliothèque, tableau noir, message à l'encre invisible                            |
-| Salle de l'hologramme   | Estrade de projection, dialogue avec Einstein, score et classement local                                        |
+| Salle de l'hologramme   | Estrade de projection, dialogue avec Einstein, score de la partie                                               |
 
 ## Contenu pédagogique
 
@@ -101,8 +103,10 @@ nuit → noyer → laiton, éclairage par l'intérieur plutôt que par des ombre
 ```
 src/
   app/                        Route unique : layout, page, error, not-found
-  components/ui/              Primitives partagées : Button, Eyebrow, ModalShell, Dial
-  hooks/                      useFocusTrap, useLeaderboard
+  components/ui/              Primitives partagées : Button, Eyebrow, ModalShell, Dial, LocaleFlag
+  hooks/                      useFocusTrap
+  i18n/                       next-intl : langues, requête, action de changement, formatage des nombres
+    messages/<langue>/        ui, museum et un fichier par thème (questions et légendes des schémas)
   features/game/
     components/
       GameScreen.tsx          Compose la scène, le HUD, le carnet et les fenêtres
@@ -117,14 +121,15 @@ src/
       world.ts                Pièces, murs, portes, fenêtres, obstacles, joueur
       stations.ts             Les six postes et leurs sceaux
       interactables.ts        Tout ce que la touche E peut viser
-      clues.ts                Fiches d'inspection, cartes du récit, répliques d'Einstein
+      clues.ts                Fiches d'inspection, ordre des cartes du récit et des répliques d'Einstein
       colliders.ts            Boîtes de collision dérivées du monde et des portes
-      puzzles/<thème>.ts      Questions, réponses, corrections, schémas
+      puzzles/<thème>.ts      Questions : bonne réponse, difficulté, schéma (textes dans les messages)
+    i18n/                     Lecture des textes du musée et des questions dans la langue active
     logic/                    Tirages des énigmes, objectif courant, formatage
     hooks/                    Clavier, interaction, Pointer Lock, son
     state/useGameStore.ts     Machine d'état de la partie (Zustand)
-    debug.ts                  Poignée window.__physicsEscape (développement seulement)
-  lib/                        Logique pure : collisions, classement, audio, motion, cn()
+    debug.ts                  Poignée window.__kelvinHall (développement seulement)
+  lib/                        Logique pure : collisions, audio, motion, formatage, cn()
   types/game.ts               Modèle de domaine
 public/
   textures/                   PBR Poly Haven (parquet, enduit, bois, marbre)
@@ -136,8 +141,10 @@ public/
 ## Ajouter une question
 
 1. Ajouter une entrée dans `src/features/game/data/puzzles/<thème>.ts`
-   (énoncé, trois réponses, `correctAnswerId`, correction, `formula`,
-   `diagram.kind` + `params`, `difficulty`).
+   (`correctAnswerId`, `diagram.kind` + `params`, `difficulty`), puis ses
+   textes (mise en situation, énoncé, réponses `a`, `b`, `c`, correction,
+   `formula`) sous `puzzles.<id>` dans `src/i18n/messages/fr/<thème>.json` et
+   `en/<thème>.json`.
 2. Créer la scène du schéma dans
    `src/features/game/components/diagrams/scenes/` et l'enregistrer dans
    `diagrams/registry.ts` sous la clé `diagram.kind`.
@@ -146,7 +153,9 @@ public/
 
 1. Déclarer l'objet dans `src/features/game/data/interactables.ts` (position,
    verbe, pièce, rayon), et sa boîte de collision s'il est au sol.
-2. Écrire sa fiche dans `src/features/game/data/clues.ts`.
+2. Déclarer sa fiche dans `src/features/game/data/clues.ts` et écrire ses
+   textes sous `museum.objects` et `museum.inspect` dans
+   `src/i18n/messages/{fr,en}/museum.json`.
 3. Poser son modèle dans `components/scene/rooms/<Espace>Decor.tsx`.
 
 ## Choix techniques
@@ -168,5 +177,10 @@ public/
   dépendre d'aucun rappel de chargement.
 - **Textes 3D dessinés en canvas** : cartels, enseignes et message UV sont des
   `CanvasTexture` rendues avec les polices du site, sans police three.js.
+- **Traduction avec next-intl, sans préfixe d'URL** : le jeu tient sur une
+  seule page. La langue vient d'un cookie posé par une Server Action (sinon de
+  l'en-tête `Accept-Language`) ; changer de langue re-rend la page sans la
+  démonter. Les messages sont typés sur le français : une clé absente en
+  anglais fait échouer la compilation.
 - **`three` épinglé en 0.182.0** : à partir de 0.183, `THREE.Clock` est
   déprécié alors que React Three Fiber l'instancie encore.
